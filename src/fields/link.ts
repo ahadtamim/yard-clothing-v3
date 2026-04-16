@@ -66,16 +66,17 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
     ],
   }
 
+  // FIX: Define admin widths here to avoid the .map type mismatch
   const linkTypes: Field[] = [
     {
       name: 'reference',
       type: 'relationship',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'reference',
+        width: '50%',
       },
       label: 'Document to link to',
-      // FIXED: Point only to collections that actually exist in your payload.config.ts
-      relationTo: ['products', 'categories'] as any, 
+      relationTo: ['products', 'categories'] as any,
       required: true,
     },
     {
@@ -83,6 +84,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       type: 'text',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'custom',
+        width: '50%',
       },
       label: 'Custom URL',
       required: true,
@@ -90,18 +92,10 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
   ]
 
   if (!disableLabel) {
-    // Note: linkTypes.map doesn't mutate in place, so we re-assign if needed, 
-    // but usually, we just spread them into the row below.
     linkResult.fields.push({
       type: 'row',
       fields: [
-        ...linkTypes.map((linkType) => ({
-          ...linkType,
-          admin: {
-            ...linkType.admin,
-            width: '50%',
-          },
-        })),
+        ...linkTypes, // Using them directly as defined above
         {
           name: 'label',
           type: 'text',
