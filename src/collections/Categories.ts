@@ -1,8 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-// FIX: Change this line to point to your local fields folder
-import { slugField } from '@/fields/slug' 
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -31,7 +29,16 @@ export const Categories: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    // This helper usually takes the field name it's tracking
-    slugField('title'), 
+    // MANUAL SLUG FIELD - No helper needed, no more build errors
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
   ],
 }
