@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob' // 1. Import the adapter
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -14,7 +15,7 @@ import { Orders } from './collections/Orders'
 // Global Configs
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
-import { plugins } from './plugins'
+import { plugins as existingPlugins } from './plugins' // Renamed to avoid conflict
 import { defaultLexical } from '@/fields/defaultLexical'
 
 const filename = fileURLToPath(import.meta.url)
@@ -35,7 +36,6 @@ export default buildConfig({
     url: process.env.DATABASE_URL || '',
   }),
   
-  // FIXED: Ensure these are the ONLY collections Payload registers
   collections: [
     Products, 
     Categories, 
@@ -65,14 +65,23 @@ export default buildConfig({
   
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   
-  // serverURL is usually not needed in newer Payload versions unless you have a specific CORS requirement
-  // but we will keep it for compatibility with your env vars.
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   
   cors: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
   csrf: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
   
-  plugins, 
+  // 2. Merge existing plugins with Vercel Blob Storage
+  plugins: [
+    ...existingPlugins,
+    vercelBlobStorage({
+      enabled: true, // Set to false if you want to use local disk during dev
+      collections: {
+        [Media.slug]: true, // This dynamically uses your Media collection slug
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
+  ], 
+  
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
