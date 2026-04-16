@@ -1,5 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob' // 1. Import the adapter
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -15,7 +15,7 @@ import { Orders } from './collections/Orders'
 // Global Configs
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
-import { plugins as existingPlugins } from './plugins' // Renamed to avoid conflict
+import { plugins as existingPlugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 
 const filename = fileURLToPath(import.meta.url)
@@ -65,20 +65,17 @@ export default buildConfig({
   
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
+  // FIXED: Vercel environment variables usually don't need the serverURL set manually in 3.0
+  // But ensure this is correctly set in your .env
   
-  cors: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
-  csrf: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
-  
-  // 2. Merge existing plugins with Vercel Blob Storage
   plugins: [
     ...existingPlugins,
     vercelBlobStorage({
-      enabled: true, // Set to false if you want to use local disk during dev
+      enabled: !!process.env.BLOB_READ_WRITE_TOKEN, // Only enable if token exists
       collections: {
-        [Media.slug]: true, // This dynamically uses your Media collection slug
+        [Media.slug]: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: process.env.BLOB_READ_WRITE_TOKEN as string,
     }),
   ], 
   
