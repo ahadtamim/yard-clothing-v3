@@ -10,7 +10,6 @@ import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 
-// 1. We use 'any' temporarily because the generated types file is out of sync
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<any> = ({ doc }) => {
@@ -24,22 +23,8 @@ const generateURL: GenerateURL<any> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    // 2. Using 'as any' here is critical to stop the 'pages' relationship error
-    collections: ['products' as any], 
+    collections: ['products' as any],
     overrides: {
-      fields: ({ defaultFields }) => {
-        return defaultFields.map((field) => {
-          if ('name' in field && field.name === 'from') {
-            return {
-              ...field,
-              admin: {
-                description: 'You will need to rebuild the website when changing this field.',
-              },
-            }
-          }
-          return field
-        })
-      },
       hooks: {
         afterChange: [revalidateRedirects],
       },
@@ -58,29 +43,10 @@ export const plugins: Plugin[] = [
       payment: false,
     },
     formOverrides: {
-      fields: ({ defaultFields }) => {
-        return defaultFields.map((field) => {
-          if ('name' in field && field.name === 'confirmationMessage') {
-            return {
-              ...field,
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    FixedToolbarFeature(),
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                  ]
-                },
-              }),
-            }
-          }
-          return field
-        })
-      },
+      fields: ({ defaultFields }) => defaultFields,
     },
   }),
   searchPlugin({
-    // 3. Point search to products safely
     collections: ['products' as any],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
