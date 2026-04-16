@@ -1,8 +1,7 @@
 import type { CollectionConfig } from 'payload'
-
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { slugField } from 'payload'
+import { slugField } from '@payloadcms/ui/fields/Slug' // or your local path
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -14,6 +13,7 @@ export const Categories: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
+    defaultColumns: ['title', 'parent', 'slug'],
   },
   fields: [
     {
@@ -21,8 +21,17 @@ export const Categories: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'parent',
+      type: 'relationship',
+      relationTo: 'categories',
+      label: 'Main Category (e.g., Mens or Womens)',
+      admin: {
+        position: 'sidebar',
+      },
+    },
     slugField({
-      position: undefined,
+      fieldToUse: 'title',
     }),
   ],
 }

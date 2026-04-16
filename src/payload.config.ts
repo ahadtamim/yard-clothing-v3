@@ -9,6 +9,10 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+// --- NEW IMPORTS ---
+import { Products } from './collections/Products'
+import { Orders } from './collections/Orders'
+// -------------------
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -20,13 +24,12 @@ const dirname = path.dirname(filename)
 
 export default buildConfig({
   admin: {
-    // This makes the title in your browser tab feel like Django Admin
+    // Branded browser tab like Django's Admin
     meta: {
       titleSuffix: '- Yard Clothing Admin',
     },
     components: {
-      // PRO TIP: If you want a clean "Django" feel, you can comment these out 
-      // to remove the default Payload welcome screens.
+      // Removing welcome screens for a cleaner "Django-style" direct dashboard
       // beforeLogin: ['@/components/BeforeLogin'],
       // beforeDashboard: ['@/components/BeforeDashboard'],
     },
@@ -44,14 +47,22 @@ export default buildConfig({
   },
   editor: defaultLexical,
   db: mongooseAdapter({
-    // Explicitly fallback to an empty string to prevent build crashes
     url: process.env.DATABASE_URL || '',
   }),
-  // This is your 'INSTALLED_APPS' or 'Admin Models' list
-  collections: [Pages, Posts, Media, Categories, Users],
+  // --- UPDATED COLLECTIONS LIST ---
+  // This is where you register your "Models" so they appear in the sidebar
+  collections: [
+    Pages, 
+    Posts, 
+    Media, 
+    Categories, 
+    Products, 
+    Orders, 
+    Users
+  ],
+  // -------------------------------
   globals: [Header, Footer],
   
-  // Security & Environment settings
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
   cors: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
