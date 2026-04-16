@@ -21,25 +21,14 @@ const generateURL: GenerateURL<any> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-  collections: ['products' as any], 
-  overrides: {
-    fields: ({ defaultFields }) => {
-      return defaultFields.map((field) => {
-        // This ensures the 'doc' relationship only looks at products
-        if ('name' in field && field.name === 'doc') {
-          return {
-            ...field,
-            relationTo: ['products' as any],
-          }
-        }
-        return field
-      })
+    collections: ['products' as any],
+    overrides: {
+      // We removed the .map logic that was causing the sortOptions error
+      hooks: {
+        afterChange: [revalidateRedirects],
+      },
     },
-    hooks: {
-      afterChange: [revalidateRedirects],
-    },
-  },
-}),
+  }),
   nestedDocsPlugin({
     collections: ['categories'],
     generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
@@ -55,7 +44,6 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    // CRITICAL FIX: Search only products
     collections: ['products' as any],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
