@@ -1,7 +1,8 @@
 import type { CollectionConfig } from 'payload'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { slugField } from '@payloadcms/ui/fields/Slug' // or your local path
+// FIX: Change this line to point to your local fields folder
+import { slugField } from '@/fields/slug' 
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -30,8 +31,7 @@ export const Categories: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    slugField({
-      fieldToUse: 'title',
-    }),
+    // This helper usually takes the field name it's tracking
+    slugField('title'), 
   ],
 }
