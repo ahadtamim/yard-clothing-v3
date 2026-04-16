@@ -21,14 +21,25 @@ const generateURL: GenerateURL<any> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    // CRITICAL FIX: Only link to existing collections
-    collections: ['products' as any], 
-    overrides: {
-      hooks: {
-        afterChange: [revalidateRedirects],
-      },
+  collections: ['products' as any], 
+  overrides: {
+    fields: ({ defaultFields }) => {
+      return defaultFields.map((field) => {
+        // This ensures the 'doc' relationship only looks at products
+        if ('name' in field && field.name === 'doc') {
+          return {
+            ...field,
+            relationTo: ['products' as any],
+          }
+        }
+        return field
+      })
     },
-  }),
+    hooks: {
+      afterChange: [revalidateRedirects],
+    },
+  },
+}),
   nestedDocsPlugin({
     collections: ['categories'],
     generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
