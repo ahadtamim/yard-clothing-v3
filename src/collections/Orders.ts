@@ -23,9 +23,23 @@ export const Orders: CollectionConfig = {
       name: 'items',
       type: 'array',
       fields: [
-        { name: 'product', type: 'relationship', relationTo: 'products', required: true },
-        { name: 'selectedSize', type: 'text' },
-        { name: 'quantity', type: 'number', defaultValue: 1 },
+        { 
+          name: 'product', 
+          type: 'relationship', 
+          // Use 'as any' here to prevent the TypeScript "not assignable" error 
+          // during the Vercel build process.
+          relationTo: 'products' as any, 
+          required: true 
+        },
+        { 
+          name: 'selectedSize', 
+          type: 'text' 
+        },
+        { 
+          name: 'quantity', 
+          type: 'number', 
+          defaultValue: 1 
+        },
       ],
     },
     {
