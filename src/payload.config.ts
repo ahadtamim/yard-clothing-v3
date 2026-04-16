@@ -4,15 +4,14 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
+// Core Collections
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
-import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
-// --- NEW IMPORTS ---
 import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
-// -------------------
+
+// Global Configs
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -24,12 +23,11 @@ const dirname = path.dirname(filename)
 
 export default buildConfig({
   admin: {
-    // Branded browser tab like Django's Admin
     meta: {
       titleSuffix: '- Yard Clothing Admin',
     },
     components: {
-      // Removing welcome screens for a cleaner "Django-style" direct dashboard
+      // Direct access to dashboard without the welcome messages
       // beforeLogin: ['@/components/BeforeLogin'],
       // beforeDashboard: ['@/components/BeforeDashboard'],
     },
@@ -49,19 +47,30 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URL || '',
   }),
-  // --- UPDATED COLLECTIONS LIST ---
-  // This is where you register your "Models" so they appear in the sidebar
+  
+  // CLEANED COLLECTIONS: Only what you need for the store
   collections: [
-    Pages, 
-    Posts, 
-    Media, 
-    Categories, 
     Products, 
+    Categories, 
     Orders, 
+    Media, 
     Users
   ],
-  // -------------------------------
-  globals: [Header, Footer],
+
+  // GLOBALS: Added a Banner global to control your website header
+  globals: [
+    Header, 
+    Footer,
+    {
+      slug: 'banner',
+      label: 'Home Banner',
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'subtitle', type: 'text' },
+        { name: 'bannerImage', type: 'upload', relationTo: 'media', required: true },
+      ],
+    },
+  ],
   
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
