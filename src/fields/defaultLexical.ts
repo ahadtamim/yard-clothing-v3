@@ -16,8 +16,8 @@ export const defaultLexical = lexicalEditor({
     BoldFeature(),
     ItalicFeature(),
     LinkFeature({
-      // FIXED: Use 'as any' so TypeScript ignores the stale CollectionSlug list
-      enabledCollections: ['products', 'categories'] as any, 
+      // FIXED: Point to your actual collections and cast to any
+      enabledCollections: ['products', 'categories'] as any,
       fields: ({ defaultFields }) => {
         const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
           if ('name' in field && field.name === 'url') return false
@@ -26,7 +26,7 @@ export const defaultLexical = lexicalEditor({
 
         return [
           ...defaultFieldsWithoutUrl.map((field) => {
-            // FIXED: Also cast the relationTo here
+            // FIXED: Ensure the internal relationship field also points to valid collections
             if ('name' in field && field.name === 'doc') {
               return {
                 ...field,
@@ -53,3 +53,5 @@ export const defaultLexical = lexicalEditor({
         ]
       },
     }),
+  ],
+})
