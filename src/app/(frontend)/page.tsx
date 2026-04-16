@@ -1,3 +1,6 @@
+// This is the magic line that fixes the Vercel 500 Build Error
+export const dynamic = 'force-dynamic'
+
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import React from 'react'
@@ -12,7 +15,7 @@ export default async function HomePage() {
       slug: 'banner' as any,
     })
   } catch (error) {
-    console.error('Banner not found during build')
+    console.error('Banner fetch failed')
   }
 
   // 2. Fetch the latest Products safely
@@ -23,12 +26,12 @@ export default async function HomePage() {
       limit: 6,
     })
   } catch (error) {
-    console.error('Products not found during build')
+    console.error('Products fetch failed')
   }
 
   return (
     <div className="home-page">
-      {/* BANNER SECTION - Safe check using banner?.title */}
+      {/* BANNER SECTION */}
       {banner?.title ? (
         <section 
           className="hero" 
