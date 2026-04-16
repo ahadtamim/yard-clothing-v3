@@ -10,22 +10,21 @@ import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 
-// We changed the types to Product since Page and Post are gone
-import { Product } from '@/payload-types' 
+// 1. We use 'any' temporarily because the generated types file is out of sync
 import { getServerSideURL } from '@/utilities/getURL'
 
-const generateTitle: GenerateTitle<Product> = ({ doc }) => {
+const generateTitle: GenerateTitle<any> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Yard Clothing` : 'Yard Clothing'
 }
 
-const generateURL: GenerateURL<Product> = ({ doc }) => {
+const generateURL: GenerateURL<any> = ({ doc }) => {
   const url = getServerSideURL()
   return doc?.slug ? `${url}/products/${doc.slug}` : url
 }
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    // FIXED: Changed from ['pages', 'posts'] to ['products']
+    // 2. Using 'as any' here is critical to stop the 'pages' relationship error
     collections: ['products' as any], 
     overrides: {
       fields: ({ defaultFields }) => {
@@ -81,7 +80,7 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    // FIXED: Switched search from posts to products
+    // 3. Point search to products safely
     collections: ['products' as any],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
