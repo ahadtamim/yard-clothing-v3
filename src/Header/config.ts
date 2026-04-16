@@ -1,5 +1,4 @@
 import type { GlobalConfig } from 'payload'
-
 import { link } from '@/fields/link'
 import { revalidateHeader } from './hooks/revalidateHeader'
 
@@ -15,6 +14,17 @@ export const Header: GlobalConfig = {
       fields: [
         link({
           appearances: false,
+          // If your link helper supports overrides, add it here:
+          overrides: {
+            name: 'link',
+            fields: [
+              {
+                name: 'reference',
+                type: 'relationship',
+                relationTo: ['products' as any], // Explicitly point to products
+              }
+            ]
+          }
         }),
       ],
       maxRows: 6,

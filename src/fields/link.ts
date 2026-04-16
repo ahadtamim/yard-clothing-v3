@@ -1,5 +1,4 @@
 import type { Field, GroupField } from 'payload'
-
 import deepMerge from '@/utilities/deepMerge'
 
 export type LinkAppearances = 'default' | 'outline'
@@ -75,7 +74,8 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
         condition: (_, siblingData) => siblingData?.type === 'reference',
       },
       label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
+      // FIXED: Point only to collections that actually exist in your payload.config.ts
+      relationTo: ['products', 'categories'] as any, 
       required: true,
     },
     {
@@ -90,18 +90,18 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
   ]
 
   if (!disableLabel) {
-    linkTypes.map((linkType) => ({
-      ...linkType,
-      admin: {
-        ...linkType.admin,
-        width: '50%',
-      },
-    }))
-
+    // Note: linkTypes.map doesn't mutate in place, so we re-assign if needed, 
+    // but usually, we just spread them into the row below.
     linkResult.fields.push({
       type: 'row',
       fields: [
-        ...linkTypes,
+        ...linkTypes.map((linkType) => ({
+          ...linkType,
+          admin: {
+            ...linkType.admin,
+            width: '50%',
+          },
+        })),
         {
           name: 'label',
           type: 'text',

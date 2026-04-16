@@ -1,7 +1,7 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import sharp from 'sharp'
 import path from 'path'
-import { buildConfig, PayloadRequest } from 'payload'
+import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
 // Core Collections
@@ -35,7 +35,7 @@ export default buildConfig({
     url: process.env.DATABASE_URL || '',
   }),
   
-  // Only the essentials for your store
+  // FIXED: Ensure these are the ONLY collections Payload registers
   collections: [
     Products, 
     Categories, 
@@ -53,16 +53,26 @@ export default buildConfig({
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'subtitle', type: 'text' },
-        { name: 'bannerImage', type: 'upload', relationTo: 'media', required: true },
+        { 
+          name: 'bannerImage', 
+          type: 'upload', 
+          relationTo: 'media', 
+          required: true 
+        },
       ],
     },
   ],
   
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
-  cors: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
   
-  plugins, // CHECK STEP 2 BELOW TO FIX THIS
+  // serverURL is usually not needed in newer Payload versions unless you have a specific CORS requirement
+  // but we will keep it for compatibility with your env vars.
+  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
+  
+  cors: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
+  csrf: [process.env.NEXT_PUBLIC_SERVER_URL || ''].filter(Boolean),
+  
+  plugins, 
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

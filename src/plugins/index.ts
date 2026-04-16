@@ -1,5 +1,3 @@
-import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
@@ -21,29 +19,15 @@ const generateURL: GenerateURL<any> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
+    // We EXPLICITLY set collections to only products
     collections: ['products' as any],
-    overrides: {
-      // We removed the .map logic that was causing the sortOptions error
-      hooks: {
-        afterChange: [revalidateRedirects],
-      },
-    },
-  }),
-  nestedDocsPlugin({
-    collections: ['categories'],
-    generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
   }),
   seoPlugin({
     generateTitle,
     generateURL,
   }),
-  formBuilderPlugin({
-    fields: { payment: false },
-    formOverrides: {
-      fields: ({ defaultFields }) => defaultFields,
-    },
-  }),
   searchPlugin({
+    // We EXPLICITLY set collections to only products
     collections: ['products' as any],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
