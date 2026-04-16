@@ -16,7 +16,8 @@ export const defaultLexical = lexicalEditor({
     BoldFeature(),
     ItalicFeature(),
     LinkFeature({
-      enabledCollections: ['pages', 'posts'],
+      // FIXED: Point to your actual collections
+      enabledCollections: ['products', 'categories'], 
       fields: ({ defaultFields }) => {
         const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
           if ('name' in field && field.name === 'url') return false
@@ -24,7 +25,16 @@ export const defaultLexical = lexicalEditor({
         })
 
         return [
-          ...defaultFieldsWithoutUrl,
+          ...defaultFieldsWithoutUrl.map((field) => {
+            // FIXED: Ensure the internal relationship field also points to valid collections
+            if ('name' in field && field.name === 'doc') {
+              return {
+                ...field,
+                relationTo: ['products', 'categories'],
+              }
+            }
+            return field
+          }),
           {
             name: 'url',
             type: 'text',
@@ -35,7 +45,7 @@ export const defaultLexical = lexicalEditor({
             required: true,
             validate: ((value, options) => {
               if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
-                return true // no validation needed, as no url should exist for internal links
+                return true
               }
               return value ? true : 'URL is required'
             }) as TextFieldSingleValidation,
