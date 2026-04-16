@@ -6,10 +6,8 @@ import { searchPlugin } from '@payloadcms/plugin-search'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
-import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
-
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<any> = ({ doc }) => {
@@ -23,7 +21,8 @@ const generateURL: GenerateURL<any> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    collections: ['products' as any],
+    // CRITICAL FIX: Only link to existing collections
+    collections: ['products' as any], 
     overrides: {
       hooks: {
         afterChange: [revalidateRedirects],
@@ -39,20 +38,17 @@ export const plugins: Plugin[] = [
     generateURL,
   }),
   formBuilderPlugin({
-    fields: {
-      payment: false,
-    },
+    fields: { payment: false },
     formOverrides: {
       fields: ({ defaultFields }) => defaultFields,
     },
   }),
   searchPlugin({
+    // CRITICAL FIX: Search only products
     collections: ['products' as any],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
-      fields: ({ defaultFields }) => {
-        return [...defaultFields, ...searchFields]
-      },
+      fields: ({ defaultFields }) => [...defaultFields, ...searchFields],
     },
   }),
 ]
