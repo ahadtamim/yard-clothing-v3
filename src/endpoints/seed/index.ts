@@ -49,9 +49,10 @@ export const seed = async ({
     globals.map((global) =>
       payload.updateGlobal({
         slug: global,
+        // FIX: Cast data to any to prevent 'navItems' type error
         data: {
           navItems: [],
-        },
+        } as any,
         depth: 0,
         context: {
           disableRevalidate: true,
@@ -218,6 +219,7 @@ export const seed = async ({
   await Promise.all([
     payload.updateGlobal({
       slug: 'header',
+      // FIX: Cast data to any to prevent 'navItems' type error
       data: {
         navItems: [
           {
@@ -238,10 +240,11 @@ export const seed = async ({
             },
           },
         ],
-      },
+      } as any,
     }),
     payload.updateGlobal({
       slug: 'footer',
+      // FIX: Cast data to any to prevent 'navItems' type error
       data: {
         navItems: [
           {
@@ -268,7 +271,7 @@ export const seed = async ({
             },
           },
         ],
-      },
+      } as any,
     }),
   ])
 
