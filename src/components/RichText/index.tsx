@@ -17,27 +17,29 @@ import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 import type {
   BannerBlock as BannerBlockProps,
   CallToActionBlock as CTABlockProps,
-  CodeBlock as CodeBlockProps,
+  // CodeBlock as CodeBlockProps, // REMOVED: Conflict with local import above
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
-type BannerBlockProps = any
-type CTABlockProps = any
-type MediaBlockProps = any
-type CodeBlockProps = any
+
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
 
+// We use 'any' for these local types to bypass the missing payload-types file
+type BannerProps = any
+type CTAProps = any
+type MediaProps = any
+
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<CTABlockProps | MediaBlockProps | BannerBlockProps | CodeBlockProps>
+  | SerializedBlockNode<CTAProps | MediaProps | BannerProps | CodeBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
   if (typeof value !== 'object') {
     throw new Error('Expected value to be an object')
   }
-  const slug = value.slug
+  const slug = (value as any).slug
   return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
 }
 
@@ -45,19 +47,19 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
+    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...(node.fields as any)} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
         imgClassName="m-0"
-        {...node.fields}
+        {...(node.fields as any)}
         captionClassName="mx-auto max-w-[48rem]"
         enableGutter={false}
         disableInnerContainer={true}
       />
     ),
-    code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
-    cta: ({ node }) => <CallToActionBlock {...node.fields} />,
+    code: ({ node }) => <CodeBlock className="col-start-2" {...(node.fields as any)} />,
+    cta: ({ node }) => <CallToActionBlock {...(node.fields as any)} />,
   },
 })
 
