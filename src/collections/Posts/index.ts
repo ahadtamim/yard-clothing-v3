@@ -35,8 +35,6 @@ export const Posts: CollectionConfig<any> = {
     read: authenticatedOrPublished,
     update: authenticated,
   },
-  // This config controls what's populated by default when a post is referenced
-  // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
   defaultPopulate: {
     title: true,
     slug: true,
@@ -52,14 +50,14 @@ export const Posts: CollectionConfig<any> = {
       url: ({ data, req }) =>
         generatePreviewPath({
           slug: data?.slug,
-          collection: 'posts' as any, 
+          collection: 'posts' as any,
           req,
         }),
     },
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
-        collection: 'posts' as any, 
+        collection: 'posts' as any,
         req,
       }),
     useAsTitle: 'title',
@@ -109,7 +107,8 @@ export const Posts: CollectionConfig<any> = {
               admin: {
                 position: 'sidebar',
               },
-              filterOptions: ({ id }: { id: any }) => {
+              // FIXED: Removed strict type mapping for filterOptions
+              filterOptions: ({ id }: any) => {
                 return {
                   id: {
                     not_in: [id],
@@ -117,7 +116,7 @@ export const Posts: CollectionConfig<any> = {
                 }
               },
               hasMany: true,
-              relationTo: 'posts' as any, // FIXED LINE 120
+              relationTo: 'posts' as any,
             },
             {
               name: 'categories',
@@ -126,7 +125,7 @@ export const Posts: CollectionConfig<any> = {
                 position: 'sidebar',
               },
               hasMany: true,
-              relationTo: 'categories' as any, // FIXED Relationship
+              relationTo: 'categories' as any,
             },
           ],
           label: 'Meta',
@@ -146,7 +145,6 @@ export const Posts: CollectionConfig<any> = {
             MetaImageField({
               relationTo: 'media' as any,
             }),
-
             MetaDescriptionField({}),
             PreviewField({
               hasGenerateFn: true,
@@ -168,8 +166,9 @@ export const Posts: CollectionConfig<any> = {
       },
       hooks: {
         beforeChange: [
-          ({ siblingData, value }: { siblingData: any; value: any }) => {
-            if (siblingData._status === 'published' && !value) {
+          // FIXED: Use a simple 'any' type to avoid FieldHook mismatch
+          ({ siblingData, value }: any) => {
+            if (siblingData?._status === 'published' && !value) {
               return new Date()
             }
             return value
@@ -184,7 +183,7 @@ export const Posts: CollectionConfig<any> = {
         position: 'sidebar',
       },
       hasMany: true,
-      relationTo: 'users' as any, // FIXED Relationship
+      relationTo: 'users' as any,
     },
     {
       name: 'populatedAuthors',
@@ -217,7 +216,7 @@ export const Posts: CollectionConfig<any> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, 
+        interval: 100,
       },
       schedulePublish: true,
     },
