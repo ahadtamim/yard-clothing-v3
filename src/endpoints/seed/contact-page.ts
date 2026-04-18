@@ -18,7 +18,7 @@ export const contactPage: any = ({ form }: ContactArgs) => {
       {
         blockType: 'formBlock',
         enableIntro: true,
-        form: contactForm,
+        form: form, // Use the 'form' variable passed in through ContactArgs
         introContent: {
           root: {
             type: 'root',
