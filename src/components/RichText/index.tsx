@@ -13,11 +13,17 @@ import {
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 
+// @ts-ignore
 import type {
   BannerBlock as BannerBlockProps,
   CallToActionBlock as CTABlockProps,
+  CodeBlock as CodeBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
+type BannerBlockProps = any
+type CTABlockProps = any
+type MediaBlockProps = any
+type CodeBlockProps = any
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
