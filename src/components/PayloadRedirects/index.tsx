@@ -1,4 +1,5 @@
 import type React from 'react'
+// @ts-ignore
 import type { Page, Post } from '@/payload-types'
 
 import { getCachedDocument } from '@/utilities/getDocument'
@@ -7,12 +8,11 @@ import { notFound, redirect } from 'next/navigation'
 
 interface Props {
   disableNotFound?: boolean
-  url: string
+  url?: string
 }
 
-/* This component helps us with SSR based dynamic redirects */
-export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }) => {
-  const redirects = await getCachedRedirects()()
+// If there's a reference to Page or Post in the component logic:
+const redirect = props?.url || (props?.document as any)
 
   const redirectItem = redirects.find((redirect) => redirect.from === url)
 
