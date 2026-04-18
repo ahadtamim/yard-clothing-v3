@@ -8,9 +8,6 @@ type HomeArgs = {
 
 // @ts-ignore
 export const home: any = ({ heroImage, metaImage }: any) => {
-  heroImage,
-  metaImage,
-}) => {
   return {
     slug: 'home',
     _status: 'published',
