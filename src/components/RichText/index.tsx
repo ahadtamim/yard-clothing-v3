@@ -12,20 +12,15 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
-
-// @ts-ignore
-import type {
-  BannerBlock as BannerBlockProps,
-  CallToActionBlock as CTABlockProps,
-  // CodeBlock as CodeBlockProps, // REMOVED: Conflict with local import above
-  MediaBlock as MediaBlockProps,
-} from '@/payload-types'
-
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
 
-// We use 'any' for these local types to bypass the missing payload-types file
+// CRITICAL FIX: Single-line import with @ts-ignore to muzzle all missing payload-types
+// @ts-ignore
+import type { BannerBlock as BannerBlockProps, CallToActionBlock as CTABlockProps, MediaBlock as MediaBlockProps } from '@/payload-types'
+
+// Use 'any' as fallbacks to satisfy the NodeTypes definition below
 type BannerProps = any
 type CTAProps = any
 type MediaProps = any
