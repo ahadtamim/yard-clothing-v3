@@ -14,16 +14,17 @@ export const RelatedPosts: React.FC<any> = (props) => {
       )}
 
       <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {docs?.map((doc: any, index: number) => {
-          if (typeof doc === 'string') return null
+        {(docs || []).map((doc: any, index: number) => {
+          if (typeof doc === 'string' || !doc) return <React.Fragment key={index} />
 
-          <Card 
-            key={index} 
-            doc={doc} 
-            // @ts-ignore
-            relationTo="products" 
-            showCategories 
-          />
+          return (
+            <Card 
+              key={index} 
+              doc={doc} 
+              // @ts-ignore
+              relationTo="products" 
+              showCategories 
+            />
           )
         })}
       </div>
