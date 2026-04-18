@@ -1,21 +1,16 @@
 import type { CollectionConfig } from 'payload'
 
-import {
-  BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
-  HorizontalRuleFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
-
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { Banner } from '../../blocks/Banner/config'
-import { Code } from '../../blocks/Code/config'
+import { Archive } from '../../blocks/ArchiveBlock/config'
+import { CallToAction } from '../../blocks/CallToAction/config'
+import { Content } from '../../blocks/Content/config'
+import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { hero } from '@/heros/config'
+import { slugField } from 'payload'
+import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
-import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
 import {
@@ -25,7 +20,6 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import { slugField } from 'payload'
 
 export const Posts: CollectionConfig<any> = {
   slug: 'posts',
@@ -47,18 +41,18 @@ export const Posts: CollectionConfig<any> = {
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
-      url: ({ data, req }) =>
+      url: ({ data }) =>
         generatePreviewPath({
-          slug: data?.slug,
+          slug: data?.slug as string,
           collection: 'posts' as any,
-          req,
+          // req removed to match simplified Props in generatePreviewPath.ts
         }),
     },
-    preview: (data, { req }) =>
+    preview: (data) =>
       generatePreviewPath({
         slug: data?.slug as string,
         collection: 'posts' as any,
-        req,
+        // req removed to match simplified Props in generatePreviewPath.ts
       }),
     useAsTitle: 'title',
   },
@@ -72,63 +66,22 @@ export const Posts: CollectionConfig<any> = {
       type: 'tabs',
       tabs: [
         {
-          fields: [
-            {
-              name: 'heroImage',
-              type: 'upload',
-              relationTo: 'media' as any,
-            },
-            {
-              name: 'content',
-              type: 'richText',
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
-                    FixedToolbarFeature(),
-                    InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
-                  ]
-                },
-              }),
-              label: false,
-              required: true,
-            },
-          ],
-          label: 'Content',
+          fields: [hero],
+          label: 'Hero',
         },
         {
           fields: [
             {
-              name: 'relatedPosts',
-              type: 'relationship',
+              name: 'layout',
+              type: 'blocks',
+              blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
+              required: true,
               admin: {
-                position: 'sidebar',
+                initCollapsed: true,
               },
-              // FIXED: Removed strict type mapping for filterOptions
-              filterOptions: ({ id }: any) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'posts' as any,
-            },
-            {
-              name: 'categories',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              hasMany: true,
-              relationTo: 'categories' as any,
             },
           ],
-          label: 'Meta',
+          label: 'Content',
         },
         {
           name: 'meta',
@@ -143,7 +96,7 @@ export const Posts: CollectionConfig<any> = {
               hasGenerateFn: true,
             }),
             MetaImageField({
-              relationTo: 'media' as any,
+              relationTo: 'media',
             }),
             MetaDescriptionField({}),
             PreviewField({
@@ -159,22 +112,17 @@ export const Posts: CollectionConfig<any> = {
       name: 'publishedAt',
       type: 'date',
       admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
-        },
         position: 'sidebar',
       },
-      hooks: {
-        beforeChange: [
-          // FIXED: Use a simple 'any' type to avoid FieldHook mismatch
-          ({ siblingData, value }: any) => {
-            if (siblingData?._status === 'published' && !value) {
-              return new Date()
-            }
-            return value
-          },
-        ],
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
       },
+      hasMany: true,
+      relationTo: 'categories',
     },
     {
       name: 'authors',
@@ -183,8 +131,9 @@ export const Posts: CollectionConfig<any> = {
         position: 'sidebar',
       },
       hasMany: true,
-      relationTo: 'users' as any,
+      relationTo: 'users',
     },
+    // This field is only used to populate the authors data via a hook
     {
       name: 'populatedAuthors',
       type: 'array',
@@ -210,7 +159,7 @@ export const Posts: CollectionConfig<any> = {
   ],
   hooks: {
     afterChange: [revalidatePost],
-    afterRead: [populateAuthors],
+    beforeChange: [populatePublishedAt],
     afterDelete: [revalidateDelete],
   },
   versions: {
