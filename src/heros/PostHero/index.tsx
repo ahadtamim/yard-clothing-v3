@@ -11,7 +11,14 @@ import { formatAuthors } from '@/utilities/formatAuthors'
 export const PostHero: React.FC<{
   post: any
 }> = ({ post }) => {
-  const { authors, categories, meta: { image: metaImage } = {}, populatedAuthors, publishedAt, title } = post
+  const {
+    authors,
+    categories,
+    meta: { image: metaImage } = {},
+    populatedAuthors,
+    publishedAt,
+    title,
+  } = post
 
   const hasAuthors =
     (authors && Array.isArray(authors) && authors.length > 0) ||
@@ -23,7 +30,8 @@ export const PostHero: React.FC<{
         <div className="max-w-[48rem]">
           {categories && categories.length > 0 && (
             <div className="uppercase text-sm mb-6">
-              {categories.map((category, index) => {
+              {/* FIX: Explicitly typed category as any and index as number */}
+              {categories.map((category: any, index: number) => {
                 if (typeof category === 'object' && category !== null) {
                   const { title: categoryTitle } = category
                   const titleToUse = categoryTitle || 'Untitled'
