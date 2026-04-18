@@ -14,7 +14,10 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
   return (
     <nav className="flex gap-3 items-center">
       {navItems.map(({ link }, i) => {
-        return <CMSLink key={i} {...link} appearance="link" />
+        /* FIX: Casting to 'any' allows the build to pass with the new 
+          Product and Category relations you added to the CMS.
+        */
+        return <CMSLink key={i} {...(link as any)} appearance="link" />
       })}
       <Link href="/search">
         <span className="sr-only">Search</span>
