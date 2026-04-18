@@ -3,13 +3,11 @@ import type { Form } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 type ContactArgs = {
-  form: Form | string | any // Add 'any' here
+  form: any // Use any here for now
 }
 
 // @ts-ignore
 export const contactPage: any = ({ form }: ContactArgs) => {
-  contactForm,
-}) => {
   return {
     slug: 'contact',
     _status: 'published',
