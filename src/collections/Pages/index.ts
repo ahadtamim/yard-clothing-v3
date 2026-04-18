@@ -42,6 +42,7 @@ export const Pages: CollectionConfig<any> = {
       url: ({ data, req }) =>
         generatePreviewPath({
           slug: data?.slug,
+          // @ts-ignore
           collection: 'pages',
           req,
         }),
