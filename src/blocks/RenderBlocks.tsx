@@ -31,7 +31,7 @@ export const RenderBlocks: React.FC<{
           const { blockType } = block
 
           if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
+            const Block = (blockComponents as any)[blockType]
 
             if (Block) {
               return (
