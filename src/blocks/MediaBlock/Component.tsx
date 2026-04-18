@@ -1,67 +1,48 @@
-import type { StaticImageData } from 'next/image'
-
 import { cn } from '@/utilities/ui'
 import React from 'react'
 import RichText from '@/components/RichText'
-
-import type { MediaBlock as MediaBlockProps } from '@/payload-types'
-
 import { Media } from '../../components/Media'
 
-type Props = MediaBlockProps & {
-  breakout?: boolean
-  captionClassName?: string
-  className?: string
-  enableGutter?: boolean
-  imgClassName?: string
-  staticImage?: StaticImageData
-  disableInnerContainer?: boolean
-}
-
-export const MediaBlock: React.FC<Props> = (props) => {
+export const MediaBlock: React.FC<any> = (props) => {
   const {
     captionClassName,
     className,
     enableGutter = true,
     imgClassName,
     media,
+    position = 'default',
     staticImage,
-    disableInnerContainer,
   } = props
-
-  let caption
-  if (media && typeof media === 'object') caption = media.caption
 
   return (
     <div
       className={cn(
         '',
         {
-          container: enableGutter,
+          container: position === 'default' && enableGutter,
         },
         className,
       )}
     >
-      {(media || staticImage) && (
-        <Media
-          imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
-          resource={media}
-          src={staticImage}
-        />
+      {position === 'fullscreen' && (
+        <div className="relative">
+          <Media resource={media} src={staticImage} />
+        </div>
       )}
-      {caption && (
+      {position === 'default' && (
+        <Media imgClassName={cn('rounded', imgClassName)} resource={media} src={staticImage} />
+      )}
+      {media && typeof media === 'object' && media.caption && (
         <div
-          className={cn(
-            'mt-6',
-            {
-              container: !disableInnerContainer,
-            },
-            captionClassName,
-          )}
+          className={cn('mt-6', {
+            container: position === 'fullscreen' && enableGutter,
+          }, captionClassName)}
         >
-          <RichText data={caption} enableGutter={false} />
+          <RichText data={media.caption} enableGutter={false} />
         </div>
       )}
     </div>
   )
 }
+
+export default MediaBlock
