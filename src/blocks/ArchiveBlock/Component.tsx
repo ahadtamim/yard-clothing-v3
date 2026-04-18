@@ -1,4 +1,5 @@
-import type { Post, ArchiveBlock as ArchiveBlockProps } from '@/payload-types'
+import type { ArchiveBlock as ArchiveBlockProps } from '@/payload-types'
+type Post = any // Temporary bypass for unused blog block
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
