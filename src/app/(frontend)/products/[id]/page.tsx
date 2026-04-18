@@ -1,6 +1,7 @@
 import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
-import configPromise from '@payloadcms/config'
+// FIX: Using relative path instead of @payloadcms/config alias
+import configPromise from '@/payload.config'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -47,7 +48,6 @@ export default async function ProductPage({ params }: { params: { id: string } }
               Select Size
             </h3>
             <div className="flex gap-3">
-              {/* Dynamic Size Selector from your Admin options */}
               {product.sizes?.map((size: string) => (
                 <button
                   key={size}
@@ -64,7 +64,6 @@ export default async function ProductPage({ params }: { params: { id: string } }
               Description
             </h3>
             <div className="prose prose-sm text-gray-700">
-              {/* This renders the RichText from your Admin panel */}
               {product.details && <div dangerouslySetInnerHTML={{ __html: product.details }} />}
             </div>
           </div>

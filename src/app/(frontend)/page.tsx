@@ -1,6 +1,7 @@
 import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
-import configPromise from '@payloadcms/config'
+// FIX: Point directly to your config file
+import configPromise from '@/payload.config' 
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -25,7 +26,6 @@ export default async function HomePage() {
       <section className="relative h-[70vh] bg-black overflow-hidden flex items-center justify-center">
         {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
-             {/* This maps your 5 famous product images */}
             {banner.bestProducts.map((product: any) => (
               <div key={product.id} className="relative flex-1 group overflow-hidden border-r border-white/10">
                 <img
