@@ -11,7 +11,7 @@ export const BannerBlock: React.FC<any> = ({ className, content, type }) => {
         'bg-yellow-100 border-yellow-200': type === 'warning',
         'bg-red-100 border-red-200': type === 'error',
       })}>
-        <RichText content={content} enableGutter={false} />
+        <RichText data={content} enableGutter={false} />
       </div>
     </div>
   )
