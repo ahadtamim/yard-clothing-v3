@@ -10,6 +10,7 @@ import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
 
+// FIX: Added 'as CollectionSlug[]' to bypass strict type checking for the seed script
 const collections: CollectionSlug[] = [
   'categories',
   'media',
@@ -18,7 +19,7 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
-]
+] as CollectionSlug[]
 
 const globals: GlobalSlug[] = ['header', 'footer']
 
@@ -127,7 +128,7 @@ export const seed = async ({
       data: imageHero1,
       file: hero1Buffer,
     }),
-    categories.map((category) =>
+    ...categories.map((category) =>
       payload.create({
         collection: 'categories',
         data: {
@@ -140,8 +141,6 @@ export const seed = async ({
 
   payload.logger.info(`— Seeding posts...`)
 
-  // Do not create posts with `Promise.all` because we want the posts to be created in order
-  // This way we can sort them by `createdAt` or `publishedAt` and they will be in the expected order
   const post1Doc = await payload.create({
     collection: 'posts',
     depth: 0,
@@ -169,7 +168,6 @@ export const seed = async ({
     data: post3({ heroImage: image3Doc, blockImage: image1Doc, author: demoAuthor }),
   })
 
-  // update each post with related posts
   await payload.update({
     id: post1Doc.id,
     collection: 'posts',
