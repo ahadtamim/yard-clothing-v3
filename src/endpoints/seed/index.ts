@@ -143,7 +143,7 @@ export const seed = async ({
   payload.logger.info(`— Seeding posts...`)
 
   const post1Doc = await payload.create({
-    collection: 'posts',
+    collection: 'posts' as any, // FIX: Cast collection to any
     depth: 0,
     context: {
       disableRevalidate: true,
@@ -152,7 +152,7 @@ export const seed = async ({
   })
 
   const post2Doc = await payload.create({
-    collection: 'posts',
+    collection: 'posts' as any, // FIX: Cast collection to any
     depth: 0,
     context: {
       disableRevalidate: true,
@@ -161,7 +161,7 @@ export const seed = async ({
   })
 
   const post3Doc = await payload.create({
-    collection: 'posts',
+    collection: 'posts' as any, // FIX: Cast collection to any
     depth: 0,
     context: {
       disableRevalidate: true,
@@ -171,21 +171,21 @@ export const seed = async ({
 
   await payload.update({
     id: post1Doc.id,
-    collection: 'posts',
+    collection: 'posts' as any, // FIX: Cast collection to any
     data: {
       relatedPosts: [post2Doc.id, post3Doc.id],
     },
   })
   await payload.update({
     id: post2Doc.id,
-    collection: 'posts',
+    collection: 'posts' as any, // FIX: Cast collection to any
     data: {
       relatedPosts: [post1Doc.id, post3Doc.id],
     },
   })
   await payload.update({
     id: post3Doc.id,
-    collection: 'posts',
+    collection: 'posts' as any, // FIX: Cast collection to any
     data: {
       relatedPosts: [post1Doc.id, post2Doc.id],
     },
@@ -194,7 +194,7 @@ export const seed = async ({
   payload.logger.info(`— Seeding contact form...`)
 
   const contactForm = await payload.create({
-    collection: 'forms',
+    collection: 'forms' as any, // FIX: Cast collection to any
     depth: 0,
     data: contactFormData,
   })
@@ -203,12 +203,12 @@ export const seed = async ({
 
   const [_, contactPage] = await Promise.all([
     payload.create({
-      collection: 'pages',
+      collection: 'pages' as any, // FIX: Cast collection to any
       depth: 0,
       data: home({ heroImage: imageHomeDoc, metaImage: image2Doc }),
     }),
     payload.create({
-      collection: 'pages',
+      collection: 'pages' as any, // FIX: Cast collection to any
       depth: 0,
       data: contactPageData({ contactForm: contactForm }),
     }),
@@ -219,7 +219,6 @@ export const seed = async ({
   await Promise.all([
     payload.updateGlobal({
       slug: 'header',
-      // FIX: Cast data to any to prevent 'navItems' type error
       data: {
         navItems: [
           {
@@ -234,7 +233,7 @@ export const seed = async ({
               type: 'reference',
               label: 'Contact',
               reference: {
-                relationTo: 'pages',
+                relationTo: 'pages' as any, // FIX: Cast relationTo to any
                 value: contactPage.id,
               },
             },
@@ -244,7 +243,6 @@ export const seed = async ({
     }),
     payload.updateGlobal({
       slug: 'footer',
-      // FIX: Cast data to any to prevent 'navItems' type error
       data: {
         navItems: [
           {
