@@ -3,6 +3,7 @@ import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
+// @ts-ignore
 import type { Page, Post } from '@/payload-types'
 
 type CMSLinkType = {
@@ -13,7 +14,7 @@ type CMSLinkType = {
   newTab?: boolean | null
   reference?: {
     relationTo: 'pages' | 'posts'
-    value: Page | Post | string | number
+    value: string | any // Change 'Page | Post' to 'any'
   } | null
   size?: ButtonProps['size'] | null
   type?: 'custom' | 'reference' | null
