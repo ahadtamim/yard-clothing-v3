@@ -5,15 +5,13 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-// Core Collections (Requirement 1, 2, 3, 4)
+// Core Collections
 import { Users } from './collections/Users'
 import { Categories } from './collections/Categories'
 import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
 import { Media } from './collections/Media'
 
-// Configuration Helpers
-import { plugins as existingPlugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 
 const filename = fileURLToPath(import.meta.url)
@@ -32,6 +30,8 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     user: Users.slug,
+    // This helps hide versions/drafts if they appear
+    components: {}, 
   },
   serverURL: NEXT_PUBLIC_SERVER_URL,
   editor: defaultLexical,
@@ -39,29 +39,32 @@ export default buildConfig({
     url: process.env.DATABASE_URL || '',
   }),
   
-  // Requirement: ONLY these collections. Nothing else.
+  // Requirement: ONLY these 5. Redirects/Search removed from here.
   collections: [
-    Users,       // Requirement 1: You & Partners
-    Categories,  // Requirement 2: Men/Women/Types
-    Products,    // Requirement 3: 5 Pics, Sizes, Inventory
-    Orders,      // Requirement 4: Receipts & Sales
-    Media,       // Necessary for Product/Banner images
+    Users,
+    Categories,
+    Products,
+    Orders,
+    Media,
   ],
 
   globals: [
-    // Requirement 5: Banner Slideshow (Max 5 products)
     {
       slug: 'banner',
       label: 'Home Banner Slider',
       fields: [
         {
           name: 'bestProducts',
-          label: 'Slider Products (Max 5)',
+          label: 'Select 5 Products for Slideshow',
           type: 'relationship',
           relationTo: 'products',
           hasMany: true,
+          minRows: 1,
           maxRows: 5,
           required: true,
+          admin: {
+            description: 'Choose up to 5 products. Only their photos will show in the slider.',
+          },
         },
       ],
     },
@@ -70,6 +73,8 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   
   plugins: [
+    // We only keep the storage plugin. 
+    // We REMOVE ...existingPlugins to kill Search and Redirects.
     vercelBlobStorage({
       enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
       collections: {
@@ -77,7 +82,6 @@ export default buildConfig({
       },
       token: process.env.BLOB_READ_WRITE_TOKEN as string,
     }),
-    ...existingPlugins,
   ], 
   
   sharp,
