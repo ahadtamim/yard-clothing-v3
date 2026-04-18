@@ -1,32 +1,34 @@
-import clsx from 'clsx'
 import React from 'react'
 import RichText from '@/components/RichText'
-
-import type { Post } from '@/payload-types'
-
 import { Card } from '../../components/Card'
-import { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
-export type RelatedPostsProps = {
-  className?: string
-  docs?: Post[]
-  introContent?: DefaultTypedEditorState
-}
-
-export const RelatedPosts: React.FC<RelatedPostsProps> = (props) => {
+export const RelatedPosts: React.FC<any> = (props) => {
   const { className, docs, introContent } = props
 
   return (
-    <div className={clsx('lg:container', className)}>
-      {introContent && <RichText data={introContent} enableGutter={false} />}
+    <div className={className}>
+      {introContent && (
+        <div className="container mb-8">
+          <RichText data={introContent} enableGutter={false} />
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 items-stretch">
-        {docs?.map((doc, index) => {
+      <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {docs?.map((doc: any, index: number) => {
           if (typeof doc === 'string') return null
 
-          return <Card key={index} doc={doc} relationTo="posts" showCategories />
+          return (
+            <Card 
+              key={index} 
+              doc={doc} 
+              relationTo="products" // Changed from posts to products
+              showCategories 
+            />
+          )
         })}
       </div>
     </div>
   )
 }
+
+export default RelatedPosts
