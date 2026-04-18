@@ -1,6 +1,6 @@
 import { cn } from '@/utilities/ui'
 import React from 'react'
-import { RichText } from '@/components/RichText'
+import RichText from '@/components/RichText'
 
 export const BannerBlock: React.FC<any> = ({ className, content, type }) => {
   return (
