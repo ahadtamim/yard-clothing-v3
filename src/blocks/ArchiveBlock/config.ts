@@ -84,7 +84,8 @@ export const Archive: Block = {
       },
       hasMany: true,
       label: 'Selection',
-      relationTo: ['posts'],
+      // @ts-ignore
+      relationTo: ['products'],
     },
   ],
   labels: {
