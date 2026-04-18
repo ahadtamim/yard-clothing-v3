@@ -52,14 +52,14 @@ export const Posts: CollectionConfig<any> = {
       url: ({ data, req }) =>
         generatePreviewPath({
           slug: data?.slug,
-          collection: 'posts' as any, // Added 'as any' here
+          collection: 'posts' as any, 
           req,
         }),
     },
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
-        collection: 'posts' as any, // Added 'as any' here
+        collection: 'posts' as any, 
         req,
       }),
     useAsTitle: 'title',
@@ -78,7 +78,7 @@ export const Posts: CollectionConfig<any> = {
             {
               name: 'heroImage',
               type: 'upload',
-              relationTo: 'media',
+              relationTo: 'media' as any,
             },
             {
               name: 'content',
@@ -109,7 +109,7 @@ export const Posts: CollectionConfig<any> = {
               admin: {
                 position: 'sidebar',
               },
-              filterOptions: ({ id }) => {
+              filterOptions: ({ id }: { id: any }) => {
                 return {
                   id: {
                     not_in: [id],
@@ -117,7 +117,7 @@ export const Posts: CollectionConfig<any> = {
                 }
               },
               hasMany: true,
-              relationTo: 'posts',
+              relationTo: 'posts' as any, // FIXED LINE 120
             },
             {
               name: 'categories',
@@ -126,7 +126,7 @@ export const Posts: CollectionConfig<any> = {
                 position: 'sidebar',
               },
               hasMany: true,
-              relationTo: 'categories',
+              relationTo: 'categories' as any, // FIXED Relationship
             },
           ],
           label: 'Meta',
@@ -144,15 +144,12 @@ export const Posts: CollectionConfig<any> = {
               hasGenerateFn: true,
             }),
             MetaImageField({
-              relationTo: 'media',
+              relationTo: 'media' as any,
             }),
 
             MetaDescriptionField({}),
             PreviewField({
-              // if the `generateUrl` function is configured
               hasGenerateFn: true,
-
-              // field paths to match the target field for data
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
@@ -171,7 +168,7 @@ export const Posts: CollectionConfig<any> = {
       },
       hooks: {
         beforeChange: [
-          ({ siblingData, value }) => {
+          ({ siblingData, value }: { siblingData: any; value: any }) => {
             if (siblingData._status === 'published' && !value) {
               return new Date()
             }
@@ -187,9 +184,8 @@ export const Posts: CollectionConfig<any> = {
         position: 'sidebar',
       },
       hasMany: true,
-      relationTo: 'users',
+      relationTo: 'users' as any, // FIXED Relationship
     },
-    // This field is only used to populate the user data via the `populateAuthors` hook
     {
       name: 'populatedAuthors',
       type: 'array',
@@ -221,7 +217,7 @@ export const Posts: CollectionConfig<any> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 100, 
       },
       schedulePublish: true,
     },
