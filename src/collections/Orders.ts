@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { ExportButton } from '../components/ExportButton' // We will create this next
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
@@ -13,7 +12,8 @@ export const Orders: CollectionConfig = {
       type: 'ui',
       admin: {
         components: {
-          Field: ExportButton,
+          // FIX: Pass the path as a string, NOT the imported component
+          Field: '/components/ExportButton#ExportButton', 
         },
         position: 'sidebar',
       },
