@@ -7,7 +7,7 @@ type HomeArgs = {
 }
 
 // @ts-ignore
-export const home: any = ({
+export const home: any = ({ heroImage, metaImage }: any) => {
   heroImage,
   metaImage,
 }) => {
