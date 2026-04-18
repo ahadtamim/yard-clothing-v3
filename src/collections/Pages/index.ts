@@ -29,9 +29,6 @@ export const Pages: CollectionConfig<any> = {
     read: authenticatedOrPublished,
     update: authenticated,
   },
-  // This config controls what's populated by default when a page is referenced
-  // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
-  // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'pages'>
   defaultPopulate: {
     title: true,
     slug: true,
@@ -39,18 +36,18 @@ export const Pages: CollectionConfig<any> = {
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
-      url: ({ data, req }) =>
+      url: ({ data }) =>
         generatePreviewPath({
-         slug: data?.slug as string,
-         collection: 'pages' as any, // Add 'as any' here
-         req,
-       }),
+          slug: data?.slug as string,
+          collection: 'pages' as any,
+          // req removed to match utility definition
+        }),
     },
-    preview: (data, { req }) =>
+    preview: (data) =>
       generatePreviewPath({
         slug: data?.slug as string,
-        collection: 'pages' as any, // Add 'as any' here
-        req,
+        collection: 'pages' as any,
+        // req removed to match utility definition
       }),
     useAsTitle: 'title',
   },
@@ -96,13 +93,9 @@ export const Pages: CollectionConfig<any> = {
             MetaImageField({
               relationTo: 'media',
             }),
-
             MetaDescriptionField({}),
             PreviewField({
-              // if the `generateUrl` function is configured
               hasGenerateFn: true,
-
-              // field paths to match the target field for data
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
@@ -127,11 +120,10 @@ export const Pages: CollectionConfig<any> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 100,
       },
       schedulePublish: true,
     },
     maxPerDoc: 50,
   },
 }
-"// Build Trigger: $(date)" 
