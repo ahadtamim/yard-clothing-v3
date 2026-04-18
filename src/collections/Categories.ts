@@ -13,6 +13,7 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'parent', 'slug'],
+    group: 'Shop Management', // Keeps the sidebar organized
   },
   fields: [
     {
@@ -24,12 +25,12 @@ export const Categories: CollectionConfig = {
       name: 'parent',
       type: 'relationship',
       relationTo: 'categories',
-      label: 'Main Category (e.g., Mens or Womens)',
+      label: 'Parent Category (Leave empty for Men/Women)',
       admin: {
         position: 'sidebar',
+        description: 'Select "Men" or "Women" to make this a sub-category (like T-Shirts).',
       },
     },
-    // MANUAL SLUG FIELD - No helper needed, no more build errors
     {
       name: 'slug',
       type: 'text',
@@ -38,6 +39,7 @@ export const Categories: CollectionConfig = {
       index: true,
       admin: {
         position: 'sidebar',
+        description: 'Used for the website URL (e.g., "men" or "t-shirts").',
       },
     },
   ],

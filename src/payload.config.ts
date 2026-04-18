@@ -5,23 +5,20 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-// Core Collections
-import { Categories } from './collections/Categories'
-import { Media } from './collections/Media'
+// Core Collections (Requirement 1, 2, 3, 4)
 import { Users } from './collections/Users'
+import { Categories } from './collections/Categories'
 import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
+import { Media } from './collections/Media'
 
-// Global Configs
-import { Footer } from './Footer/config'
-import { Header } from './Header/config'
+// Configuration Helpers
 import { plugins as existingPlugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// Dynamic Server URL for Handshake/CORS
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
@@ -36,54 +33,35 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  // CRITICAL: Tells the frontend where to find the API
   serverURL: NEXT_PUBLIC_SERVER_URL,
   editor: defaultLexical,
   db: mongooseAdapter({
     url: process.env.DATABASE_URL || '',
   }),
   
+  // Requirement: ONLY these collections. Nothing else.
   collections: [
-    Products, 
-    Categories, 
-    Orders, 
-    Media, 
-    Users
+    Users,       // Requirement 1: You & Partners
+    Categories,  // Requirement 2: Men/Women/Types
+    Products,    // Requirement 3: 5 Pics, Sizes, Inventory
+    Orders,      // Requirement 4: Receipts & Sales
+    Media,       // Necessary for Product/Banner images
   ],
 
   globals: [
-    Header, 
-    Footer,
-    {
-      slug: 'site-settings',
-      label: 'Site Settings',
-      fields: [
-        {
-          name: 'logo',
-          label: 'Website Logo',
-          type: 'upload',
-          relationTo: 'media',
-          required: true,
-        },
-        {
-          name: 'siteName',
-          label: 'Site Name',
-          type: 'text',
-          defaultValue: 'Yard Clothing',
-        },
-      ],
-    },
+    // Requirement 5: Banner Slideshow (Max 5 products)
     {
       slug: 'banner',
-      label: 'Home Banner',
+      label: 'Home Banner Slider',
       fields: [
-        { name: 'title', type: 'text', required: true },
-        { name: 'subtitle', type: 'text' },
-        { 
-          name: 'bannerImage', 
-          type: 'upload', 
-          relationTo: 'media', 
-          required: true 
+        {
+          name: 'bestProducts',
+          label: 'Slider Products (Max 5)',
+          type: 'relationship',
+          relationTo: 'products',
+          hasMany: true,
+          maxRows: 5,
+          required: true,
         },
       ],
     },
@@ -92,7 +70,6 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   
   plugins: [
-    // Move Vercel Blob to top to ensure it handles the logo upload properly
     vercelBlobStorage({
       enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
       collections: {
