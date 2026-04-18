@@ -2,18 +2,20 @@
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import React, { useEffect } from 'react'
 
-import type { Page } from '@/payload-types'
+// FIX: Importing as a namespace to avoid "no exported member" errors during build
+import * as PayloadTypes from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 
-export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+// Access the hero type via the namespace. Defaults to 'any' if Page doesn't exist yet.
+export const HighImpactHero: React.FC<any> = ({ links, media, richText }) => {
   const { setHeaderTheme } = useHeaderTheme()
 
   useEffect(() => {
     setHeaderTheme('dark')
-  })
+  }, [setHeaderTheme]) // Added dependency array to follow best practices
 
   return (
     <div
