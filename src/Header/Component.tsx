@@ -1,21 +1,32 @@
-import { HeaderClient } from './Component.client'
-import { getCachedGlobal } from '@/utilities/getGlobals'
+import Link from 'next/link'
 import React from 'react'
+import { Logo } from '@/components/Logo/Logo'
 
-/**
- * Header Server Component
- * Fetches global navigation and site-wide settings (Logo, Brand Name)
- */
 export async function Header() {
-  // 1. Fetch the Navigation Links
-  // Ensure 'header' matches your Global slug in Payload
-  const headerData = await getCachedGlobal('header', 1)()
-  
-  // 2. Fetch the Site Settings
-  // This is where your Yard Logo (Media) and Branding should be stored
-  const siteSettings = await getCachedGlobal('site-settings', 1)()
+  return (
+    <header className="relative z-20 border-b border-border bg-white dark:bg-black">
+      <div className="container py-4 flex items-center justify-between">
+        {/* Logo on the left */}
+        <Link href="/">
+          <Logo />
+        </Link>
 
-  // 3. Pass both to the Client Component for rendering
-  // HeaderClient will handle the sticky behavior and mobile menu
-  return <HeaderClient data={headerData} settings={siteSettings} />
+        {/* Hardcoded Navigation in the center/right */}
+        <nav className="flex gap-6 items-center">
+          <Link href="/" className="text-sm font-medium hover:text-blue-600 transition-colors">
+            Home
+          </Link>
+          <Link href="/categories" className="text-sm font-medium hover:text-blue-600 transition-colors">
+            Categories
+          </Link>
+          {/* Add more links here if needed */}
+        </nav>
+
+        {/* Search or Cart icons would go here */}
+        <div className="flex items-center gap-4">
+          {/* Optional icons */}
+        </div>
+      </div>
+    </header>
+  )
 }
