@@ -10,7 +10,7 @@ export const CallToActionBlock: React.FC<any> = ({ links, richText }) => {
           {richText && <RichText data={richText} enableGutter={false} />}
         </div>
         <div className="flex flex-wrap gap-4">
-          {(links || []).map(({ link }, i) => {
+          {(links || []).map(({ link }: { link: any }, i: number) => {
             return <CMSLink key={i} {...link} />
           })}
         </div>
