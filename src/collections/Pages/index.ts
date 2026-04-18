@@ -42,14 +42,14 @@ export const Pages: CollectionConfig<any> = {
       url: ({ data, req }) =>
         generatePreviewPath({
          slug: data?.slug as string,
-         collection: 'pages' as any, // Cast to any to kill the type error
+         collection: 'pages' as any, // Add 'as any' here
          req,
        }),
     },
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
-        collection: 'pages',
+        collection: 'pages' as any, // Add 'as any' here
         req,
       }),
     useAsTitle: 'title',
