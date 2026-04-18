@@ -17,13 +17,13 @@ export const RelatedPosts: React.FC<any> = (props) => {
         {docs?.map((doc: any, index: number) => {
           if (typeof doc === 'string') return null
 
-          return (
-            <Card 
-              key={index} 
-              doc={doc} 
-              relationTo="products" // Changed from posts to products
-              showCategories 
-            />
+          <Card 
+            key={index} 
+            doc={doc} 
+            // @ts-ignore
+            relationTo="products" 
+            showCategories 
+          />
           )
         })}
       </div>
