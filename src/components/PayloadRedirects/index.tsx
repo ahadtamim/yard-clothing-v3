@@ -12,7 +12,7 @@ interface Props {
 }
 
 // If there's a reference to Page or Post in the component logic:
-const redirect = props?.url || (props?.document as any)
+const redirectUrl = props?.url || (props?.document as any)?.slug
 
   const redirectItem = redirects.find((redirect) => redirect.from === url)
 
@@ -39,8 +39,9 @@ const redirect = props?.url || (props?.document as any)
       }`
     }
 
-    if (redirectUrl) redirect(redirectUrl)
-  }
+    if (redirectUrl) {
+      redirect(redirectUrl) // This calls the Next.js redirect function
+}
 
   if (disableNotFound) return null
 
