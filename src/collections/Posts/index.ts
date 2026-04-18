@@ -27,7 +27,7 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from 'payload'
 
-export const Posts: CollectionConfig<'posts'> = {
+export const Posts: CollectionConfig<any> = {
   slug: 'posts',
   access: {
     create: authenticated,
@@ -37,7 +37,6 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   // This config controls what's populated by default when a post is referenced
   // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
-  // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'posts'>
   defaultPopulate: {
     title: true,
     slug: true,
@@ -53,14 +52,14 @@ export const Posts: CollectionConfig<'posts'> = {
       url: ({ data, req }) =>
         generatePreviewPath({
           slug: data?.slug,
-          collection: 'posts',
+          collection: 'posts' as any, // Added 'as any' here
           req,
         }),
     },
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
-        collection: 'posts',
+        collection: 'posts' as any, // Added 'as any' here
         req,
       }),
     useAsTitle: 'title',
@@ -191,8 +190,6 @@ export const Posts: CollectionConfig<'posts'> = {
       relationTo: 'users',
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
-    // This is because the `user` collection has access control locked to protect user privacy
-    // GraphQL will also not return mutated user data that differs from the underlying schema
     {
       name: 'populatedAuthors',
       type: 'array',
