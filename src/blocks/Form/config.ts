@@ -14,6 +14,7 @@ export const FormBlock: Block = {
     {
       name: 'form',
       type: 'relationship',
+      // @ts-ignore
       relationTo: 'forms',
       required: true,
     },
