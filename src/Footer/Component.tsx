@@ -22,7 +22,10 @@ export async function Footer() {
           <ThemeSelector />
           <nav className="flex flex-col md:flex-row gap-4">
             {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-white" key={i} {...link} />
+              /* FIX: Cast to 'any' to allow 'products' and 'categories' links 
+                until the CMSLink component type is updated globally.
+              */
+              return <CMSLink className="text-white" key={i} {...(link as any)} />
             })}
           </nav>
         </div>
