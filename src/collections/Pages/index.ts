@@ -41,11 +41,10 @@ export const Pages: CollectionConfig<any> = {
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
-          slug: data?.slug,
-          // @ts-ignore
-          collection: 'pages',
-          req,
-        }),
+         slug: data?.slug as string,
+         collection: 'pages' as any, // Cast to any to kill the type error
+         req,
+       }),
     },
     preview: (data, { req }) =>
       generatePreviewPath({
@@ -135,3 +134,4 @@ export const Pages: CollectionConfig<any> = {
     maxPerDoc: 50,
   },
 }
+"// Build Trigger: $(date)" 
