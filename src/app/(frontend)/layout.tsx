@@ -34,17 +34,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
           {/* --- PREMIUM NAVBAR --- */}
           <nav className="flex items-center justify-between px-8 py-6 bg-black sticky top-0 z-50">
-            <Link href="/" className="hover:opacity-80 transition-opacity flex items-center">
-               {/* Using a simple span fallback if image fails. 
-                  Make sure logo.png is in /public/logo.png 
-               */}
-               <img 
-                  src="/logo.png" 
-                  alt="YARD" 
-                  className="h-7 w-auto block brightness-0 invert"
-                  /* Standard HTML error handling */
-                  style={{ minWidth: '50px' }}
-                />
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <div className="flex items-center">
+                {/* STRATEGY: Using a text-based logo as the primary for stability.
+                  It matches the luxury aesthetic perfectly and never breaks.
+                */}
+                <span className="text-white font-bold tracking-[0.2em] text-xl uppercase">
+                  Yard
+                </span>
+                {/* Optional: If you want to try the image again, uncomment the <img> below,
+                  but only if you have confirmed public/logo.png exists and is lowercase.
+                */}
+                {/* <img src="/logo.png" alt="Yard" className="h-6 w-auto ml-2 brightness-0 invert" /> */}
+              </div>
             </Link>
             
             <div className="flex gap-8">
@@ -57,7 +59,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </div>
           </nav>
 
-          {/* PAGE CONTENT */}
           <main className="min-h-screen">
             {children}
           </main>
@@ -68,7 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <div>
                 <h4 className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6 font-bold">Support</h4>
                 <p className="text-sm">WhatsApp / Call:</p>
-                <p className="text-xl font-bold tracking-tighter text-white">+880 1XXX-XXXXXX</p>
+                <p className="text-xl font-bold tracking-tighter">+880 1XXX-XXXXXX</p>
                 <Link href="#" className="text-blue-400 text-xs mt-4 inline-block hover:underline">
                   Follow us on Facebook
                 </Link>
