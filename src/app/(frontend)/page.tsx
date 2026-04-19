@@ -1,21 +1,17 @@
 import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
-// FIX: Point directly to your config file
 import configPromise from '@/payload.config' 
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  // Use 'as any' here to bypass the strict TypeScript check for the banner global
   const payload = await getPayloadHMR({ config: configPromise })
 
-  // 1. Fetch the Banner data (Requirement 5)
   const banner = (await payload.findGlobal({
     slug: 'banner',
   })) as any
 
-  // 2. Fetch all Products for the grid
   const products = await payload.find({
     collection: 'products',
     limit: 10,
@@ -41,12 +37,12 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="text-white uppercase tracking-[1em] opacity-20">Yard Clothing Slideshow</div>
+          <div className="text-white uppercase tracking-[1em] opacity-20 text-xs">Yard Clothing Slideshow</div>
         )}
       </section>
 
       {/* 2. PRODUCT GRID SECTION */}
-      <section className="container py-20">
+      <section className="container py-20 px-4">
         <h3 className="text-xs uppercase tracking-[0.5em] text-gray-400 mb-12 text-center font-bold">
           New Arrivals
         </h3>
@@ -68,12 +64,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 3. QUICK ADMIN LINK (Temporary) */}
-      <div className="py-10 text-center border-t border-gray-100">
-        <Link href="/admin" className="text-[10px] uppercase tracking-widest text-gray-300 hover:text-black">
-          Manage Store Access
-        </Link>
-      </div>
+      {/* FOOTER */}
+      <footer className="py-20 text-center border-t border-gray-100">
+        <p className="text-[10px] uppercase tracking-widest text-gray-400">
+          © 2026 Yard Clothing. All rights reserved.
+        </p>
+      </footer>
     </main>
   )
 }
