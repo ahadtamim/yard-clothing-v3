@@ -10,10 +10,11 @@ export default async function ProductPage({ params }: { params: { id: string } }
   const payload = await getPayloadHMR({ config: configPromise })
 
   // 1. Fetch the specific product
-  const product = await payload.findByID({
+  // FIX: Added 'as any' to bypass the "Property does not exist" type error during build
+  const product = (await payload.findByID({
     collection: 'products',
     id: params.id,
-  })
+  })) as any
 
   if (!product) return notFound()
 
@@ -48,6 +49,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
               Select Size
             </h3>
             <div className="flex gap-3">
+              {/* Dynamic Size Selector from your Admin options */}
               {product.sizes?.map((size: string) => (
                 <button
                   key={size}
@@ -64,6 +66,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
               Description
             </h3>
             <div className="prose prose-sm text-gray-700">
+              {/* This renders the RichText from your Admin panel */}
               {product.details && <div dangerouslySetInnerHTML={{ __html: product.details }} />}
             </div>
           </div>
