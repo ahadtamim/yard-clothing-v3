@@ -32,27 +32,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             }}
           />
 
-          {/* --- FIXED PREMIUM NAVBAR --- */}
+          {/* --- PREMIUM NAVBAR --- */}
           <nav className="flex items-center justify-between px-8 py-6 bg-black sticky top-0 z-50">
-            <Link href="/">
-              <div className="hover:opacity-80 transition-opacity flex items-center min-h-[32px]">
-                <img 
+            <Link href="/" className="hover:opacity-80 transition-opacity flex items-center">
+               {/* Using a simple span fallback if image fails. 
+                  Make sure logo.png is in /public/logo.png 
+               */}
+               <img 
                   src="/logo.png" 
-                  alt="Yard" 
-                  /* 'brightness-0 invert' handles black-to-white conversion.
-                    If your logo is already white, you can remove 'brightness-0 invert'.
-                  */
-                  className="h-7 w-auto block brightness-0 invert" 
-                  onError={(e) => {
-                    // Fallback to text if the image path is broken or file is missing
-                    e.currentTarget.style.display = 'none';
-                    const parent = e.currentTarget.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<span class="text-white font-bold tracking-tighter text-xl uppercase">Yard</span>';
-                    }
-                  }}
+                  alt="YARD" 
+                  className="h-7 w-auto block brightness-0 invert"
+                  /* Standard HTML error handling */
+                  style={{ minWidth: '50px' }}
                 />
-              </div>
             </Link>
             
             <div className="flex gap-8">
@@ -66,12 +58,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </nav>
 
           {/* PAGE CONTENT */}
-          <div className="min-h-screen">
+          <main className="min-h-screen">
             {children}
-          </div>
+          </main>
 
           {/* --- CLEAN FOOTER --- */}
-          <footer className="bg-black text-white pt-20 pb-10 px-8">
+          <footer className="bg-black text-white pt-20 pb-10 px-8 border-t border-white/5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 max-w-7xl mx-auto">
               <div>
                 <h4 className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6 font-bold">Support</h4>
