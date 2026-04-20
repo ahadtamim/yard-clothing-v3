@@ -14,7 +14,6 @@ import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // We keep this line to support preview functionality, but we won't render the AdminBar UI
   const { isEnabled } = await draftMode()
 
   return (
@@ -26,19 +25,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-white antialiased">
         <Providers>
-          {/* REMOVAL NOTICE: 
-            The <AdminBar /> component has been deleted from here.
-            This is what removes the "Dashboard", "New Page", and "Logout" 
-            options from the top of your public website.
+          {/* ADMIN BAR REMOVED: 
+              This ensures that "New Page", "Dashboard", and your Email 
+              stay hidden from the storefront for a clean customer experience.
           */}
 
           {/* --- PREMIUM NAVBAR --- */}
           <nav className="flex items-center justify-between px-8 py-8 bg-black sticky top-0 z-50">
             <Link href="/" className="hover:opacity-70 transition-opacity">
-              {/* STABLE TYPOGRAPHY LOGO: Fixes the broken image issue forever */}
-              <span className="text-white font-bold tracking-[0.4em] text-2xl uppercase">
-                Yard
-              </span>
+              <div className="flex flex-col">
+                {/* THE TYPOGRAPHY LOGO */}
+                <span className="text-white font-bold tracking-[0.5em] text-2xl uppercase leading-none">
+                  Yard
+                </span>
+                <span className="text-[8px] text-gray-500 uppercase tracking-[0.4em] mt-1 text-center">
+                  Clothing
+                </span>
+              </div>
             </Link>
             
             <div className="flex gap-10">
