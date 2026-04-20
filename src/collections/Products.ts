@@ -1,97 +1,52 @@
 import type { CollectionConfig } from 'payload'
-import { anyone } from '../access/anyone'
-import { authenticated } from '../access/authenticated'
 
 export const Products: CollectionConfig = {
   slug: 'products',
-  access: {
-    create: authenticated,
-    delete: authenticated,
-    read: anyone,
-    update: authenticated,
-  },
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'price', 'stock'],
+    useAsTitle: 'name',
   },
   fields: [
     {
-      name: 'title',
+      name: 'name',
       type: 'text',
       required: true,
+      label: 'Product Name',
     },
     {
-      name: 'description',
-      type: 'richText', // Better for detailed product descriptions
+      name: 'price',
+      type: 'number',
       required: true,
+      label: 'Price (BDT)',
     },
     {
-      type: 'row', // Groups price and stock side-by-side in admin
-      fields: [
-        {
-          name: 'price',
-          type: 'number',
-          required: true,
-          admin: {
-            width: '50%',
-          },
-        },
-        {
-          name: 'stock',
-          type: 'number',
-          label: 'Inventory (How many left)',
-          required: true,
-          admin: {
-            width: '50%',
-          },
-        },
-      ],
-    },
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'category',
-          type: 'relationship',
-          relationTo: 'categories',
-          required: true,
-          admin: {
-            width: '50%',
-          },
-        },
-        {
-          name: 'sizes',
-          type: 'select',
-          required: true,
-          hasMany: true,
-          options: [
-            { label: 'Small (S)', value: 'S' },
-            { label: 'Medium (M)', value: 'M' },
-            { label: 'Large (L)', value: 'L' },
-            { label: 'Extra Large (XL)', value: 'XL' },
-            { label: 'Double Extra Large (XXL)', value: 'XXL' },
-          ],
-          admin: {
-            width: '50%',
-          },
-        },
-      ],
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'categories',
+      required: true,
     },
     {
       name: 'images',
-      type: 'array',
-      label: 'Product Images (Exactly 5 Photos)',
-      minRows: 5,
-      maxRows: 5,
+      type: 'upload',
+      relationTo: 'media',
       required: true,
-      fields: [
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          required: true,
-        },
-      ],
+      hasMany: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      admin: {
+        hidden: true, // Hidden forever
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value, data }) => {
+            if (data?.name) {
+              return data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '')
+            }
+            return value
+          },
+        ],
+      },
     },
   ],
 }
