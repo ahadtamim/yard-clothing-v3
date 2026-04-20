@@ -25,22 +25,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-white antialiased">
         <Providers>
-          {/* ADMIN BAR REMOVED: 
-              This ensures that "New Page", "Dashboard", and your Email 
-              stay hidden from the storefront for a clean customer experience.
-          */}
-
-          {/* --- PREMIUM NAVBAR --- */}
-          <nav className="flex items-center justify-between px-8 py-8 bg-black sticky top-0 z-50">
-            <Link href="/" className="hover:opacity-70 transition-opacity">
-              <div className="flex flex-col">
-                {/* THE TYPOGRAPHY LOGO */}
-                <span className="text-white font-bold tracking-[0.5em] text-2xl uppercase leading-none">
-                  Yard
-                </span>
-                <span className="text-[8px] text-gray-500 uppercase tracking-[0.4em] mt-1 text-center">
-                  Clothing
-                </span>
+          {/* 1. ADMIN BAR REMOVED: Hides 'New Page' and 'Dashboard' from the storefront */}
+          
+          {/* --- FIXED NAVBAR --- */}
+          <nav className="flex items-center justify-between px-8 py-6 bg-black sticky top-0 z-50">
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              {/* 2. LOGO RESTORED: Using the image with inversion for a white look */}
+              <div className="flex items-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Yard" 
+                  className="h-9 w-auto brightness-0 invert" 
+                />
               </div>
             </Link>
             
