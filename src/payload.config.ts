@@ -30,7 +30,6 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     user: Users.slug,
-    // This helps hide versions/drafts if they appear
     components: {}, 
   },
   serverURL: NEXT_PUBLIC_SERVER_URL,
@@ -39,7 +38,6 @@ export default buildConfig({
     url: process.env.DATABASE_URL || '',
   }),
   
-  // Requirement: ONLY these 5. Redirects/Search removed from here.
   collections: [
     Users,
     Categories,
@@ -73,12 +71,13 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'ccc6d422fd9be9c22cca735f',
   
   plugins: [
-    // We only keep the storage plugin. 
-    // We REMOVE ...existingPlugins to kill Search and Redirects.
     vercelBlobStorage({
       enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
       collections: {
-        [Media.slug]: true,
+        // FIXED: Use a hardcoded string 'media' to ensure the plugin binds correctly
+        'media': {
+          disableLocalStorage: true, // Forces file to Vercel Blob immediately
+        },
       },
       token: process.env.BLOB_READ_WRITE_TOKEN as string,
     }),

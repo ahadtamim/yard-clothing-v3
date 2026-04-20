@@ -58,20 +58,24 @@ export const Products: CollectionConfig = {
         },
       ],
     },
+    // --- SIMPLIFIED SINGLE-PAGE IMAGE UPLOAD ---
     {
       name: 'productImages',
-      type: 'upload',
-      relationTo: 'media',
-      required: true,
-      label: 'Product Photos (Max 5)',
-      hasMany: true, 
+      label: 'Product Photos',
+      type: 'array', // This puts the list directly on the page
       minRows: 1,
       maxRows: 5,
       admin: {
-        // This helps the UI realize it needs to show the list immediately
-        isSortable: true, 
-        description: 'Upload 1-5 photos. They will appear here after you hit Save in the popup.',
+        description: 'Add up to 5 images. These will upload directly to your store.',
       },
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+        },
+      ],
     },
     {
       name: 'slug',
