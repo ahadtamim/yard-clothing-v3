@@ -5,8 +5,8 @@ export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
     useAsTitle: 'name',
-    // Sets up the main product editing experience on one screen
-    defaultColumns: ['name', 'price', 'category', 'sizes'],
+    // We added productImages here so you can see them in the main table too
+    defaultColumns: ['name', 'price', 'category', 'sizes', 'productImages'],
   },
   fields: [
     {
@@ -32,10 +32,9 @@ export const Products: CollectionConfig = {
         },
       ],
     },
-    // ADDED: Product Description field
     {
       name: 'description',
-      type: 'textarea', // Simple text area for description
+      type: 'textarea',
       label: 'Product Description',
       admin: {
         description: 'Detail of the product, fabric, styling, etc.',
@@ -53,11 +52,10 @@ export const Products: CollectionConfig = {
             width: '50%',
           },
         },
-        // ADDED: Size Dropdown field
         {
           name: 'sizes',
           type: 'select',
-          hasMany: true, // Allow multiple sizes (M, L, XL)
+          hasMany: true,
           required: true,
           label: 'Available Sizes',
           options: [
@@ -73,28 +71,28 @@ export const Products: CollectionConfig = {
         },
       ],
     },
-    // --- FIXED MULTI-UPLOAD FIELD ---
     {
       name: 'productImages',
       type: 'upload',
       relationTo: 'media',
       required: true,
       label: 'Upload Product Photos (Max 5)',
-      admin: {
-        description: 'Drag & Drop your photos. First photo is the main display.',
-      },
-      hasMany: true, // Crucial: Enables multi-select and bulk upload
+      hasMany: true, // Allows multiple selection
       minRows: 1,
-      maxRows: 5, // Limit to 5 as requested
+      maxRows: 5,
+      admin: {
+        description: 'Upload up to 5 photos. The first one is your main image.',
+        // This ensures the images stay visible after the upload popup closes
+        condition: (data) => true, 
+      },
     },
-    // Slug remains hidden but automated
     {
       name: 'slug',
       type: 'text',
       required: true,
       admin: {
         position: 'sidebar',
-        hidden: true, // You won't see this field
+        hidden: true,
       },
       hooks: {
         beforeValidate: [
