@@ -9,6 +9,10 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  // --- THIS HIDES IT FROM SIDEBAR AND SEARCH ---
+  admin: {
+    hidden: true, 
+  },
   access: {
     create: authenticated,
     delete: authenticated,
