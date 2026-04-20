@@ -1,40 +1,19 @@
 import type { CollectionConfig } from 'payload'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { anyone } from '../access/anyone'
-import { authenticated } from '../access/authenticated'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
-    hidden: true, // Keep it off the sidebar
+    hidden: true, // Keep it out of the sidebar
   },
-  access: {
-    create: authenticated,
-    delete: authenticated,
-    read: anyone,
-    update: authenticated,
-  },
+  upload: true, // Keeps the Vercel connection active
   fields: [
     {
       name: 'alt',
       type: 'text',
-      required: false, // Must be false so it doesn't block the save
+      required: false, // This prevents the 500 "Required Field Missing" error
+      admin: {
+        hidden: true, // You will never see this box again
+      },
     },
   ],
-  upload: {
-    staticDir: path.resolve(dirname, '../../public/media'),
-    adminThumbnail: 'thumbnail',
-    // This tells Payload to trust the Vercel Blob URL immediately
-    displayPreview: true, 
-    imageSizes: [
-      {
-        name: 'thumbnail',
-        width: 300,
-      },
-    ],
-  },
 }
