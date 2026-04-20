@@ -1,4 +1,3 @@
-// src/collections/Media.ts
 import type { CollectionConfig } from 'payload'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -10,9 +9,8 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  // HIDDEN: It’s now just a silent partner for product photos
   admin: {
-    hidden: true, 
+    hidden: true, // Keep it off the sidebar
   },
   access: {
     create: authenticated,
@@ -24,26 +22,18 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      // REQUIRED REMOVED: No longer required, keeps it simple
-      required: false, 
-      label: 'Description (Automatic - you can leave blank)',
+      required: false, // Must be false so it doesn't block the save
     },
   ],
   upload: {
-    // SIMPLIFIED: Save directly to public/media
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
+    // This tells Payload to trust the Vercel Blob URL immediately
+    displayPreview: true, 
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
-      },
-      // Keeps a clean 1:1 square ratio for product grid
-      {
-        name: 'productSquare',
-        width: 1000,
-        height: 1000,
-        crop: 'center',
       },
     ],
   },
