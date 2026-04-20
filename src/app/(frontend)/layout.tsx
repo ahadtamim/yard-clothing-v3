@@ -25,17 +25,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-white antialiased">
         <Providers>
-          {/* 1. ADMIN BAR REMOVED: Hides 'New Page' and 'Dashboard' from the storefront */}
-          
-          {/* --- FIXED NAVBAR --- */}
-          <nav className="flex items-center justify-between px-8 py-6 bg-black sticky top-0 z-50">
+          {/* AdminBar is removed so Dashboard/New Page stays hidden from customers */}
+
+          {/* --- NAVBAR --- */}
+          <nav className="flex items-center justify-between px-8 py-4 bg-black sticky top-0 z-50">
             <Link href="/" className="hover:opacity-80 transition-opacity">
-              {/* 2. LOGO RESTORED: Using the image with inversion for a white look */}
               <div className="flex items-center">
+                {/* BLOB LOGO FIX:
+                  Using the Vercel Blob URL. 
+                  'mix-blend-mode: screen' makes the white background of the JPEG transparent on black.
+                */}
                 <img 
-                  src="/logo.png" 
+                  src="https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com/Logo/Black%20and%20White%20Yoga%20Studio%20Logo%20%281%29.jpg.jpeg" 
                   alt="Yard" 
-                  className="h-9 w-auto brightness-0 invert" 
+                  className="h-14 w-auto mix-blend-screen" 
                 />
               </div>
             </Link>
@@ -54,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </main>
 
-          {/* --- CLEAN FOOTER --- */}
+          {/* --- FOOTER --- */}
           <footer className="bg-black text-white pt-24 pb-12 px-8 border-t border-white/5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 max-w-7xl mx-auto">
               <div>
