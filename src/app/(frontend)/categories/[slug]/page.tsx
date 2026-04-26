@@ -11,7 +11,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params 
   const cleanSlug = slug.toLowerCase()
 
-  // 1. Find the target category by slug
+  // 1. Find the target category (e.g., "Men") by slug
   const categoryData = await payload.find({
     collection: 'categories',
     where: {
@@ -23,6 +23,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   if (!currentCategory) return notFound()
 
   // 2. Find all sub-categories that have this category as their 'parent'
+  // This finds "T-shirts", "Pants", etc., that belong to "Men"
   const subCategoryData = await payload.find({
     collection: 'categories',
     where: {
@@ -31,15 +32,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     limit: 100,
   })
 
-  // Create a list of IDs including the main category and all sub-categories
+  // Create a list of IDs: [Men_ID, T-shirt_ID, Pants_ID, etc.]
   const categoryIds = [currentCategory.id, ...subCategoryData.docs.map((sub) => sub.id)]
 
-  // 3. Find products that belong to ANY of these category IDs
+  // 3. Find products that belong to the main category OR any of its sub-categories
   const products = await payload.find({
     collection: 'products',
     where: {
       category: {
-        in: categoryIds, // This is the "Choice B" logic
+        in: categoryIds, // "Choice B" logic: matches any ID in the array
       },
     },
     limit: 100,
@@ -64,6 +65,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             {products.docs.map((product: any) => (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                  {/* Safely check for images and display the first one */}
                   {product.productImages?.[0]?.image?.url && (
                     <img
                       src={product.productImages[0].image.url}
@@ -79,7 +81,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           </div>
         ) : (
           <div className="py-20 text-center border border-dashed border-gray-100">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold">
               No products found in "{currentCategory.title}" or its sub-collections.
             </p>
           </div>

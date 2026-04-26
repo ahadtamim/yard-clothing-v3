@@ -4,7 +4,6 @@ export const Categories: CollectionConfig = {
   slug: 'categories',
   admin: {
     useAsTitle: 'title',
-    // Added 'parent' to the columns so you can see the hierarchy in the list view
     defaultColumns: ['title', 'slug', 'parent'],
   },
   access: {
@@ -15,16 +14,22 @@ export const Categories: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
-      label: 'Category Name (e.g. Men, Women, Panjabi, Saree)',
+      label: 'Category Name',
     },
     {
       name: 'parent',
       type: 'relationship',
-      relationTo: 'categories', // This points back to this same collection
+      relationTo: 'categories',
       label: 'Parent Category',
       admin: {
         position: 'sidebar',
-        description: 'Leave empty if this is a main category (like Men or Women).',
+        description: 'Select "Men" or "Women". Leave empty if this IS a main category.',
+      },
+      // Optional: prevents a category from being its own parent
+      filterOptions: ({ id }) => {
+        return {
+          id: { not_equals: id },
+        }
       },
     },
     {
@@ -39,12 +44,7 @@ export const Categories: CollectionConfig = {
         beforeValidate: [
           ({ value, data }) => {
             if (data?.title) {
-              return data.title
-                .toLowerCase()
-                .trim()
-                .replace(/\s+/g, '-')
-                .replace(/[^\w-]+/g, '')
-                .replace(/--+/g, '-')
+              return data.title.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
             }
             return value
           },
