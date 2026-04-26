@@ -11,36 +11,34 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params 
   const cleanSlug = slug.toLowerCase()
 
-  // 1. Find the target category (e.g., "Men") by slug
+  // 1. Find the target category (e.g., "men")
   const categoryData = await payload.find({
     collection: 'categories',
-    where: {
-      slug: { equals: cleanSlug },
-    },
+    where: { slug: { equals: cleanSlug } },
   })
 
   const currentCategory = categoryData.docs[0]
   if (!currentCategory) return notFound()
 
-  // 2. Find all sub-categories that have this category as their 'parent'
-  // This finds "T-shirts", "Pants", etc., that belong to "Men"
+  // 2. Find ALL sub-categories that belong to this category
   const subCategoryData = await payload.find({
     collection: 'categories',
-    where: {
-      parent: { equals: currentCategory.id },
-    },
+    where: { parent: { equals: currentCategory.id } },
     limit: 100,
   })
 
-  // Create a list of IDs: [Men_ID, T-shirt_ID, Pants_ID, etc.]
-  const categoryIds = [currentCategory.id, ...subCategoryData.docs.map((sub) => sub.id)]
+  // 3. Combine the IDs: [Men_ID, T-shirt_ID, Panjabi_ID, etc.]
+  const allRelatedCategoryIds = [
+    currentCategory.id, 
+    ...subCategoryData.docs.map((sub) => sub.id)
+  ]
 
-  // 3. Find products that belong to the main category OR any of its sub-categories
+  // 4. Fetch products matching ANY of those IDs
   const products = await payload.find({
     collection: 'products',
     where: {
       category: {
-        in: categoryIds, // "Choice B" logic: matches any ID in the array
+        in: allRelatedCategoryIds, 
       },
     },
     limit: 100,
@@ -51,9 +49,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <main className="min-h-screen bg-white px-8 py-20">
       <div className="max-w-7xl mx-auto">
         <header className="mb-20 text-center">
-          <p className="text-[10px] uppercase tracking-[0.8em] text-gray-400 font-bold mb-4">
-            Collection
-          </p>
+          <p className="text-[10px] uppercase tracking-[0.8em] text-gray-400 font-bold mb-4">Collection</p>
           <h2 className="text-7xl font-black uppercase tracking-tight text-black leading-none">
             {currentCategory.title}
           </h2>
@@ -65,17 +61,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             {products.docs.map((product: any) => (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                  {/* Safely check for images and display the first one */}
                   {product.productImages?.[0]?.image?.url && (
                     <img
                       src={product.productImages[0].image.url}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
                     />
                   )}
                 </div>
                 <h4 className="font-bold text-sm uppercase tracking-tight text-black">{product.name}</h4>
-                <p className="text-gray-500 text-sm font-light">৳ {product.price}</p>
+                <p className="text-gray-500 text-sm">৳ {product.price}</p>
               </Link>
             ))}
           </div>
