@@ -3,7 +3,8 @@ import type { CollectionConfig } from 'payload'
 export const Media: CollectionConfig = {
   slug: 'media',
   upload: {
-    staticURL: '/media',
+    // In Payload 3.0, 'staticURL' is removed. 
+    // The URL is handled automatically or via the 'adminThumbnail' strategy.
     staticDir: 'media',
     imageSizes: [
       {
@@ -17,19 +18,20 @@ export const Media: CollectionConfig = {
     mimeTypes: ['image/*'],
   },
   admin: {
-    // This allows the "Upload" modal to accept more than one file at a time
+    // This allows the "Upload" modal to accept multiple files from your PC at once
     upload: {
       collections: {
         media: {
-          allowMultiSelect: true, 
-        }
-      }
-    }
+          allowMultiSelect: true,
+        },
+      },
+    },
   },
   fields: [
     {
       name: 'alt',
       type: 'text',
+      required: true,
     },
   ],
 }
