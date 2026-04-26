@@ -11,7 +11,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params 
 
   // 1. Find the category document that matches the slug from the URL
-  // We use lowercase to ensure 'Men' and 'men' both work
   const categoryData = await payload.find({
     collection: 'categories',
     where: {
@@ -24,13 +23,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   const category = categoryData.docs[0]
 
-  // If no category exists with that slug, show 404
   if (!category) {
     return notFound()
   }
 
   // 2. Fetch products linked to this category ID
-  // depth: 2 is required to reach the 'url' property of the media relationship
   const products = await payload.find({
     collection: 'products',
     where: {
@@ -45,13 +42,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   return (
     <main className="min-h-screen bg-white px-8 py-20">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-16 text-center">
-          <h1 className="text-[10px] uppercase tracking-[0.5em] text-gray-400 font-bold mb-2">
+        {/* --- IMPROVED HEADER --- */}
+        <header className="mb-20 text-center">
+          <p className="text-[10px] uppercase tracking-[0.8em] text-gray-400 font-bold mb-4">
             Collection
-          </h1>
-          <h2 className="text-3xl font-black uppercase tracking-tighter">
+          </p>
+          <h2 className="text-7xl font-black uppercase tracking-tight text-black leading-none">
             {category.title}
           </h2>
+          <div className="w-12 h-[3px] bg-black mx-auto mt-8"></div>
         </header>
 
         {products.docs.length > 0 ? (
@@ -59,7 +58,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             {products.docs.map((product: any) => (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                  {/* Using optional chaining to safely access image URL */}
                   {product.productImages?.[0]?.image?.url && (
                     <img
                       src={product.productImages[0].image.url}
@@ -68,7 +66,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                     />
                   )}
                 </div>
-                <h4 className="font-bold text-sm uppercase tracking-tight">{product.name}</h4>
+                <h4 className="font-bold text-sm uppercase tracking-tight text-black">{product.name}</h4>
                 <p className="text-gray-500 text-sm font-light">৳ {product.price}</p>
               </Link>
             ))}
