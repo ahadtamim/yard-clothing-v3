@@ -40,8 +40,17 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
-        isSortable: true, // Changes UI from dropdown to a list with a "+" button
+        isSortable: true,
         description: 'Click "+" to upload or select up to 5 photos from your PC.',
+        // THIS IS THE KEY: We explicitly tell the admin UI 
+        // to allow multiple files in the upload sub-component.
+        upload: {
+          collections: {
+            media: {
+              allowMultiSelect: true,
+            },
+          },
+        },
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
@@ -50,5 +59,3 @@ export const Products: CollectionConfig = {
         return true
       },
     },
-  ],
-}
