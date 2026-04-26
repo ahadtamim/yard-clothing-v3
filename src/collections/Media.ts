@@ -1,30 +1,19 @@
 import type { CollectionConfig } from 'payload'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
-    hidden: true, 
-  },
-  access: {
-    read: () => true,
+    hidden: true,
   },
   fields: [
     {
       name: 'alt',
       type: 'text',
-      required: false, // THIS MUST BE FALSE
+      required: false, // THIS MUST BE FALSE TO STOP THE 500 ERROR
       admin: {
-        hidden: true, 
+        hidden: true,
       },
     },
   ],
-  upload: {
-    staticDir: path.resolve(dirname, '../../public/media'),
-    adminThumbnail: 'thumbnail',
-  },
+  upload: true, 
 }

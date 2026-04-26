@@ -35,7 +35,7 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      type: 'array', // Stay on one page
+      type: 'array', 
       minRows: 1,
       maxRows: 5,
       fields: [
