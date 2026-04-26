@@ -8,14 +8,16 @@ export const dynamic = 'force-dynamic'
 export default async function HomePage() {
   const payload = await getPayloadHMR({ config: configPromise })
 
+  // FIX: Added 'as any' to bypass strict type checking for the Global
   const banner = (await payload.findGlobal({
     slug: 'banner',
   })) as any
 
-  const products = await payload.find({
+  // FIX: Added 'as any' here so 'productImages' is recognized during build
+  const products = (await payload.find({
     collection: 'products',
     limit: 10,
-  })
+  })) as any
 
   return (
     <main className="min-h-screen bg-white px-4 md:px-0">
@@ -26,7 +28,7 @@ export default async function HomePage() {
             {banner.bestProducts.map((product: any) => (
               <div key={product.id} className="relative flex-1 group overflow-hidden border-r border-white/10">
                 <img
-                  /* FIXED: Accessing the first image in the productImages array */
+                  /* FIXED: Accessing the nested URL in your new array structure */
                   src={product.productImages?.[0]?.image?.url}
                   alt={product.name}
                   className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
@@ -49,11 +51,12 @@ export default async function HomePage() {
         </h3>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {products.docs.map((product: any) => (
+          {/* Note: using products.docs because payload.find returns a PaginatedDocs object */}
+          {products.docs?.map((product: any) => (
             <Link key={product.id} href={`/products/${product.id}`} className="group">
               <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
                 <img
-                  /* FIXED: Changed from .images to .productImages and added .image.url */
+                  /* FIXED: Uses the correct array slug and absolute Vercel Blob URL */
                   src={product.productImages?.[0]?.image?.url}
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
