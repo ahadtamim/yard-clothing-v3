@@ -13,11 +13,7 @@ export const Products: CollectionConfig = {
         { name: 'price', type: 'number', required: true, label: 'Price (BDT)', admin: { width: '40%' } },
       ],
     },
-    {
-      name: 'description',
-      type: 'textarea',
-      label: 'Product Description',
-    },
+    { name: 'description', type: 'textarea', label: 'Product Description' },
     {
       type: 'row',
       fields: [
@@ -38,7 +34,7 @@ export const Products: CollectionConfig = {
     },
     {
       name: 'productImages',
-      label: 'Product Photos (Max 5)',
+      label: 'Product Photos',
       type: 'array', // Everything stays on this one page
       minRows: 1,
       maxRows: 5,
