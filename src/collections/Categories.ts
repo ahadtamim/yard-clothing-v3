@@ -4,7 +4,8 @@ export const Categories: CollectionConfig = {
   slug: 'categories',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug'], // Added slug here so you can see it in the admin list
+    // Added 'parent' to the columns so you can see the hierarchy in the list view
+    defaultColumns: ['title', 'slug', 'parent'],
   },
   access: {
     read: () => true,
@@ -14,16 +15,25 @@ export const Categories: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
-      label: 'Category Name (e.g. Men, Women, New Arrival)',
+      label: 'Category Name (e.g. Men, Women, Panjabi, Saree)',
+    },
+    {
+      name: 'parent',
+      type: 'relationship',
+      relationTo: 'categories', // This points back to this same collection
+      label: 'Parent Category',
+      admin: {
+        position: 'sidebar',
+        description: 'Leave empty if this is a main category (like Men or Women).',
+      },
     },
     {
       name: 'slug',
       type: 'text',
       required: true,
-      // We keep it in the sidebar but read-only so you can verify it matches your URL
       admin: {
         position: 'sidebar',
-        readOnly: true, 
+        readOnly: true,
       },
       hooks: {
         beforeValidate: [
@@ -32,9 +42,9 @@ export const Categories: CollectionConfig = {
               return data.title
                 .toLowerCase()
                 .trim()
-                .replace(/\s+/g, '-')           // Replace spaces with -
-                .replace(/[^\w-]+/g, '')        // Remove all non-word chars (like ' in Men's)
-                .replace(/--+/g, '-')           // Replace multiple - with single -
+                .replace(/\s+/g, '-')
+                .replace(/[^\w-]+/g, '')
+                .replace(/--+/g, '-')
             }
             return value
           },

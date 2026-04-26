@@ -9,30 +9,37 @@ export const dynamic = 'force-dynamic'
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const payload = await getPayloadHMR({ config: configPromise })
   const { slug } = await params 
+  const cleanSlug = slug.toLowerCase()
 
-  // 1. Find the category document that matches the slug from the URL
+  // 1. Find the target category by slug
   const categoryData = await payload.find({
     collection: 'categories',
     where: {
-      slug: {
-        equals: slug.toLowerCase(),
-      },
+      slug: { equals: cleanSlug },
     },
-    limit: 1,
   })
 
-  const category = categoryData.docs[0]
+  const currentCategory = categoryData.docs[0]
+  if (!currentCategory) return notFound()
 
-  if (!category) {
-    return notFound()
-  }
+  // 2. Find all sub-categories that have this category as their 'parent'
+  const subCategoryData = await payload.find({
+    collection: 'categories',
+    where: {
+      parent: { equals: currentCategory.id },
+    },
+    limit: 100,
+  })
 
-  // 2. Fetch products linked to this category ID
+  // Create a list of IDs including the main category and all sub-categories
+  const categoryIds = [currentCategory.id, ...subCategoryData.docs.map((sub) => sub.id)]
+
+  // 3. Find products that belong to ANY of these category IDs
   const products = await payload.find({
     collection: 'products',
     where: {
       category: {
-        equals: category.id,
+        in: categoryIds, // This is the "Choice B" logic
       },
     },
     limit: 100,
@@ -42,13 +49,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   return (
     <main className="min-h-screen bg-white px-8 py-20">
       <div className="max-w-7xl mx-auto">
-        {/* --- IMPROVED HEADER --- */}
         <header className="mb-20 text-center">
           <p className="text-[10px] uppercase tracking-[0.8em] text-gray-400 font-bold mb-4">
             Collection
           </p>
           <h2 className="text-7xl font-black uppercase tracking-tight text-black leading-none">
-            {category.title}
+            {currentCategory.title}
           </h2>
           <div className="w-12 h-[3px] bg-black mx-auto mt-8"></div>
         </header>
@@ -74,7 +80,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         ) : (
           <div className="py-20 text-center border border-dashed border-gray-100">
             <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
-              No products found in "{category.title}" yet.
+              No products found in "{currentCategory.title}" or its sub-collections.
             </p>
           </div>
         )}
