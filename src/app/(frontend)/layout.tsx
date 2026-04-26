@@ -12,6 +12,7 @@ import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
+import Nav from './_components/Nav' // NEW IMPORT
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
@@ -25,33 +26,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-white antialiased">
         <Providers>
-          {/* AdminBar is removed so Dashboard/New Page stays hidden from customers */}
-
-          {/* --- NAVBAR --- */}
-          <nav className="flex items-center justify-between px-8 py-4 bg-black sticky top-0 z-50">
-            <Link href="/" className="hover:opacity-80 transition-opacity">
-              <div className="flex items-center">
-                {/* BLOB LOGO FIX:
-                  Using the Vercel Blob URL. 
-                  'mix-blend-mode: screen' makes the white background of the JPEG transparent on black.
-                */}
-                <img 
-                  src="https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com/Logo/Black%20and%20White%20Yoga%20Studio%20Logo%20%281%29.jpg.jpeg" 
-                  alt="Yard" 
-                  className="h-14 w-auto mix-blend-screen" 
-                />
-              </div>
-            </Link>
-            
-            <div className="flex gap-10">
-              <Link href="/" className="text-white text-[10px] uppercase tracking-[0.3em] hover:text-gray-400 transition-colors">
-                Home
-              </Link>
-              <Link href="/categories" className="text-white text-[10px] uppercase tracking-[0.3em] hover:text-gray-400 transition-colors">
-                Categories
-              </Link>
-            </div>
-          </nav>
+          
+          {/* --- NEW CLIENT-SIDE NAVBAR --- */}
+          <Nav />
 
           <main className="min-h-screen">
             {children}
