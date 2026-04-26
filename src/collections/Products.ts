@@ -35,7 +35,7 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      type: 'array', // Everything stays on this one page
+      type: 'array', // This puts the "Add" button right on the page
       minRows: 1,
       maxRows: 5,
       fields: [

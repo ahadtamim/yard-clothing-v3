@@ -1,9 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -17,20 +12,12 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      required: false, // THIS IS THE FIX: It must be false
+      // CRITICAL FIX: This must be false or the upload fails
+      required: false, 
       admin: {
-        hidden: true, // You will never see this box again
+        hidden: true, // Hide it so you don't have to see it
       },
     },
   ],
-  upload: {
-    staticDir: path.resolve(dirname, '../../public/media'),
-    adminThumbnail: 'thumbnail',
-    imageSizes: [
-      {
-        name: 'thumbnail',
-        width: 300,
-      },
-    ],
-  },
+  upload: true, // Keeps the Vercel Blob connection active
 }
