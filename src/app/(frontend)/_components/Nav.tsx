@@ -19,32 +19,31 @@ export default function Nav() {
       </Link>
       
       <div className="flex gap-10 items-center">
-        <Link href="/" className="text-white text-[10px] uppercase tracking-[0.3em] hover:text-gray-400 transition-colors">
+        <Link href="/" className="text-white text-[10px] uppercase tracking-[0.3em] hover:text-gray-400 transition-colors font-bold">
           Home
         </Link>
         
-        {/* MODIFIED: Replaced Categories with Menu Toggle */}
         <div className="relative">
           <button 
             onClick={() => setIsOpen(!isOpen)}
-            className="text-white text-[10px] uppercase tracking-[0.3em] hover:text-gray-400 transition-colors flex items-center gap-2"
+            className="text-white text-[10px] uppercase tracking-[0.3em] hover:text-gray-400 transition-colors flex items-center gap-2 font-bold"
           >
             {isOpen ? 'Close —' : 'Menu +'}
           </button>
 
-          {/* EXPANDABLE DROPDOWN */}
+          {/* HIGH-CONTRAST DROPDOWN */}
           {isOpen && (
-            <div className="absolute top-10 right-0 bg-white text-black min-w-[160px] shadow-2xl py-4 flex flex-col border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute top-12 right-0 bg-white text-black min-w-[220px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] py-0 flex flex-col border border-gray-200 animate-in fade-in slide-in-from-top-4 duration-300">
               <Link 
                 href="/categories/men" 
-                className="px-6 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-gray-50 border-b border-gray-50"
+                className="px-8 py-6 text-base uppercase tracking-[0.3em] font-black hover:bg-black hover:text-white transition-all duration-200 border-b border-gray-100"
                 onClick={() => setIsOpen(false)}
               >
                 Men
               </Link>
               <Link 
                 href="/categories/women" 
-                className="px-6 py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-gray-50"
+                className="px-8 py-6 text-base uppercase tracking-[0.3em] font-black hover:bg-black hover:text-white transition-all duration-200"
                 onClick={() => setIsOpen(false)}
               >
                 Women

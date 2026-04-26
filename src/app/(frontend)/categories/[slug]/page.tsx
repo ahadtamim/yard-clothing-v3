@@ -11,11 +11,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params 
 
   // 1. Find the category document that matches the slug from the URL
+  // We use lowercase to ensure 'Men' and 'men' both work
   const categoryData = await payload.find({
     collection: 'categories',
     where: {
       slug: {
-        equals: slug,
+        equals: slug.toLowerCase(),
       },
     },
     limit: 1,
@@ -28,7 +29,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     return notFound()
   }
 
-  // 2. Fetch products where the 'category' relationship field matches the ID of the category we found
+  // 2. Fetch products linked to this category ID
+  // depth: 2 is required to reach the 'url' property of the media relationship
   const products = await payload.find({
     collection: 'products',
     where: {
@@ -37,6 +39,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       },
     },
     limit: 100,
+    depth: 2, 
   })
 
   return (
@@ -56,6 +59,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             {products.docs.map((product: any) => (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                  {/* Using optional chaining to safely access image URL */}
                   {product.productImages?.[0]?.image?.url && (
                     <img
                       src={product.productImages[0].image.url}
@@ -70,9 +74,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             ))}
           </div>
         ) : (
-          <div className="py-20 text-center">
+          <div className="py-20 text-center border border-dashed border-gray-100">
             <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
-              No products found in this category yet.
+              No products found in "{category.title}" yet.
             </p>
           </div>
         )}
