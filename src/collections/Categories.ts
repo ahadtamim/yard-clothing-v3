@@ -4,8 +4,7 @@ export const Categories: CollectionConfig = {
   slug: 'categories',
   admin: {
     useAsTitle: 'title',
-    // This hides the 'Sentences/Summary' view to keep it clean
-    defaultColumns: ['title'],
+    defaultColumns: ['title', 'slug'], // Added slug here so you can see it in the admin list
   },
   access: {
     read: () => true,
@@ -15,22 +14,27 @@ export const Categories: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
-      label: 'Category Name (e.g. Mens, Womens, New Arrival)',
+      label: 'Category Name (e.g. Men, Women, New Arrival)',
     },
     {
       name: 'slug',
       type: 'text',
       required: true,
-      // HIDE THE SLUG: It will generate automatically from the title
+      // We keep it in the sidebar but read-only so you can verify it matches your URL
       admin: {
         position: 'sidebar',
-        hidden: true, 
+        readOnly: true, 
       },
       hooks: {
         beforeValidate: [
           ({ value, data }) => {
             if (data?.title) {
-              return data.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '')
+              return data.title
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')           // Replace spaces with -
+                .replace(/[^\w-]+/g, '')        // Remove all non-word chars (like ' in Men's)
+                .replace(/--+/g, '-')           // Replace multiple - with single -
             }
             return value
           },
