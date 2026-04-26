@@ -1,86 +1,53 @@
 import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
-// FIX: Using relative path instead of @payloadcms/config alias
 import configPromise from '@/payload.config'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
-
 export default async function ProductPage({ params }: { params: { id: string } }) {
   const payload = await getPayloadHMR({ config: configPromise })
+  const { id } = params
 
-  // 1. Fetch the specific product
-  // FIX: Added 'as any' to bypass the "Property does not exist" type error during build
-  const product = (await payload.findByID({
+  const product = await payload.findByID({
     collection: 'products',
-    id: params.id,
-  })) as any
+    id,
+  })
 
   if (!product) return notFound()
 
   return (
-    <main className="container py-20 min-h-screen">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-        
-        {/* LEFT SIDE: Image Gallery (Shows your 5 images) */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            {product.images?.map((img: any, index: number) => (
-              <div key={index} className="bg-gray-100 overflow-hidden">
-                <img
-                  src={img.file?.url}
-                  alt={`${product.name} view ${index + 1}`}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            ))}
-          </div>
+    <div className="container mx-auto py-20 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        {/* IMAGE SECTION */}
+        <div className="aspect-[3/4] bg-gray-100 overflow-hidden">
+          {product.productImages?.length > 0 ? (
+            <img
+              /* FIXED: Accessing the new array structure */
+              src={product.productImages[0].image?.url}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              No Image Available
+            </div>
+          )}
         </div>
 
-        {/* RIGHT SIDE: Product Details & Purchase */}
-        <div className="sticky top-20 h-fit">
-          <h1 className="text-4xl font-bold uppercase tracking-tighter mb-2">
-            {product.name}
-          </h1>
-          <p className="text-2xl text-gray-600 mb-8">৳ {product.price}</p>
-
-          <div className="border-t border-b border-gray-100 py-6 mb-8">
-            <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-4 font-bold">
-              Select Size
-            </h3>
-            <div className="flex gap-3">
-              {/* Dynamic Size Selector from your Admin options */}
-              {product.sizes?.map((size: string) => (
-                <button
-                  key={size}
-                  className="w-12 h-12 border border-black flex items-center justify-center text-sm font-bold hover:bg-black hover:text-white transition-colors"
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
+        {/* DETAILS SECTION */}
+        <div>
+          <h1 className="text-3xl font-bold uppercase mb-4">{product.name}</h1>
+          <p className="text-2xl text-gray-600 mb-6">৳ {product.price}</p>
           <div className="mb-8">
-            <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-4 font-bold">
-              Description
-            </h3>
-            <div className="prose prose-sm text-gray-700">
-              {/* This renders the RichText from your Admin panel */}
-              {product.details && <div dangerouslySetInnerHTML={{ __html: product.details }} />}
-            </div>
+             <h3 className="text-xs uppercase font-bold tracking-widest mb-3">Sizes</h3>
+             <div className="flex gap-2">
+               {product.sizes?.map((size: string) => (
+                 <span key={size} className="border px-4 py-2 uppercase text-sm">{size}</span>
+               ))}
+             </div>
           </div>
-
-          <div className="space-y-4">
-            <button className="w-full bg-black text-white py-4 uppercase font-bold tracking-widest hover:bg-gray-900 transition-colors">
-              Add to Bag
-            </button>
-            <p className="text-center text-[10px] text-gray-400 uppercase tracking-widest">
-              Stock available: {product.inventory} items left
-            </p>
-          </div>
+          <p className="text-gray-700 leading-relaxed">{product.description}</p>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
