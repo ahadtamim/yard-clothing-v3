@@ -61,9 +61,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             {products.docs.map((product: any) => (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                  {product.productImages?.[0]?.image?.url && (
+                  {/* FIX: Updated data path for the new bulk-relationship structure */}
+                  {product.productImages?.[0]?.url && (
                     <img
-                      src={product.productImages[0].image.url}
+                      src={product.productImages[0].url}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
                     />

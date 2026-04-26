@@ -35,17 +35,15 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      type: 'array', 
-      minRows: 1,
+      type: 'relationship', // Changed from 'array' to 'relationship'
+      relationTo: 'media',  // Points to media collection
+      hasMany: true,        // Allows selecting multiple images at once
+      minRows: 1,           // Note: minRows/maxRows work for relationships in modern Payload
       maxRows: 5,
-      fields: [
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          required: true,
-        },
-      ],
+      required: true,
+      admin: {
+        description: 'Click to select up to 5 photos. You can check multiple boxes in the media library.',
+      },
     },
   ],
 }
