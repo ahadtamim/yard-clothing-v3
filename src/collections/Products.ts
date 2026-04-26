@@ -40,15 +40,13 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
-        // THIS IS THE FIX:
-        // isSortable removes the "Select a value" dropdown 
-        // and provides a list UI with a bulk-selection grid.
-        isSortable: true, 
-        description: 'Click the "+" button to bulk select up to 5 photos from your library.',
+        // isSortable ensures the field is rendered as a list, 
+        // allowing the bulk-selection grid to appear via the "+" button.
+        isSortable: true,
+        description: 'Click the "+" button to bulk upload or select up to 5 photos.',
       },
-      // Better way to enforce the 5-image limit
       validate: (val) => {
-        if (val && val.length > 5) {
+        if (val && Array.isArray(val) && val.length > 5) {
           return 'You can only select a maximum of 5 images.'
         }
         return true
