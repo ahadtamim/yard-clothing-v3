@@ -1,23 +1,10 @@
-import React from 'react'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
-import configPromise from '@/payload.config'
+'use client' // CRITICAL: This must be a client component to use onClick and useState
+import React, { useState } from 'react'
 import { notFound } from 'next/navigation'
 
-// 1. FORCE DYNAMIC: This ensures Next.js fetches the product from the 
-// database on every click instead of showing a 404 for new items.
-export const dynamic = 'force-dynamic'
-
-export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const payload = await getPayloadHMR({ config: configPromise })
-  
-  // 2. AWAIT PARAMS: In newer Next.js versions, params must be awaited.
-  const { id } = await params
-
-  // 3. FETCH PRODUCT: Cast 'as any' to match your homepage logic and bypass TypeScript.
-  const product = (await payload.findByID({
-    collection: 'products',
-    id,
-  }).catch(() => null)) as any
+export default function ProductPage({ product }: { product: any }) {
+  // Track the selected size in state
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   if (!product) return notFound()
 
@@ -27,16 +14,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         
         {/* IMAGE SECTION */}
         <div className="aspect-[3/4] bg-gray-100 overflow-hidden rounded-sm">
-          {product.productImages?.[0]?.image?.url ? (
+          {product.productImages?.[0]?.image?.url && (
             <img
               src={product.productImages[0].image.url}
               alt={product.name}
               className="w-full h-full object-cover"
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50 uppercase text-xs tracking-widest">
-              No Image Found
-            </div>
           )}
         </div>
 
@@ -45,10 +28,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <h1 className="text-4xl font-bold uppercase tracking-tighter mb-2">
             {product.name}
           </h1>
-          
-          <p className="text-2xl text-gray-800 mb-8 font-light">
-            ৳ {product.price}
-          </p>
+          <p className="text-2xl text-gray-800 mb-8 font-light">৳ {product.price}</p>
 
           <div className="mb-10">
             <h3 className="text-[10px] uppercase font-bold tracking-[0.3em] mb-4 text-gray-500">
@@ -56,9 +36,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </h3>
             <div className="flex flex-wrap gap-2">
               {product.sizes?.map((size: string) => (
-                <div key={size} className="border border-black px-6 py-2 text-xs uppercase hover:bg-black hover:text-white transition-colors cursor-pointer">
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`
+                    border px-6 py-2 text-xs uppercase transition-all duration-200
+                    ${selectedSize === size 
+                      ? 'bg-black text-white border-black' // Style when SELECTED
+                      : 'bg-white text-black border-gray-200 hover:border-black' // Style when NOT selected
+                    }
+                  `}
+                >
                   {size}
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -69,8 +59,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </p>
           </div>
           
-          <button className="mt-12 w-full md:w-64 bg-black text-white py-4 text-xs uppercase tracking-widest font-bold">
-            Add to Bag
+          <button className="mt-12 w-full md:w-64 bg-black text-white py-4 text-xs uppercase tracking-widest font-bold hover:bg-gray-800 transition-colors">
+            Add to Bag {selectedSize ? `(${selectedSize})` : ''}
           </button>
         </div>
       </div>
