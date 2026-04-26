@@ -40,10 +40,8 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
-        // isSortable ensures the field is rendered as a list, 
-        // allowing the bulk-selection grid to appear via the "+" button.
-        isSortable: true,
-        description: 'Click the "+" button to bulk upload or select up to 5 photos.',
+        isSortable: true, // Changes UI from dropdown to a list with a "+" button
+        description: 'Click "+" to upload or select up to 5 photos from your PC.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {

@@ -3,8 +3,6 @@ import type { CollectionConfig } from 'payload'
 export const Media: CollectionConfig = {
   slug: 'media',
   upload: {
-    // In Payload 3.0, 'staticURL' is removed. 
-    // The URL is handled automatically or via the 'adminThumbnail' strategy.
     staticDir: 'media',
     imageSizes: [
       {
@@ -17,16 +15,7 @@ export const Media: CollectionConfig = {
     adminThumbnail: 'thumbnail',
     mimeTypes: ['image/*'],
   },
-  admin: {
-    // This allows the "Upload" modal to accept multiple files from your PC at once
-    upload: {
-      collections: {
-        media: {
-          allowMultiSelect: true,
-        },
-      },
-    },
-  },
+  // Removed the 'admin.upload' block that caused the Type error
   fields: [
     {
       name: 'alt',
