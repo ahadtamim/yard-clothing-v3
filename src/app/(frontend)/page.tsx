@@ -5,7 +5,6 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-// CRITICAL: This MUST say 'export default'
 export default async function HomePage() {
   const payload = await getPayloadHMR({ config: configPromise })
 
@@ -27,7 +26,8 @@ export default async function HomePage() {
             {banner.bestProducts.map((product: any) => (
               <div key={product.id} className="relative flex-1 group overflow-hidden border-r border-white/10">
                 <img
-                  src={product.images?.[0]?.file?.url}
+                  /* FIXED: Accessing the first image in the productImages array */
+                  src={product.productImages?.[0]?.image?.url}
                   alt={product.name}
                   className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                 />
@@ -53,7 +53,8 @@ export default async function HomePage() {
             <Link key={product.id} href={`/products/${product.id}`} className="group">
               <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
                 <img
-                  src={product.images?.[0]?.file?.url}
+                  /* FIXED: Changed from .images to .productImages and added .image.url */
+                  src={product.productImages?.[0]?.image?.url}
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
