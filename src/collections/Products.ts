@@ -9,15 +9,37 @@ export const Products: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'name', type: 'text', required: true, label: 'Product Name', admin: { width: '60%' } },
-        { name: 'price', type: 'number', required: true, label: 'Price (BDT)', admin: { width: '40%' } },
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+          label: 'Product Name',
+          admin: { width: '60%' },
+        },
+        {
+          name: 'price',
+          type: 'number',
+          required: true,
+          label: 'Price (BDT)',
+          admin: { width: '40%' },
+        },
       ],
     },
-    { name: 'description', type: 'textarea', label: 'Product Description' },
+    {
+      name: 'description',
+      type: 'textarea',
+      label: 'Product Description',
+    },
     {
       type: 'row',
       fields: [
-        { name: 'category', type: 'relationship', relationTo: 'categories', required: true, admin: { width: '50%' } },
+        {
+          name: 'category',
+          type: 'relationship',
+          relationTo: 'categories',
+          required: true,
+          admin: { width: '50%' },
+        },
         {
           name: 'sizes',
           type: 'select',
@@ -25,8 +47,11 @@ export const Products: CollectionConfig = {
           required: true,
           label: 'Available Sizes',
           options: [
-            { label: 'S', value: 's' }, { label: 'M', value: 'm' }, { label: 'L', value: 'l' },
-            { label: 'XL', value: 'xl' }, { label: 'XXL', value: 'xxl' },
+            { label: 'S', value: 's' },
+            { label: 'M', value: 'm' },
+            { label: 'L', value: 'l' },
+            { label: 'XL', value: 'xl' },
+            { label: 'XXL', value: 'xxl' },
           ],
           admin: { width: '50%' },
         },
@@ -41,16 +66,7 @@ export const Products: CollectionConfig = {
       required: true,
       admin: {
         isSortable: true,
-        description: 'Click "+" to upload or select up to 5 photos from your PC.',
-        // THIS IS THE KEY: We explicitly tell the admin UI 
-        // to allow multiple files in the upload sub-component.
-        upload: {
-          collections: {
-            media: {
-              allowMultiSelect: true,
-            },
-          },
-        },
+        description: 'Click the "+" button to bulk select or upload up to 5 photos.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
@@ -59,3 +75,5 @@ export const Products: CollectionConfig = {
         return true
       },
     },
+  ],
+}
