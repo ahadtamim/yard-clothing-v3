@@ -35,14 +35,23 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      type: 'relationship', // Changed from 'array' to 'relationship'
-      relationTo: 'media',  // Points to media collection
-      hasMany: true,        // Allows selecting multiple images at once
-      minRows: 1,           // Note: minRows/maxRows work for relationships in modern Payload
-      maxRows: 5,
+      type: 'relationship',
+      relationTo: 'media',
+      hasMany: true,
       required: true,
       admin: {
-        description: 'Click to select up to 5 photos. You can check multiple boxes in the media library.',
+        // THIS IS THE FIX:
+        // isSortable removes the "Select a value" dropdown 
+        // and provides a list UI with a bulk-selection grid.
+        isSortable: true, 
+        description: 'Click the "+" button to bulk select up to 5 photos from your library.',
+      },
+      // Better way to enforce the 5-image limit
+      validate: (val) => {
+        if (val && val.length > 5) {
+          return 'You can only select a maximum of 5 images.'
+        }
+        return true
       },
     },
   ],

@@ -58,22 +58,30 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
         {products.docs.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {products.docs.map((product: any) => (
-              <Link key={product.id} href={`/products/${product.id}`} className="group">
-                <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                  {/* FIX: Updated data path for the new bulk-relationship structure */}
-                  {product.productImages?.[0]?.url && (
-                    <img
-                      src={product.productImages[0].url}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
-                    />
-                  )}
-                </div>
-                <h4 className="font-bold text-sm uppercase tracking-tight text-black">{product.name}</h4>
-                <p className="text-gray-500 text-sm">৳ {product.price}</p>
-              </Link>
-            ))}
+            {products.docs.map((product: any) => {
+              // Get the first image from the relationship array
+              const mainImage = product.productImages?.[0]
+              
+              return (
+                <Link key={product.id} href={`/products/${product.id}`} className="group">
+                  <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                    {mainImage?.url ? (
+                      <img
+                        src={mainImage.url}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300 uppercase tracking-widest">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <h4 className="font-bold text-sm uppercase tracking-tight text-black">{product.name}</h4>
+                  <p className="text-gray-500 text-sm font-light">৳ {product.price}</p>
+                </Link>
+              )
+            })}
           </div>
         ) : (
           <div className="py-20 text-center border border-dashed border-gray-100">
