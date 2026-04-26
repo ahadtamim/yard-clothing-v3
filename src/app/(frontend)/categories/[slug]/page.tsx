@@ -10,8 +10,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const payload = await getPayloadHMR({ config: configPromise })
   const { slug } = await params 
 
-  // 1. Find the category ID that matches the slug (e.g., 'men')
-  const categoryReq = await payload.find({
+  // 1. Find the category document that matches the slug from the URL
+  const categoryData = await payload.find({
     collection: 'categories',
     where: {
       slug: {
@@ -21,11 +21,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     limit: 1,
   })
 
-  const category = categoryReq.docs[0]
+  const category = categoryData.docs[0]
 
-  if (!category) return notFound()
+  // If no category exists with that slug, show 404
+  if (!category) {
+    return notFound()
+  }
 
-  // 2. Fetch products where 'category' relationship matches this category's ID
+  // 2. Fetch products where the 'category' relationship field matches the ID of the category we found
   const products = await payload.find({
     collection: 'products',
     where: {
@@ -38,33 +41,42 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="min-h-screen bg-white px-8 py-20">
-      <h1 className="text-[10px] uppercase tracking-[0.5em] text-gray-400 mb-16 text-center font-bold">
-        Collection: {category.title || slug}
-      </h1>
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-16 text-center">
+          <h1 className="text-[10px] uppercase tracking-[0.5em] text-gray-400 font-bold mb-2">
+            Collection
+          </h1>
+          <h2 className="text-3xl font-black uppercase tracking-tighter">
+            {category.title}
+          </h2>
+        </header>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
-        {products.docs.map((product: any) => (
-          <Link key={product.id} href={`/products/${product.id}`} className="group">
-            <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-              {product.productImages?.[0]?.image?.url && (
-                <img
-                  src={product.productImages[0].image.url}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              )}
-            </div>
-            <h4 className="font-bold text-sm uppercase">{product.name}</h4>
-            <p className="text-gray-500 text-sm">৳ {product.price}</p>
-          </Link>
-        ))}
+        {products.docs.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {products.docs.map((product: any) => (
+              <Link key={product.id} href={`/products/${product.id}`} className="group">
+                <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                  {product.productImages?.[0]?.image?.url && (
+                    <img
+                      src={product.productImages[0].image.url}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  )}
+                </div>
+                <h4 className="font-bold text-sm uppercase tracking-tight">{product.name}</h4>
+                <p className="text-gray-500 text-sm font-light">৳ {product.price}</p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="py-20 text-center">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
+              No products found in this category yet.
+            </p>
+          </div>
+        )}
       </div>
-      
-      {products.docs.length === 0 && (
-        <p className="text-center text-gray-400 text-xs uppercase tracking-widest mt-10">
-          No products found in this category.
-        </p>
-      )}
     </main>
   )
 }
