@@ -2,7 +2,7 @@ import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config'
 import { notFound } from 'next/navigation'
-import ProductClient from './ProductClient' // Import the component we made in Step 1
+import ProductClient from './ProductClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,10 +13,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const product = (await payload.findByID({
     collection: 'products',
     id,
+    // DEPTH IS THE KEY: 
+    // depth: 2 ensures Payload returns the full Media object (URL, sizes, etc.)
+    // instead of just the ID number.
+    depth: 2, 
   }).catch(() => null)) as any
 
   if (!product) return notFound()
 
-  // Pass the data to the Client Component
-  return <ProductClient product={product} />
+  // Ensure productImages is an array even if empty to prevent frontend errors
+  const formattedProduct = {
+    ...product,
+    productImages: Array.isArray(product.productImages) ? product.productImages : []
+  }
+
+  return <ProductClient product={formattedProduct} />
 }

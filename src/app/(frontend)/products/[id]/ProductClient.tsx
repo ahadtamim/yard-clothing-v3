@@ -2,19 +2,43 @@
 import React, { useState } from 'react'
 
 export default function ProductClient({ product }: { product: any }) {
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  // Use the first image as the default starting image
+  const [mainImage, setMainImage] = useState(product.productImages?.[0]?.url || '')
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
 
   return (
     <div className="container mx-auto py-20 px-4 min-h-screen bg-white">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        
         {/* IMAGE SECTION */}
-        <div className="aspect-[3/4] bg-gray-100 overflow-hidden rounded-sm">
-          {product.productImages?.[0]?.image?.url && (
-            <img
-              src={product.productImages[0].image.url}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+        <div className="flex flex-col gap-4">
+          <div className="aspect-[3/4] bg-gray-100 overflow-hidden rounded-sm">
+            {mainImage ? (
+              <img
+                src={mainImage}
+                alt={product.name}
+                className="w-full h-full object-cover transition-opacity duration-300"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                No Image Available
+              </div>
+            )}
+          </div>
+
+          {/* MULTI-IMAGE THUMBNAILS */}
+          {product.productImages?.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {product.productImages.map((img: any, idx: number) => (
+                <button 
+                  key={idx}
+                  onClick={() => setMainImage(img.url)}
+                  className={`w-20 h-20 flex-shrink-0 border ${mainImage === img.url ? 'border-black' : 'border-transparent'}`}
+                >
+                  <img src={img.url} className="w-full h-full object-cover" alt="" />
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -43,10 +67,16 @@ export default function ProductClient({ product }: { product: any }) {
             </div>
           </div>
 
-          <p className="text-gray-600 text-sm mb-10">{product.description}</p>
+          <p className="text-gray-600 text-sm mb-10 whitespace-pre-line">{product.description}</p>
           
-          <button className="w-full md:w-64 bg-black text-white py-4 text-xs uppercase tracking-widest font-bold hover:bg-gray-800">
-            Add to Bag {selectedSize ? `(${selectedSize})` : ''}
+          <button 
+            disabled={!selectedSize}
+            className={`w-full md:w-64 py-4 text-xs uppercase tracking-widest font-bold transition-colors
+              ${selectedSize 
+                ? 'bg-black text-white hover:bg-gray-800' 
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+          >
+            {selectedSize ? `Add to Bag (${selectedSize})` : 'Select a Size'}
           </button>
         </div>
       </div>
