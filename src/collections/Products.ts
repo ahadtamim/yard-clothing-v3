@@ -60,15 +60,15 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      // Reverting to relationship for better list visibility
-      type: 'relationship', 
+      type: 'relationship',
       relationTo: 'media',
       hasMany: true,
       required: true,
       admin: {
-        // isSortable triggers the list UI and allows reordering
-        isSortable: true,
-        description: 'Click "+" to manage photos. Selected images will appear here.',
+        // isSortable removes the dropdown/search bar UI
+        isSortable: true, 
+        // This makes the UI focus on selection rather than a search input
+        allowCreate: true,
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
