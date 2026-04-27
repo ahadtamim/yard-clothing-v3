@@ -60,15 +60,14 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      type: 'relationship',
+      type: 'upload', // Changed from 'relationship' to 'upload' to remove the search bar
       relationTo: 'media',
       hasMany: true,
       required: true,
       admin: {
-        // In Payload 3.0, isSortable is the primary trigger to move 
-        // away from the dropdown and into a list-based UI.
+        // This makes the field act as a sortable gallery instead of a search box
         isSortable: true,
-        description: 'Click the "+" button on the right to manage photos.',
+        description: 'Click the "+" button to bulk upload or select up to 5 photos.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
