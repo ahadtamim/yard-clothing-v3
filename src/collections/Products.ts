@@ -65,10 +65,10 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
-        // 'isSortable: true' is the standard way to trigger the list UI 
-        // and remove the dropdown search bar for relationships.
+        // In Payload 3.0, isSortable is the primary trigger to move 
+        // away from the dropdown and into a list-based UI.
         isSortable: true,
-        description: 'Click the "+" button to manage your product photos.',
+        description: 'Click the "+" button on the right to manage photos.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
