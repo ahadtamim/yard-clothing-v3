@@ -60,14 +60,15 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      type: 'upload', // Changed from 'relationship' to 'upload' to remove the search bar
+      // Reverting to relationship for better list visibility
+      type: 'relationship', 
       relationTo: 'media',
       hasMany: true,
       required: true,
       admin: {
-        // This makes the field act as a sortable gallery instead of a search box
+        // isSortable triggers the list UI and allows reordering
         isSortable: true,
-        description: 'Click the "+" button to bulk upload or select up to 5 photos.',
+        description: 'Click "+" to manage photos. Selected images will appear here.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
