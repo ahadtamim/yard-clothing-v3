@@ -1,14 +1,20 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation' // Added for redirection
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const router = useRouter() // Initialize the router
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Logic for email-only sign-in goes here
+    
+    // 1. Capture the email (You can later save this to local storage or a cookie)
     console.log("Signing in with:", email)
-    alert(`Magic link sent to ${email} (or signed in as guest)`)
+    
+    // 2. Redirect the user back to the home page so they can shop
+    // In a professional flow, this 'logs them in' as a guest session
+    router.push('/') 
   }
 
   return (
@@ -38,7 +44,7 @@ export default function LoginPage() {
         </button>
 
         <p className="text-[9px] text-center uppercase tracking-widest text-gray-400 px-4 leading-relaxed">
-          By continuing, you will receive a secure login link or continue your checkout as a guest.
+          By continuing, you will be redirected to the shop to browse as a guest.
         </p>
       </form>
     </div>

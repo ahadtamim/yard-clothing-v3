@@ -1,19 +1,22 @@
 'use client'
-import React, { useState } from 'react'
-import { useCart } from '@/store/useCart' // Ensure you created this store file
+import React, { useState, useEffect } from 'react'
+import { useCart } from '@/store/useCart'
 
 export default function ProductClient({ product }: { product: any }) {
-  // Use the first image as the default starting image
   const [mainImage, setMainImage] = useState(product.productImages?.[0]?.url || '')
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
   
-  // Get the addItem function from our Zustand store
   const addItem = useCart((state: any) => state.addItem)
+
+  // Wait for the component to mount to avoid hydration errors
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const handleAddToBag = () => {
     if (!selectedSize) return
 
-    // Create the item object to save in the cart
     const itemToAdd = {
       id: product.id,
       name: product.name,
@@ -23,10 +26,10 @@ export default function ProductClient({ product }: { product: any }) {
     }
 
     addItem(itemToAdd)
-    
-    // Optional: Visual feedback
     alert(`${product.name} (${selectedSize}) added to bag!`)
   }
+
+  if (!isMounted) return null
 
   return (
     <div className="container mx-auto py-20 px-4 min-h-screen bg-white">
@@ -48,15 +51,17 @@ export default function ProductClient({ product }: { product: any }) {
             )}
           </div>
 
-          {/* MULTI-IMAGE THUMBNAILS */}
+          {/* THUMBNAILS */}
           {product.productImages?.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {product.productImages.map((img: any, idx: number) => (
                 <button 
                   key={idx}
                   type="button"
                   onClick={() => setMainImage(img.url)}
-                  className={`w-20 h-20 flex-shrink-0 border ${mainImage === img.url ? 'border-black' : 'border-transparent'}`}
+                  className={`w-20 h-20 flex-shrink-0 border transition-all ${
+                    mainImage === img.url ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
                 >
                   <img src={img.url} className="w-full h-full object-cover" alt="" />
                 </button>
@@ -91,16 +96,18 @@ export default function ProductClient({ product }: { product: any }) {
             </div>
           </div>
 
-          <p className="text-gray-600 text-sm mb-10 whitespace-pre-line">{product.description}</p>
+          <p className="text-gray-600 text-sm mb-10 whitespace-pre-line leading-relaxed">
+            {product.description}
+          </p>
           
           <button 
             type="button"
-            onClick={handleAddToBag} // TRIGGER THE ACTION HERE
+            onClick={handleAddToBag}
             disabled={!selectedSize}
-            className={`w-full md:w-64 py-4 text-xs uppercase tracking-widest font-bold transition-colors
+            className={`w-full md:w-64 py-4 text-[10px] uppercase tracking-[0.2em] font-bold transition-all
               ${selectedSize 
-                ? 'bg-black text-white hover:bg-gray-800' 
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                ? 'bg-black text-white hover:bg-zinc-800 active:scale-[0.98]' 
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
           >
             {selectedSize ? `Add to Bag (${selectedSize})` : 'Select a Size'}
           </button>
