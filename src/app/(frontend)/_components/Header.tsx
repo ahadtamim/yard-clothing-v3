@@ -2,10 +2,14 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, User } from 'lucide-react' // Using lucide for consistency
+import { ShoppingBag, User } from 'lucide-react'
+import { useCart } from '@/store/useCart' // IMPORT THE STORE
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  
+  // Use the store to get the current items in the bag
+  const cartItems = useCart((state: any) => state.items)
 
   return (
     <header className="bg-black text-white py-6 px-10 flex justify-between items-center sticky top-0 z-[100]">
@@ -31,8 +35,9 @@ export default function Header() {
         {/* BAG / CART */}
         <Link href="/cart" className="relative hover:text-gray-400 transition-colors">
           <ShoppingBag size={18} strokeWidth={1.5} />
+          {/* UPDATED COUNTER: Now shows the actual number of items */}
           <span className="absolute -top-1 -right-2 bg-white text-black text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-black">
-            0
+            {cartItems.length}
           </span>
         </Link>
 
@@ -67,7 +72,7 @@ export default function Header() {
                 className="px-8 py-3 text-[9px] uppercase tracking-widest font-bold text-gray-400 hover:text-black"
                 onClick={() => setIsOpen(false)}
               >
-                View Bag
+                View Bag ({cartItems.length})
               </Link>
             </div>
           )}

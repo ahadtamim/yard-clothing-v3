@@ -1,10 +1,32 @@
 'use client'
 import React, { useState } from 'react'
+import { useCart } from '@/store/useCart' // Ensure you created this store file
 
 export default function ProductClient({ product }: { product: any }) {
   // Use the first image as the default starting image
   const [mainImage, setMainImage] = useState(product.productImages?.[0]?.url || '')
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  
+  // Get the addItem function from our Zustand store
+  const addItem = useCart((state: any) => state.addItem)
+
+  const handleAddToBag = () => {
+    if (!selectedSize) return
+
+    // Create the item object to save in the cart
+    const itemToAdd = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.productImages?.[0]?.url,
+      size: selectedSize,
+    }
+
+    addItem(itemToAdd)
+    
+    // Optional: Visual feedback
+    alert(`${product.name} (${selectedSize}) added to bag!`)
+  }
 
   return (
     <div className="container mx-auto py-20 px-4 min-h-screen bg-white">
@@ -32,6 +54,7 @@ export default function ProductClient({ product }: { product: any }) {
               {product.productImages.map((img: any, idx: number) => (
                 <button 
                   key={idx}
+                  type="button"
                   onClick={() => setMainImage(img.url)}
                   className={`w-20 h-20 flex-shrink-0 border ${mainImage === img.url ? 'border-black' : 'border-transparent'}`}
                 >
@@ -55,6 +78,7 @@ export default function ProductClient({ product }: { product: any }) {
               {product.sizes?.map((size: string) => (
                 <button
                   key={size}
+                  type="button"
                   onClick={() => setSelectedSize(size)}
                   className={`border px-6 py-2 text-xs uppercase transition-all duration-200 
                     ${selectedSize === size 
@@ -70,6 +94,8 @@ export default function ProductClient({ product }: { product: any }) {
           <p className="text-gray-600 text-sm mb-10 whitespace-pre-line">{product.description}</p>
           
           <button 
+            type="button"
+            onClick={handleAddToBag} // TRIGGER THE ACTION HERE
             disabled={!selectedSize}
             className={`w-full md:w-64 py-4 text-xs uppercase tracking-widest font-bold transition-colors
               ${selectedSize 
