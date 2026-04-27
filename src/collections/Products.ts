@@ -65,10 +65,9 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
-        // isSortable removes the dropdown/search bar UI
-        isSortable: true, 
-        // This makes the UI focus on selection rather than a search input
-        allowCreate: true,
+        isSortable: true,
+        // We REMOVE allowCreate to stop the single-file upload popup
+        // This forces Payload to open the List View/Gallery
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
