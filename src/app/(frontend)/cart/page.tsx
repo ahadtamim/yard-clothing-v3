@@ -1,22 +1,28 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/store/useCart'
 import { Trash2, ArrowRight } from 'lucide-react'
 
 export default function CartPage() {
-  const { items, removeItem, total } = useCart((state: any) => ({
-    items: state.items,
-    removeItem: state.removeItem,
-    // We can calculate total here or in the store
-    total: state.items.reduce((acc: number, item: any) => acc + Number(item.price), 0)
-  }))
+  const { items, removeItem } = useCart()
+  const [total, setTotal] = useState(0)
+  const [isClient, setIsClient] = useState(false)
+
+  // 1. Fix the "Hydration" error and Infinite Loop
+  useEffect(() => {
+    setIsClient(true)
+    const newTotal = items.reduce((acc: number, item: any) => acc + Number(item.price || 0), 0)
+    setTotal(newTotal)
+  }, [items])
+
+  // Prevent rendering until we are sure we are on the client
+  if (!isClient) return null
 
   if (items.length === 0) {
     return (
       <div className="container mx-auto pt-40 pb-20 px-6 text-center min-h-screen">
         <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">Your Bag is Empty</h1>
-        <p className="text-gray-500 text-xs uppercase tracking-widest mb-10">Start adding some Yard pieces.</p>
         <Link href="/" className="inline-block bg-black text-white px-12 py-4 text-[10px] uppercase tracking-[0.3em] font-bold">
           Shop All
         </Link>
@@ -70,9 +76,9 @@ export default function CartPage() {
               <span>Subtotal</span>
               <span>৳ {total}</span>
             </div>
-            <div className="flex justify-between text-xs uppercase tracking-widest">
+            <div className="flex justify-between text-xs uppercase tracking-widest font-bold text-green-600">
               <span>Delivery</span>
-              <span className="text-green-600 font-bold">FREE</span>
+              <span>FREE</span>
             </div>
             <div className="border-t border-gray-200 pt-4 flex justify-between text-sm font-black uppercase tracking-tighter">
               <span>Total</span>
@@ -82,13 +88,10 @@ export default function CartPage() {
 
           <Link 
             href="/checkout"
-            className="w-full bg-black text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all"
+            className="w-full bg-black text-white py-5 text-[10px] uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-2"
           >
             Checkout <ArrowRight size={14} />
           </Link>
-          <p className="text-[9px] text-gray-400 mt-4 text-center uppercase tracking-widest">
-            Cash on Delivery Available
-          </p>
         </div>
       </div>
     </div>
