@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { ShoppingBag, User } from 'lucide-react' // Clean icons for Bag and Account
 
 export default function Nav() {
   const [isOpen, setIsOpen] = useState(false)
@@ -34,6 +35,7 @@ export default function Nav() {
 
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-black sticky top-0 z-50">
+      {/* LOGO */}
       <Link href="/" className="hover:opacity-80 transition-opacity">
         <img 
           src="https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com/Logo/Black%20and%20White%20Yoga%20Studio%20Logo%20%281%29.jpg.jpeg" 
@@ -42,14 +44,31 @@ export default function Nav() {
         />
       </Link>
       
-      <div className="flex gap-10 items-center">
+      {/* RIGHT SIDE ACTIONS */}
+      <div className="flex gap-8 items-center">
+        {/* LOGIN / ACCOUNT */}
+        <Link href="/login" className="text-white hover:text-gray-400 transition-colors flex items-center gap-2">
+          <User size={18} strokeWidth={1.5} />
+          <span className="text-[10px] uppercase tracking-widest font-bold hidden sm:inline">Account</span>
+        </Link>
+
+        {/* BAG / CART */}
+        <Link href="/cart" className="text-white hover:text-gray-400 transition-colors relative group">
+          <ShoppingBag size={18} strokeWidth={1.5} />
+          <span className="absolute -top-1 -right-2 bg-white text-black text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-black">
+            0
+          </span>
+        </Link>
+
+        {/* MENU TOGGLE */}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="text-white text-[10px] uppercase tracking-[0.3em] font-bold"
+          className="text-white text-[10px] uppercase tracking-[0.3em] font-bold border-l border-white/20 pl-8 h-6 flex items-center"
         >
           {isOpen ? 'Close —' : 'Menu +'}
         </button>
 
+        {/* DROPDOWN MENU */}
         {isOpen && (
           <div className="absolute top-full right-0 bg-white text-black min-w-[300px] shadow-2xl flex flex-col border-l border-gray-100">
             {categories.map((parent) => (
