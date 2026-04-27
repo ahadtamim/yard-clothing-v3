@@ -15,12 +15,17 @@ export const Media: CollectionConfig = {
     adminThumbnail: 'thumbnail',
     mimeTypes: ['image/*'],
   },
-  // Removed the 'admin.upload' block that caused the Type error
   fields: [
     {
       name: 'alt',
       type: 'text',
-      required: true,
+      // Changing required to false allows you to save images 
+      // quickly without typing an Alt tag every time.
+      required: false, 
+      label: 'Alt Text (Optional)',
+      admin: {
+        description: 'Describe the image for SEO and accessibility.',
+      },
     },
   ],
 }
