@@ -65,11 +65,10 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
-        // This is the magic fix:
-        // 'isSortable' + 'layout: list' removes the dropdown/search bar
         isSortable: true,
-        layout: 'list', 
-        description: 'Manage your photos here. Click the "+" to add new ones or reorder by dragging.',
+        // This 'list' layout is what removes the "Select a value" search bar
+        layout: 'list',
+        description: 'Click "+" to upload/select photos. Drag to reorder.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
@@ -78,3 +77,5 @@ export const Products: CollectionConfig = {
         return true
       },
     },
+  ],
+}
