@@ -65,10 +65,10 @@ export const Products: CollectionConfig = {
       hasMany: true,
       required: true,
       admin: {
+        // 'isSortable: true' is the standard way to trigger the list UI 
+        // and remove the dropdown search bar for relationships.
         isSortable: true,
-        // This 'list' layout is what removes the "Select a value" search bar
-        layout: 'list',
-        description: 'Click "+" to upload/select photos. Drag to reorder.',
+        description: 'Click the "+" button to manage your product photos.',
       },
       validate: (val) => {
         if (val && Array.isArray(val) && val.length > 5) {
