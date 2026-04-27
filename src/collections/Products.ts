@@ -52,6 +52,7 @@ export const Products: CollectionConfig = {
             { label: 'L', value: 'l' },
             { label: 'XL', value: 'xl' },
             { label: 'XXL', value: 'xxl' },
+            { label: 'Unstitched', value: 'unstitched' }, // Added this option
           ],
           admin: { width: '50%' },
         },
@@ -60,14 +61,11 @@ export const Products: CollectionConfig = {
     {
       name: 'productImages',
       label: 'Product Photos',
-      // Using 'upload' is the ONLY way to get the native multi-file picker
       type: 'upload',
       relationTo: 'media',
       hasMany: true,
       required: true,
       admin: {
-        // We set this to true so the browser's file picker allows 
-        // selecting multiple files at once.
         description: 'You can select up to 5 photos from your computer at once.',
       },
       validate: (val) => {
