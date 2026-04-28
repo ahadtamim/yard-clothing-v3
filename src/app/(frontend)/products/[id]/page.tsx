@@ -18,11 +18,27 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   if (!product) return notFound()
 
-  // Robust helper to find the URL regardless of Payload's nesting
+  /**
+   * FIXED HELPER:
+   * Uses an exhaustive check to find the URL string.
+   * Checks img, img.url, img.image.url, and img.image.
+   */
   const getFullImageUrl = (img: any) => {
-    const url = typeof img === 'string' ? img : (img?.url || img?.image?.url || img?.image);
+    if (!img) return '/placeholder.jpg'
     
-    if (!url || typeof url !== 'string') return '/placeholder.jpg'
+    // Check all possible locations Payload stores the URL string
+    let url = ''
+    if (typeof img === 'string') {
+      url = img
+    } else if (img?.url && typeof img.url === 'string') {
+      url = img.url
+    } else if (img?.image?.url && typeof img.image.url === 'string') {
+      url = img.image.url
+    } else if (img?.image && typeof img.image === 'string') {
+      url = img.image
+    }
+
+    if (!url) return '/placeholder.jpg'
     if (url.startsWith('http')) return url
     
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
@@ -30,9 +46,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     return `${blobDomain}${path}`
   }
 
-  // Flatten productImages into a simple array of URL strings
+  // Format the product to send CLEAN strings to the Client Component
   const formattedProduct = {
     ...product,
+    // Flattening the array here ensures ProductClient only deals with strings
     productImages: (product.productImages || []).map((img: any) => getFullImageUrl(img))
   }
 
