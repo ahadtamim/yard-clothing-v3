@@ -15,8 +15,6 @@ import { getServerSideURL } from '@/utilities/getURL'
 import Nav from './_components/Nav'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = await draftMode()
-
   return (
     <html 
       className={cn(GeistSans.variable, GeistMono.variable)} 
@@ -28,18 +26,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
-      {/* FIXED: Ensuring the body has a solid white background and black text 
-          to prevent the "white-out" effect on product images.
-      */}
       <body className="bg-white text-black antialiased min-h-screen flex flex-col">
         <Providers>
           <Nav />
-
-          {/* Main content area */}
           <main className="flex-grow">
             {children}
           </main>
-
           <footer className="bg-black text-white pt-24 pb-12 px-8 border-t border-white/5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 max-w-7xl mx-auto">
               <div>
@@ -50,7 +42,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   Follow us on Facebook
                 </Link>
               </div>
-              
               <div className="md:text-right">
                 <h4 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-6 font-bold">Policies</h4>
                 <ul className="space-y-3 text-[10px] uppercase tracking-widest text-gray-400">
@@ -60,7 +51,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 </ul>
               </div>
             </div>
-
             <div className="border-t border-white/10 pt-8 text-center">
               <p className="text-[9px] uppercase tracking-[0.5em] text-gray-600">
                 © 2026 Yard Clothing. All Rights Reserved.
