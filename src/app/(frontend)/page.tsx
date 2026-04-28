@@ -12,7 +12,6 @@ export default async function HomePage() {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
     
-    // Settled promises prevent one error from crashing the entire site
     const [bannerRes, productsRes] = await Promise.allSettled([
       payload.findGlobal({ slug: 'banner', depth: 2 }),
       payload.find({ collection: 'products', limit: 10, depth: 2 })
@@ -28,60 +27,93 @@ export default async function HomePage() {
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
     
-    // Get the filename or path from Payload
-    const rawPath = typeof img === 'string' ? img : (img?.url || img?.image?.url || "");
-    if (!rawPath) return null;
+    // 1. Dig deep to find the filename or URL string
+    let path = "";
+    if (typeof img === 'string') {
+      path = img;
+    } else {
+      // Check every common Payload nesting pattern
+      path = img?.url || 
+             img?.image?.url || 
+             img?.filename || 
+             img?.image?.filename || 
+             "";
+    }
 
-    // If it's already a full external URL, just return it
-    if (rawPath.startsWith('http')) return rawPath.replace('http://', 'https://');
+    if (!path) return null;
+
+    // 2. Handle external URLs
+    if (path.startsWith('http')) {
+      return path.replace('http://', 'https://');
+    }
     
-    // FORCE your Vercel Blob domain for all local paths
+    // 3. THE MAGIC FIX: Extract ONLY the filename.
+    // This removes "/api/media/file/" or other prefixes that cause 403 errors.
+    const fileName = path.split('/').pop(); 
+    
+    if (!fileName) return null;
+
+    // 4. Map to your working Vercel Blob domain
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
-    
-    // Clean the path to get just the filename if it's a local API path
-    const fileName = rawPath.split('/').pop(); 
-    
     return `${blobDomain}/${fileName}`;
   }
 
   return (
     <main className="min-h-screen bg-white">
+      {/* Hero Section */}
       <section className="relative h-[70vh] bg-black flex items-center justify-center">
         {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
-            {banner.bestProducts.map((product: any) => (
-              <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden">
-                <img
-                  src={getFullImageUrl(product?.productImages?.[0]) || ''}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
-                />
-                <div className="absolute bottom-10 left-10 text-white">
-                  <h2 className="text-2xl font-bold uppercase tracking-tighter">{product?.name}</h2>
-                </div>
-              </Link>
-            ))}
+            {banner.bestProducts.map((product: any) => {
+              const imgUrl = getFullImageUrl(product?.productImages?.[0]);
+              return (
+                <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden">
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-zinc-900" />
+                  )}
+                  <div className="absolute bottom-10 left-10 text-white">
+                    <h2 className="text-2xl font-bold uppercase tracking-tighter">{product?.name}</h2>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         ) : (
           <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing • Syncing</div>
         )}
       </section>
 
+      {/* New Arrivals Section */}
       <section className="container py-20 mx-auto px-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.docs.map((product: any) => (
-            <Link key={product.id} href={`/products/${product.id}`} className="group">
-              <div className="aspect-[3/4] bg-gray-50 mb-4 overflow-hidden relative">
-                <img 
-                  src={getFullImageUrl(product?.productImages?.[0]) || ''} 
-                  alt={product.name}
-                  className="block w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                />
-              </div>
-              <h4 className="font-bold uppercase text-[10px] tracking-widest">{product.name}</h4>
-              <p className="text-gray-400 text-[11px] mt-1">৳ {product.price}</p>
-            </Link>
-          ))}
+          {products.docs.map((product: any) => {
+            const imgUrl = getFullImageUrl(product?.productImages?.[0]);
+            return (
+              <Link key={product.id} href={`/products/${product.id}`} className="group">
+                <div className="aspect-[3/4] bg-gray-50 mb-4 overflow-hidden relative">
+                  {imgUrl ? (
+                    <img 
+                      src={imgUrl} 
+                      alt={product.name}
+                      className="block w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 uppercase tracking-widest">
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <h4 className="font-bold uppercase text-[10px] tracking-widest text-black">{product.name}</h4>
+                <p className="text-gray-400 text-[11px] mt-1">৳ {product.price}</p>
+              </Link>
+            )
+          })}
         </div>
       </section>
     </main>
