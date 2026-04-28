@@ -21,12 +21,22 @@ export default async function HomePage() {
     depth: 2, 
   })) as any
 
-  // Helper to ensure the image URL is absolute
-  // If your Payload is on a different domain, replace '' with your URL
+  /**
+   * FIXED: Image Processing Logic
+   * This ensures that relative paths stored in the DB are mapped 
+   * to your actual Vercel Blob storage URL.
+   */
   const getFullImageUrl = (img: any) => {
     if (!img?.url) return '/placeholder.jpg'
+    
+    // If the URL is already absolute (starts with http), use it
     if (img.url.startsWith('http')) return img.url
-    return `${process.env.NEXT_PUBLIC_SERVER_URL || ''}${img.url}`
+    
+    // Replace the ID below with the prefix from your Vercel Blob dashboard
+    // Based on your storage screenshot: zjxiyg6t5n64z1cj
+    const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
+    
+    return `${blobDomain}${img.url}`
   }
 
   return (
@@ -92,7 +102,7 @@ export default async function HomePage() {
               </div>
               
               <div className="space-y-1">
-                <h4 className="font-bold text-[11px] uppercase tracking-wider">{product.name}</h4>
+                <h4 className="font-bold text-[11px] uppercase tracking-wider text-black">{product.name}</h4>
                 <p className="text-gray-400 text-[11px] font-medium tracking-tight">৳ {product.price}</p>
               </div>
             </Link>
