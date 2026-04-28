@@ -1,82 +1,50 @@
 'use client'
-
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ShoppingBag, User } from 'lucide-react'
-import { useCart } from '@/store/useCart' // IMPORT THE STORE
+import { useCart } from '@/store/useCart'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  
-  // Use the store to get the current items in the bag
-  const cartItems = useCart((state: any) => state.items)
+  const items = useCart((state: any) => state.items)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   return (
-    <header className="bg-black text-white py-6 px-10 flex justify-between items-center sticky top-0 z-[100]">
-      {/* LOGO SECTION */}
+    <header className="bg-white border-b border-gray-100 text-black py-4 px-8 flex justify-between items-center sticky top-0 z-[100]">
       <div className="flex items-center">
-        <Link href="/" className="bg-white p-1 hover:opacity-90 transition-opacity">
+        <Link href="/" className="hover:opacity-70 transition-opacity">
+          {/* Logo - ensure it's visible on white */}
           <img 
             src="https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com/Logo/Black%20and%20White%20Yoga%20Studio%20Logo%20%281%29.jpg.jpeg" 
             alt="Yard" 
-            className="h-10 w-auto mix-blend-screen" 
+            className="h-10 w-auto" 
           />
         </Link>
       </div>
 
-      {/* NAVIGATION & ICONS */}
       <nav className="flex gap-8 items-center">
-        {/* LOGIN / ACCOUNT */}
-        <Link href="/login" className="flex items-center gap-2 hover:text-gray-400 transition-colors">
+        <Link href="/login" className="flex items-center gap-2 hover:opacity-50 transition-opacity">
           <User size={18} strokeWidth={1.5} />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden sm:inline">Account</span>
+          <span className="text-[10px] uppercase tracking-widest font-bold hidden sm:inline">Account</span>
         </Link>
 
-        {/* BAG / CART */}
-        <Link href="/cart" className="relative hover:text-gray-400 transition-colors">
+        <Link href="/cart" className="relative hover:opacity-50 transition-opacity">
           <ShoppingBag size={18} strokeWidth={1.5} />
-          {/* UPDATED COUNTER: Now shows the actual number of items */}
-          <span className="absolute -top-1 -right-2 bg-white text-black text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-black">
-            {cartItems.length}
-          </span>
+          {mounted && items.length > 0 && (
+            <span className="absolute -top-1 -right-2 bg-black text-white text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-black">
+              {items.length}
+            </span>
+          )}
         </Link>
 
-        {/* MENU DROPDOWN */}
-        <div className="relative border-l border-white/20 pl-8 h-5 flex items-center">
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-[10px] uppercase tracking-[0.3em] font-bold flex items-center gap-1 hover:text-gray-400 transition-colors"
-          >
-            {isOpen ? 'Close —' : 'Menu +'}
-          </button>
-
-          {isOpen && (
-            <div className="absolute top-10 right-0 bg-white text-black min-w-[200px] shadow-2xl py-4 flex flex-col border border-gray-100 rounded-sm">
-              <Link 
-                href="/categories/men" 
-                className="px-8 py-3 text-[10px] uppercase tracking-widest font-black hover:bg-black hover:text-white transition-all"
-                onClick={() => setIsOpen(false)}
-              >
-                Men
-              </Link>
-              <Link 
-                href="/categories/women" 
-                className="px-8 py-3 text-[10px] uppercase tracking-widest font-black hover:bg-black hover:text-white transition-all"
-                onClick={() => setIsOpen(false)}
-              >
-                Women
-              </Link>
-              <div className="border-t border-gray-100 my-2" />
-              <Link 
-                href="/cart" 
-                className="px-8 py-3 text-[9px] uppercase tracking-widest font-bold text-gray-400 hover:text-black"
-                onClick={() => setIsOpen(false)}
-              >
-                View Bag ({cartItems.length})
-              </Link>
-            </div>
-          )}
-        </div>
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-[10px] uppercase tracking-[0.3em] font-bold border-l border-gray-200 pl-8 h-5 flex items-center"
+        >
+          {isOpen ? 'Close —' : 'Menu +'}
+        </button>
       </nav>
     </header>
   )
