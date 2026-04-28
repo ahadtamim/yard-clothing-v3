@@ -1,23 +1,35 @@
 import canUseDOM from './canUseDOM'
 
 /**
- * FIXED: Added getFullImageUrl to handle Vercel Blob storage.
- * This ensures product images and gallery thumbnails (View 2, 3, 4) 
- * load correctly instead of showing broken icons.
+ * FINAL FIX: Exhaustive Image Extraction
+ * Handles both simple strings and deeply nested Payload CMS Media objects.
  */
-export const getFullImageUrl = (url: string | any) => {
-  // Extract the URL string if it's a Payload Media object, or use as is if it's a string
-  const urlString = typeof url === 'string' ? url : url?.url
+export const getFullImageUrl = (img: any) => {
+  let urlString = '';
+
+  if (typeof img === 'string') {
+    // Case 1: img is just a string (ID or path)
+    urlString = img;
+  } else if (img?.url) {
+    // Case 2: img is a Media object with a direct URL
+    urlString = img.url;
+  } else if (img?.image?.url) {
+    // Case 3: img is a nested object where the media is under 'image'
+    urlString = img.image.url;
+  } else if (img?.image && typeof img.image === 'string') {
+    // Case 4: image is a string inside an object
+    urlString = img.image;
+  }
 
   if (!urlString) return '/placeholder.jpg'
   
-  // 1. If it's already a full URL (external), return it immediately
+  // Return early if it's already an absolute URL
   if (urlString.startsWith('http')) return urlString
   
-  // 2. Point to your specific Vercel Blob storage domain
+  // Point to your specific Vercel Blob storage domain
   const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
   
-  // 3. Clean the path to avoid double slashes (e.g., //assets)
+  // Ensure path starts with a single slash
   const cleanPath = urlString.startsWith('/') ? urlString : `/${urlString}`
   
   return `${blobDomain}${cleanPath}`
