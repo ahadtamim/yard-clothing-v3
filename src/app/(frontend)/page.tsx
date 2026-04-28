@@ -27,58 +27,53 @@ export default async function HomePage() {
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
     
-    // 1. Dig deep to find the filename or URL string
     let path = "";
     if (typeof img === 'string') {
       path = img;
     } else {
-      // Check every common Payload nesting pattern
-      path = img?.url || 
-             img?.image?.url || 
-             img?.filename || 
-             img?.image?.filename || 
-             "";
+      path = img?.url || img?.image?.url || img?.filename || img?.image?.filename || "";
     }
 
     if (!path) return null;
 
-    // 2. Handle external URLs
+    // Fix 1: Force HTTPS. Mobile Safari blocks HTTP images on HTTPS sites.
     if (path.startsWith('http')) {
       return path.replace('http://', 'https://');
     }
     
-    // 3. THE MAGIC FIX: Extract ONLY the filename.
-    // This removes "/api/media/file/" or other prefixes that cause 403 errors.
+    // Fix 2: Extract Filename and attach Blob Domain
     const fileName = path.split('/').pop(); 
-    
     if (!fileName) return null;
 
-    // 4. Map to your working Vercel Blob domain
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
-    return `${blobDomain}/${fileName}`;
+    
+    // Fix 3: Add a cache-buster query. Sometimes mobile browsers cache broken requests.
+    return `${blobDomain}/${fileName}?v=${new Date().getTime()}`;
   }
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative h-[70vh] bg-black flex items-center justify-center">
+      {/* Hero Section - Optimized for Mobile Viewport */}
+      <section className="relative h-[60vh] md:h-[80vh] bg-black overflow-hidden flex items-center justify-center">
         {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
             {banner.bestProducts.map((product: any) => {
               const imgUrl = getFullImageUrl(product?.productImages?.[0]);
               return (
-                <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden">
-                  {imgUrl ? (
+                <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden border-r border-white/5">
+                  {imgUrl && (
                     <img
                       src={imgUrl}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                      alt={product?.name || ''}
+                      // Fix 4: Explicit 'block' and 'inset-0' for Mobile Safari rendering
+                      className="block absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-1000"
+                      loading="eager" 
+                      decoding="async"
                     />
-                  ) : (
-                    <div className="absolute inset-0 bg-zinc-900" />
                   )}
-                  <div className="absolute bottom-10 left-10 text-white">
-                    <h2 className="text-2xl font-bold uppercase tracking-tighter">{product?.name}</h2>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                  <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white">
+                    <h2 className="text-lg md:text-2xl font-black uppercase tracking-tighter">{product?.name}</h2>
                   </div>
                 </Link>
               )
@@ -89,9 +84,9 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* New Arrivals Section */}
-      <section className="container py-20 mx-auto px-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* New Arrivals Grid */}
+      <section className="container py-12 md:py-24 mx-auto px-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-8 gap-y-10">
           {products.docs.map((product: any) => {
             const imgUrl = getFullImageUrl(product?.productImages?.[0]);
             return (
@@ -101,16 +96,15 @@ export default async function HomePage() {
                     <img 
                       src={imgUrl} 
                       alt={product.name}
-                      className="block w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                      className="block w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      loading="lazy"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 uppercase tracking-widest">
-                      No Image
-                    </div>
+                    <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 uppercase tracking-widest">No Image</div>
                   )}
                 </div>
-                <h4 className="font-bold uppercase text-[10px] tracking-widest text-black">{product.name}</h4>
-                <p className="text-gray-400 text-[11px] mt-1">৳ {product.price}</p>
+                <h4 className="font-bold uppercase text-[10px] tracking-widest text-black leading-tight">{product.name}</h4>
+                <p className="text-gray-400 text-[10px] md:text-[11px] mt-1 italic">৳ {product.price}</p>
               </Link>
             )
           })}
