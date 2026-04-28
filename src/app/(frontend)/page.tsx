@@ -28,23 +28,27 @@ export default async function HomePage() {
 
   const getFullImageUrl = (img: any) => {
     if (!img) return null
-    let url = ''
-    if (typeof img === 'string') url = img
-    else if (img?.url) url = img.url
-    else if (img?.image?.url) url = img.image.url
     
-    if (!url) return null
+    // Safety: Extract URL regardless of how Payload structured the object
+    let path = ""
+    if (typeof img === 'string') path = img
+    else if (img?.url) path = img.url
+    else if (img?.image?.url) path = img.image.url
+    else if (img?.image) path = img.image
     
-    // Fix 1: Force HTTPS. Mobile browsers (especially iOS) block HTTP content on HTTPS sites.
-    if (url.startsWith('http://')) {
-      url = url.replace('http://', 'https://')
-    }
+    if (!path) return null
 
-    if (url.startsWith('https://')) return url
+    // Fix 1: Protocol Enforcement
+    // Mobile browsers strictly block HTTP on HTTPS sites.
+    if (path.startsWith('http')) {
+      return path.replace('http://', 'https://')
+    }
     
+    // Fix 2: Absolute URL Construction
+    // Ensure the blob domain is prepended correctly without double slashes.
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
-    const path = url.startsWith('/') ? url : `/${url}`
-    return `${blobDomain}${path}`
+    const cleanPath = path.startsWith('/') ? path : `/${path}`
+    return `${blobDomain}${cleanPath}`
   }
 
   return (
@@ -57,18 +61,21 @@ export default async function HomePage() {
               const imgUrl = getFullImageUrl(product?.productImages?.[0]);
               return (
                 <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden border-r border-white/10">
-                  {imgUrl && (
+                  {imgUrl ? (
                     <img
                       src={imgUrl}
                       alt={product?.name || ''}
-                      // Fix 2: 'block' and 'top-0/left-0' ensure mobile Safari anchors the image correctly
-                      className="block absolute top-0 left-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
-                      loading="eager"
+                      // Fix 3: Safari Mobile Rendering
+                      // Adding 'inset-0' and 'w-full' with 'display: block' prevents 0px height bugs
+                      className="block absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
+                      decoding="async"
                     />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-white/20 text-[8px] uppercase tracking-widest">No Media</div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white">
-                    <h2 className="text-lg md:text-2xl font-black uppercase tracking-tighter">{product?.name}</h2>
+                    <h2 className="text-lg md:text-2xl font-black uppercase tracking-tighter leading-tight">{product?.name}</h2>
                   </div>
                 </Link>
               )
@@ -94,8 +101,9 @@ export default async function HomePage() {
                     <img
                       src={imgUrl}
                       alt={product.name}
-                      // Fix 3: Standardizing display:block for mobile image container stability
+                      // Standardizing image tags for cross-browser stability
                       className="block w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      decoding="async"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[8px] uppercase text-gray-400">No Image</div>
