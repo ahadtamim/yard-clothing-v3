@@ -1,15 +1,14 @@
 import React from 'react'
-import { getPayload } from '@payloadcms/next/utilities'
+import { getPayloadHMR } from '@payloadcms/next/utilities' // CHANGED BACK
 import configPromise from '@/payload.config' 
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  // Using stable getPayload for production reliability
-  const payload = await getPayload({ config: configPromise })
+  // Use HMR version here as well
+  const payload = await getPayloadHMR({ config: configPromise })
 
-  // Wrap fetches in a try/catch or .catch to prevent crash if DB is down
   const banner = await payload.findGlobal({
     slug: 'banner',
     depth: 2, 
