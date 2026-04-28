@@ -35,7 +35,7 @@ export default async function HomePage() {
     
     if (!url) return null
     
-    // Fix 1: Force HTTPS. Mobile browsers block HTTP images on HTTPS sites.
+    // Fix 1: Force HTTPS. Mobile browsers (especially iOS) block HTTP content on HTTPS sites.
     if (url.startsWith('http://')) {
       url = url.replace('http://', 'https://')
     }
@@ -49,7 +49,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-black">
-      {/* Hero Section - Added flex-col for better mobile stacking if needed, though current design is flex-1 */}
+      {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] bg-black overflow-hidden flex items-center justify-center">
         {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
@@ -61,7 +61,7 @@ export default async function HomePage() {
                     <img
                       src={imgUrl}
                       alt={product?.name || ''}
-                      // Fix 2: Added 'block', 'top-0', 'left-0' and 'w-full h-full' for Mobile Safari stability
+                      // Fix 2: 'block' and 'top-0/left-0' ensure mobile Safari anchors the image correctly
                       className="block absolute top-0 left-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
                       loading="eager"
                     />
@@ -79,9 +79,9 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Products Grid */}
+      {/* New Arrivals Grid */}
       <section className="container py-12 md:py-24 mx-auto px-6">
-        <h3 className="text-[10px] uppercase tracking-[0.6em] text-gray-400 mb-12 md:mb-16 text-center font-black">
+        <h3 className="text-[10px] uppercase tracking-[0.6em] text-gray-400 mb-12 text-center font-black">
           New Arrivals
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-10 md:gap-y-12">
@@ -89,12 +89,12 @@ export default async function HomePage() {
             const imgUrl = getFullImageUrl(product?.productImages?.[0]);
             return (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
-                <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4 md:mb-6 relative">
+                <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4 relative">
                   {imgUrl ? (
                     <img
                       src={imgUrl}
                       alt={product.name}
-                      // Fix 3: Standardizing block display for mobile
+                      // Fix 3: Standardizing display:block for mobile image container stability
                       className="block w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                   ) : (
