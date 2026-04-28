@@ -1,36 +1,33 @@
 import React from 'react'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config' 
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const payload = await getPayloadHMR({ config: configPromise })
+  // Using stable getPayload for production reliability
+  const payload = await getPayload({ config: configPromise })
 
+  // Wrap fetches in a try/catch or .catch to prevent crash if DB is down
   const banner = await payload.findGlobal({
     slug: 'banner',
     depth: 2, 
-  })
+  }).catch(() => null)
 
   const products = await payload.find({
     collection: 'products',
     limit: 10,
     depth: 2, 
-  })
+  }).catch(() => ({ docs: [] }))
 
   const getFullImageUrl = (img: any) => {
     if (!img) return '/placeholder.jpg'
     let url = ''
-    if (typeof img === 'string') {
-      url = img
-    } else if (img?.url && typeof img.url === 'string') {
-      url = img.url
-    } else if (img?.image?.url && typeof img.image.url === 'string') {
-      url = img.image.url
-    } else if (img?.image && typeof img.image === 'string') {
-      url = img.image
-    }
+    if (typeof img === 'string') url = img
+    else if (img?.url) url = img.url
+    else if (img?.image?.url) url = img.image.url
+    else if (img?.image) url = img.image
 
     if (!url) return '/placeholder.jpg'
     if (url.startsWith('http')) return url
@@ -41,20 +38,16 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-black">
+      {/* HERO SECTION */}
       <section className="relative h-[80vh] bg-black overflow-hidden flex items-center justify-center">
-        {/* SAFETY: Added ?. to prevent crash if bestProducts is missing */}
         {(banner as any)?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
             {(banner as any).bestProducts.map((product: any) => (
-              <Link 
-                key={product?.id} 
-                href={`/products/${product?.id}`}
-                className="relative flex-1 group overflow-hidden border-r border-white/10"
-              >
+              <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden border-r border-white/10">
                 {product?.productImages?.[0] && (
                   <img
                     src={getFullImageUrl(product.productImages[0])}
-                    alt={product?.name || 'Product'}
+                    alt={product?.name || ''}
                     className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
                     onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
                   />
@@ -71,24 +64,19 @@ export default async function HomePage() {
         )}
       </section>
 
+      {/* NEW ARRIVALS */}
       <section className="container py-24 mx-auto px-6">
-        <h3 className="text-[10px] uppercase tracking-[0.6em] text-gray-400 mb-16 text-center font-black">
-          New Arrivals
-        </h3>
+        <h3 className="text-[10px] uppercase tracking-[0.6em] text-gray-400 mb-16 text-center font-black">New Arrivals</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-          {/* SAFETY: Optional chaining on products.docs */}
           {products?.docs?.map((product: any) => (
             <Link key={product.id} href={`/products/${product.id}`} className="group">
               <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-6 relative">
-                {product?.productImages?.[0] ? (
+                {product?.productImages?.[0] && (
                   <img
                     src={getFullImageUrl(product.productImages[0])}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300">No Image</div>
                 )}
               </div>
               <div className="space-y-1">
