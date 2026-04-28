@@ -8,46 +8,39 @@ export const dynamic = 'force-dynamic'
 export default async function HomePage() {
   const payload = await getPayloadHMR({ config: configPromise })
 
-  const banner = (await payload.findGlobal({
+  // Fetch with depth: 2 to ensure we get the full image objects
+  const banner = await payload.findGlobal({
     slug: 'banner',
     depth: 2, 
-  })) as any
+  })
 
-  const products = (await payload.find({
+  const products = await payload.find({
     collection: 'products',
     limit: 10,
     depth: 2, 
-  })) as any
+  })
 
-  /**
-   * THE BULLETPROOF FIX:
-   * 1. Checks if it's already a full Vercel Blob URL.
-   * 2. Checks if it's a relative path starting with /media.
-   * 3. Checks if it's just a filename and adds /media/ if missing.
-   */
+  // This helper is safer and won't crash the page if data is missing
   const getFullImageUrl = (img: any) => {
     if (!img || !img.url) return '/placeholder.jpg'
     
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
-    const url = img.url
-
-    // Case 1: Already absolute
-    if (url.startsWith('http')) return url
     
-    // Case 2: Relative path with leading slash
-    if (url.startsWith('/')) return `${blobDomain}${url}`
+    if (img.url.startsWith('http')) return img.url
     
-    // Case 3: Just a filename (common in some Payload configs)
-    return `${blobDomain}/media/${url}`
+    // Ensure there isn't a double slash if img.url starts with /
+    const path = img.url.startsWith('/') ? img.url : `/${img.url}`
+    
+    return `${blobDomain}${path}`
   }
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* 1. HERO SLIDESHOW SECTION */}
+    <main className="min-h-screen bg-white text-black">
+      {/* HERO SECTION */}
       <section className="relative h-[80vh] bg-black overflow-hidden flex items-center justify-center">
-        {banner?.bestProducts?.length > 0 ? (
+        {(banner as any)?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
-            {banner.bestProducts.map((product: any) => (
+            {(banner as any).bestProducts.map((product: any) => (
               <Link 
                 key={product.id} 
                 href={`/products/${product.id}`}
@@ -62,20 +55,17 @@ export default async function HomePage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-10 left-10 text-white">
-                  <p className="text-[10px] uppercase tracking-[0.4em] mb-2 opacity-70">Featured</p>
                   <h2 className="text-2xl font-black uppercase tracking-tighter">{product.name}</h2>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-white uppercase tracking-[1em] opacity-20 text-xs font-bold">
-            Yard Clothing Slideshow
-          </div>
+          <div className="text-white opacity-20 text-xs font-bold uppercase tracking-[1em]">Yard Clothing</div>
         )}
       </section>
 
-      {/* 2. PRODUCT GRID SECTION */}
+      {/* NEW ARRIVALS SECTION */}
       <section className="container py-24 mx-auto px-6">
         <h3 className="text-[10px] uppercase tracking-[0.6em] text-gray-400 mb-16 text-center font-black">
           New Arrivals
@@ -90,23 +80,11 @@ export default async function HomePage() {
                     src={getFullImageUrl(product.productImages[0])}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => {
-                      // Debugging: If it still fails, check the console for this URL
-                      console.error("Image load failed:", e.currentTarget.src);
-                    }}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-gray-300">
-                    No Image
-                  </div>
+                  <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300">No Image</div>
                 )}
-                <div className="absolute bottom-4 left-4">
-                   <span className="bg-white text-black text-[8px] font-bold px-2 py-1 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                     Quick View
-                   </span>
-                </div>
               </div>
-              
               <div className="space-y-1">
                 <h4 className="font-bold text-[11px] uppercase tracking-wider text-black">{product.name}</h4>
                 <p className="text-gray-400 text-[11px] font-medium tracking-tight">৳ {product.price}</p>
