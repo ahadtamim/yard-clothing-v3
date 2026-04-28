@@ -12,7 +12,7 @@ export default async function HomePage() {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
     
-    // Using Promise.allSettled so one failure doesn't kill the whole page
+    // Settled promises prevent one error from crashing the entire site
     const [bannerRes, productsRes] = await Promise.allSettled([
       payload.findGlobal({ slug: 'banner', depth: 2 }),
       payload.find({ collection: 'products', limit: 10, depth: 2 })
@@ -22,16 +22,26 @@ export default async function HomePage() {
     if (productsRes.status === 'fulfilled') products = productsRes.value;
 
   } catch (error) {
-    console.error("Critical Server Error:", error);
+    console.error("Critical Connection Error:", error);
   }
 
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
-    const path = typeof img === 'string' ? img : (img?.url || img?.image?.url || "");
-    if (!path) return null;
-    if (path.startsWith('http')) return path.replace('http://', 'https://');
     
-    return `https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com${path.startsWith('/') ? '' : '/'}${path}`;
+    // Get the filename or path from Payload
+    const rawPath = typeof img === 'string' ? img : (img?.url || img?.image?.url || "");
+    if (!rawPath) return null;
+
+    // If it's already a full external URL, just return it
+    if (rawPath.startsWith('http')) return rawPath.replace('http://', 'https://');
+    
+    // FORCE your Vercel Blob domain for all local paths
+    const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
+    
+    // Clean the path to get just the filename if it's a local API path
+    const fileName = rawPath.split('/').pop(); 
+    
+    return `${blobDomain}/${fileName}`;
   }
 
   return (
@@ -43,16 +53,17 @@ export default async function HomePage() {
               <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden">
                 <img
                   src={getFullImageUrl(product?.productImages?.[0]) || ''}
+                  alt=""
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
                 />
                 <div className="absolute bottom-10 left-10 text-white">
-                  <h2 className="text-2xl font-bold uppercase">{product?.name}</h2>
+                  <h2 className="text-2xl font-bold uppercase tracking-tighter">{product?.name}</h2>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-white/20 uppercase tracking-[1em] text-xs">Yard Clothing • Connection Pending</div>
+          <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing • Syncing</div>
         )}
       </section>
 
@@ -60,14 +71,15 @@ export default async function HomePage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {products.docs.map((product: any) => (
             <Link key={product.id} href={`/products/${product.id}`} className="group">
-              <div className="aspect-[3/4] bg-gray-100 mb-4 overflow-hidden">
+              <div className="aspect-[3/4] bg-gray-50 mb-4 overflow-hidden relative">
                 <img 
                   src={getFullImageUrl(product?.productImages?.[0]) || ''} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                  alt={product.name}
+                  className="block w-full h-full object-cover group-hover:scale-105 transition-transform" 
                 />
               </div>
-              <h4 className="font-bold uppercase text-[11px]">{product.name}</h4>
-              <p className="text-gray-400 text-[11px]">৳ {product.price}</p>
+              <h4 className="font-bold uppercase text-[10px] tracking-widest">{product.name}</h4>
+              <p className="text-gray-400 text-[11px] mt-1">৳ {product.price}</p>
             </Link>
           ))}
         </div>
