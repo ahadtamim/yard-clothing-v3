@@ -18,15 +18,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   if (!product) return notFound()
 
-  /**
-   * FIXED HELPER:
-   * Handles both string URLs and nested Media objects from Payload.
-   */
+  // Robust helper to find the URL regardless of Payload's nesting
   const getFullImageUrl = (img: any) => {
-    // Extract URL if img is an object (Payload Media) or use as is if string
-    const url = typeof img === 'string' ? img : img?.url;
+    const url = typeof img === 'string' ? img : (img?.url || img?.image?.url || img?.image);
     
-    if (!url) return '/placeholder.jpg'
+    if (!url || typeof url !== 'string') return '/placeholder.jpg'
     if (url.startsWith('http')) return url
     
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
@@ -34,24 +30,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     return `${blobDomain}${path}`
   }
 
-  /**
-   * FORMATTING LOGIC:
-   * We ensure we check all possible image fields (main image and gallery).
-   */
+  // Flatten productImages into a simple array of URL strings
   const formattedProduct = {
     ...product,
-    // Format the main product image if it exists
-    mainImage: product.mainImage ? getFullImageUrl(product.mainImage) : getFullImageUrl(product.productImages?.[0]),
-    
-    // Format the entire images array for the gallery/thumbnails
-    productImages: (Array.isArray(product.productImages) ? product.productImages : []).map((img: any) => {
-      // Payload sometimes returns just the ID or the full object depending on depth
-      const imageUrl = getFullImageUrl(img);
-      return {
-        ...img,
-        url: imageUrl
-      }
-    })
+    productImages: (product.productImages || []).map((img: any) => getFullImageUrl(img))
   }
 
   return <ProductClient product={formattedProduct} />

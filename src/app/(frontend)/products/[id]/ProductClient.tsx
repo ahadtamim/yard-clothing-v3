@@ -1,30 +1,20 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
-import { getFullImageUrl } from '@/utilities/getURL'
 
 export default function ProductClient({ product }: { product: any }) {
-  // Helper to extract URL regardless of how Payload nests it
-  const extractUrl = (img: any) => {
-    if (typeof img === 'string') return img;
-    return img?.url || img?.image?.url || '';
-  };
-
-  const [mainImage, setMainImage] = useState(
-    product.productImages?.[0] ? getFullImageUrl(extractUrl(product.productImages[0])) : ''
-  )
-  
+  // Use the first string in the array as the initial state
+  const [mainImage, setMainImage] = useState(product.productImages?.[0] || '')
   const [selectedSize, setSelectedSize] = useState<string | null>(
     product.sizes?.includes('UNSTITCHED') ? 'UNSTITCHED' : (product.sizes?.[0] || null)
   )
-  
   const [isMounted, setIsMounted] = useState(false)
   const addItem = useCart((state: any) => state.addItem)
 
   useEffect(() => {
     setIsMounted(true)
     if (product.productImages?.[0]) {
-      setMainImage(getFullImageUrl(extractUrl(product.productImages[0])))
+      setMainImage(product.productImages[0])
     }
   }, [product])
 
@@ -44,42 +34,44 @@ export default function ProductClient({ product }: { product: any }) {
             )}
           </div>
 
-          {/* THUMBNAILS - This loop now uses the extractUrl helper */}
+          {/* THUMBNAILS - Now mapping simple strings */}
           {product.productImages?.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {product.productImages.map((img: any, idx: number) => {
-                const imageUrl = getFullImageUrl(extractUrl(img));
-                return (
-                  <button 
-                    key={idx}
-                    type="button"
-                    onClick={() => setMainImage(imageUrl)}
-                    className={`w-20 h-24 flex-shrink-0 border transition-all ${
-                      mainImage === imageUrl ? 'border-black' : 'border-gray-200 opacity-60'
-                    }`}
-                  >
-                    <img src={imageUrl} className="w-full h-full object-cover" alt={`view ${idx + 1}`} />
-                  </button>
-                )
-              })}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {product.productImages.map((url: string, idx: number) => (
+                <button 
+                  key={idx}
+                  type="button"
+                  onClick={() => setMainImage(url)}
+                  className={`w-20 h-24 flex-shrink-0 border transition-all ${
+                    mainImage === url ? 'border-black' : 'border-transparent opacity-60'
+                  }`}
+                >
+                  <img src={url} className="w-full h-full object-cover" alt={`view ${idx + 1}`} />
+                </button>
+              ))}
             </div>
           )}
         </div>
 
         {/* CONTENT SECTION */}
         <div className="flex flex-col justify-center">
-          <h1 className="text-4xl font-black uppercase mb-2">{product.name}</h1>
+          <h1 className="text-4xl font-black uppercase tracking-tighter mb-2 leading-none">
+            {product.name}
+          </h1>
           <p className="text-2xl mb-8 font-medium">৳ {product.price}</p>
 
           <div className="mb-10">
-            <h3 className="text-[10px] uppercase font-bold tracking-[0.3em] mb-4 text-gray-500">Select Size</h3>
+            <h3 className="text-[10px] uppercase font-bold tracking-[0.3em] mb-4 text-gray-500">
+              Select Size
+            </h3>
             <div className="flex flex-wrap gap-2">
               {product.sizes?.map((size: string) => (
                 <button
                   key={size}
+                  type="button"
                   onClick={() => setSelectedSize(size)}
                   className={`border px-8 py-3 text-[10px] font-bold uppercase transition-all 
-                    ${selectedSize === size ? 'bg-black text-white' : 'bg-white text-black hover:border-black'}`}
+                    ${selectedSize === size ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-200'}`}
                 >
                   {size}
                 </button>
@@ -88,9 +80,10 @@ export default function ProductClient({ product }: { product: any }) {
           </div>
 
           <button 
+            type="button"
             onClick={() => {
               if (!selectedSize) return;
-              addItem({ ...product, image: extractUrl(product.productImages?.[0]), size: selectedSize });
+              addItem({ id: product.id, name: product.name, price: product.price, image: product.productImages[0], size: selectedSize });
               alert('Added to bag!');
             }}
             className="w-full md:w-64 py-5 bg-black text-white text-[10px] uppercase tracking-[0.3em] font-black"
