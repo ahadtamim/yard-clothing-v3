@@ -8,13 +8,11 @@ export const dynamic = 'force-dynamic'
 export default async function HomePage() {
   const payload = await getPayloadHMR({ config: configPromise })
 
-  // 1. Fetch Banner with depth to see image URLs
   const banner = (await payload.findGlobal({
     slug: 'banner',
     depth: 2, 
   })) as any
 
-  // 2. Fetch Products
   const products = (await payload.find({
     collection: 'products',
     limit: 10,
@@ -22,21 +20,25 @@ export default async function HomePage() {
   })) as any
 
   /**
-   * FIXED: Image Processing Logic
-   * This ensures that relative paths stored in the DB are mapped 
-   * to your actual Vercel Blob storage URL.
+   * THE BULLETPROOF FIX:
+   * 1. Checks if it's already a full Vercel Blob URL.
+   * 2. Checks if it's a relative path starting with /media.
+   * 3. Checks if it's just a filename and adds /media/ if missing.
    */
   const getFullImageUrl = (img: any) => {
-    if (!img?.url) return '/placeholder.jpg'
+    if (!img || !img.url) return '/placeholder.jpg'
     
-    // If the URL is already absolute (starts with http), use it
-    if (img.url.startsWith('http')) return img.url
-    
-    // Replace the ID below with the prefix from your Vercel Blob dashboard
-    // Based on your storage screenshot: zjxiyg6t5n64z1cj
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
+    const url = img.url
+
+    // Case 1: Already absolute
+    if (url.startsWith('http')) return url
     
-    return `${blobDomain}${img.url}`
+    // Case 2: Relative path with leading slash
+    if (url.startsWith('/')) return `${blobDomain}${url}`
+    
+    // Case 3: Just a filename (common in some Payload configs)
+    return `${blobDomain}/media/${url}`
   }
 
   return (
@@ -88,6 +90,10 @@ export default async function HomePage() {
                     src={getFullImageUrl(product.productImages[0])}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => {
+                      // Debugging: If it still fails, check the console for this URL
+                      console.error("Image load failed:", e.currentTarget.src);
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-gray-300">
