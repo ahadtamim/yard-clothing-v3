@@ -1,14 +1,15 @@
 import React from 'react'
-import { getPayloadHMR } from '@payloadcms/next/utilities' // CHANGED BACK
+import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config' 
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  // Use HMR version here as well
+  // Use HMR version for Turbopack compatibility
   const payload = await getPayloadHMR({ config: configPromise })
 
+  // Safety: catch errors to prevent the "Page couldn't load" screen
   const banner = await payload.findGlobal({
     slug: 'banner',
     depth: 2, 
@@ -20,6 +21,7 @@ export default async function HomePage() {
     depth: 2, 
   }).catch(() => ({ docs: [] }))
 
+  // This helper fixes the broken image icons by checking all possible image paths
   const getFullImageUrl = (img: any) => {
     if (!img) return '/placeholder.jpg'
     let url = ''
@@ -37,7 +39,6 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-black">
-      {/* HERO SECTION */}
       <section className="relative h-[80vh] bg-black overflow-hidden flex items-center justify-center">
         {(banner as any)?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
@@ -63,7 +64,6 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* NEW ARRIVALS */}
       <section className="container py-24 mx-auto px-6">
         <h3 className="text-[10px] uppercase tracking-[0.6em] text-gray-400 mb-16 text-center font-black">New Arrivals</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
