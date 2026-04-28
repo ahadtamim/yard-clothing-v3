@@ -6,13 +6,13 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  let banner = null;
-  let products = { docs: [] };
+  let banner: any = null;
+  // Change: Initialize as 'any' to bypass the 'never[]' type error
+  let products: any = { docs: [] };
 
   try {
     const payload = await getPayloadHMR({ config: configPromise })
     
-    // Fetch data but don't let it crash the whole page if it fails
     banner = await payload.findGlobal({
       slug: 'banner',
       depth: 2, 
@@ -27,7 +27,6 @@ export default async function HomePage() {
     console.error("Payload initialization failed:", error)
   }
 
-  // Improved Image Helper to fix broken icons
   const getFullImageUrl = (img: any) => {
     if (!img) return null
     let url = ''
@@ -38,7 +37,6 @@ export default async function HomePage() {
     if (!url) return null
     if (url.startsWith('http')) return url
     
-    // Ensure this matches your Vercel Blob domain
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
     const path = url.startsWith('/') ? url : `/${url}`
     return `${blobDomain}${path}`
@@ -47,9 +45,9 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-white text-black">
       <section className="relative h-[80vh] bg-black overflow-hidden flex items-center justify-center">
-        {(banner as any)?.bestProducts?.length > 0 ? (
+        {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
-            {(banner as any).bestProducts.map((product: any) => {
+            {banner.bestProducts.map((product: any) => {
               const imgUrl = getFullImageUrl(product?.productImages?.[0]);
               return (
                 <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden border-r border-white/10">
