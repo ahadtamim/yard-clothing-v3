@@ -1,67 +1,78 @@
-'use client'
-import React, { useState, useEffect } from 'react'
+import type { Metadata } from 'next'
+import { cn } from '@/utilities/ui'
+import { GeistMono } from 'geist/font/mono'
+import { GeistSans } from 'geist/font/sans'
+import React from 'react'
 import Link from 'next/link'
-import { useCart } from '@/store/useCart'
-import { ShoppingBag, User } from 'lucide-react'
 
-export default function Nav() {
-  const { items } = useCart()
-  const [mounted, setMounted] = useState(false)
+import { Providers } from '@/providers'
+import { InitTheme } from '@/providers/Theme/InitTheme'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { draftMode } from 'next/headers'
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+import './globals.css'
+import { getServerSideURL } from '@/utilities/getURL'
+import Nav from './_components/Nav' // NEW IMPORT
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { isEnabled } = await draftMode()
 
   return (
-    /**
-     * FIXED: Changed background to bg-white.
-     * Added border-b for subtle definition against the white page.
-     */
-    <nav className="fixed top-0 w-full z-50 bg-white border-b border-gray-100 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        
-        {/* LOGO AREA: Blends perfectly with your white logo background */}
-        <Link href="/" className="flex-shrink-0">
-          <img 
-            src="/logo.png" 
-            alt="YARD" 
-            className="h-10 w-auto object-contain" 
-          />
-        </Link>
-
-        {/* NAVIGATION LINKS: Changed text to black for high contrast */}
-        <div className="hidden md:flex items-center gap-12">
-          <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.4em] text-black hover:text-gray-400 transition-colors">
-            Shop
-          </Link>
-          <Link href="/new-arrivals" className="text-[10px] font-black uppercase tracking-[0.4em] text-black hover:text-gray-400 transition-colors">
-            New Arrivals
-          </Link>
-        </div>
-
-        {/* UTILITY ICONS: Changed to text-black */}
-        <div className="flex items-center gap-8 text-black">
-          <Link href="/account" className="flex items-center gap-2 hover:opacity-60 transition-opacity">
-            <User size={18} strokeWidth={2.5} />
-            <span className="text-[9px] font-black uppercase tracking-widest hidden lg:block">Account</span>
-          </Link>
+    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
+      <head>
+        <InitTheme />
+        <link href="/favicon.ico" rel="icon" sizes="32x32" />
+        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+      </head>
+      <body className="bg-white antialiased">
+        <Providers>
           
-          <Link href="/cart" className="relative flex items-center gap-2 hover:opacity-60 transition-opacity">
-            <div className="relative">
-              <ShoppingBag size={18} strokeWidth={2.5} />
-              {mounted && items.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-black text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center">
-                  {items.length}
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] font-black uppercase tracking-widest hidden lg:block">
-              Bag ({mounted ? items.length : 0})
-            </span>
-          </Link>
-        </div>
+          {/* --- NEW CLIENT-SIDE NAVBAR --- */}
+          <Nav />
 
-      </div>
-    </nav>
+          <main className="min-h-screen">
+            {children}
+          </main>
+
+          {/* --- FOOTER --- */}
+          <footer className="bg-black text-white pt-24 pb-12 px-8 border-t border-white/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 max-w-7xl mx-auto">
+              <div>
+                <h4 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-6 font-bold">Support</h4>
+                <p className="text-sm opacity-80">WhatsApp / Call:</p>
+                <p className="text-xl font-bold tracking-tighter mt-1">+880 1XXX-XXXXXX</p>
+                <Link href="#" className="text-white/40 text-[10px] uppercase tracking-widest mt-6 inline-block hover:text-white transition-colors">
+                  Follow us on Facebook
+                </Link>
+              </div>
+              
+              <div className="md:text-right">
+                <h4 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-6 font-bold">Policies</h4>
+                <ul className="space-y-3 text-[10px] uppercase tracking-widest text-gray-400">
+                  <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                  <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                  <li><Link href="#" className="hover:text-white transition-colors">Return & Refund Policy</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 pt-8 text-center">
+              <p className="text-[9px] uppercase tracking-[0.5em] text-gray-600">
+                © 2026 Yard Clothing. All Rights Reserved.
+              </p>
+            </div>
+          </footer>
+        </Providers>
+      </body>
+    </html>
   )
+}
+
+export const metadata: Metadata = {
+  metadataBase: new URL(getServerSideURL()),
+  openGraph: mergeOpenGraph(),
+  twitter: {
+    card: 'summary_large_image',
+    creator: '@payloadcms',
+  },
 }
