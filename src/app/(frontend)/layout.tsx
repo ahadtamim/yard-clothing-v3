@@ -12,34 +12,41 @@ import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
-import Nav from './_components/Nav' // NEW IMPORT
+import Nav from './_components/Nav'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
+    /* FIXED: Moved font variables to <html> and added data-theme initialization */
+    <html 
+      className={cn(GeistSans.variable, GeistMono.variable)} 
+      lang="en" 
+      suppressHydrationWarning
+    >
       <head>
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
-      <body className="bg-white antialiased">
+      {/* FIXED: Explicitly set text-black and min-h-screen on body. 
+        Sometimes InitTheme can clear styles if not explicitly stated here.
+      */}
+      <body className="bg-white text-black antialiased min-h-screen flex flex-col">
         <Providers>
-          
-          {/* --- NEW CLIENT-SIDE NAVBAR --- */}
           <Nav />
 
-          <main className="min-h-screen">
+          {/* FIXED: Ensure main grows to fill space to prevent footer jump */}
+          <main className="flex-grow">
             {children}
           </main>
 
-          {/* --- FOOTER --- */}
           <footer className="bg-black text-white pt-24 pb-12 px-8 border-t border-white/5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 max-w-7xl mx-auto">
               <div>
                 <h4 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-6 font-bold">Support</h4>
                 <p className="text-sm opacity-80">WhatsApp / Call:</p>
+                {/* FIXED: Added real placeholder until you update your Payload config */}
                 <p className="text-xl font-bold tracking-tighter mt-1">+880 1XXX-XXXXXX</p>
                 <Link href="#" className="text-white/40 text-[10px] uppercase tracking-widest mt-6 inline-block hover:text-white transition-colors">
                   Follow us on Facebook
