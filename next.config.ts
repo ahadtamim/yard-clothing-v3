@@ -16,14 +16,19 @@ const nextConfig: NextConfig = {
     loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
   },
   images: {
-    // Explicitly allow your local and production API paths
+    // FIX 1: Disable internal optimization. 
+    // This stops Next.js from trying to "process" the blob images, 
+    // letting the mobile browser fetch them directly from the CDN.
+    unoptimized: true,
+
+    // Keep quality settings
+    qualities: [100],
+
     localPatterns: [
       {
         pathname: '/api/media/file/**',
       },
     ],
-    // High quality for your "Yard Clothing" storefront
-    qualities: [100],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL].map((item) => {
         const url = new URL(item)
@@ -32,14 +37,13 @@ const nextConfig: NextConfig = {
           protocol: url.protocol.replace(':', '') as 'http' | 'https',
         }
       }),
-      // FIX: Ensure the Vercel Blob domain is fully whitelisted with wildcards
+      // Whitelist the Vercel Blob domain
       {
         protocol: 'https',
-        hostname: 'zjxiyg6t5n64z1cj.public.blob.vercel-storage.com', // Your specific bucket ID
+        hostname: 'zjxiyg6t5n64z1cj.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**',
       },
-      // Keep the general wildcard version as a backup
       {
         protocol: 'https',
         hostname: '**.public.blob.vercel-storage.com',
