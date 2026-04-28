@@ -20,16 +20,35 @@ export default async function HomePage() {
     depth: 2, 
   })
 
-  // This helper is safer and won't crash the page if data is missing
+  /**
+   * THE ULTIMATE IMAGE HELPER:
+   * This handles direct media objects AND nested gallery objects 
+   * found in your screenshots (view 2, view 3, etc.)
+   */
   const getFullImageUrl = (img: any) => {
-    if (!img || !img.url) return '/placeholder.jpg'
+    if (!img) return '/placeholder.jpg'
     
+    // 1. Try to find the URL in every possible nested location
+    let url = ''
+    if (typeof img === 'string') {
+      url = img
+    } else if (img?.url && typeof img.url === 'string') {
+      url = img.url
+    } else if (img?.image?.url && typeof img.image.url === 'string') {
+      url = img.image.url
+    } else if (img?.image && typeof img.image === 'string') {
+      url = img.image
+    }
+
+    // 2. If nothing found, return placeholder
+    if (!url) return '/placeholder.jpg'
+    
+    // 3. If it's already a full URL (like Vercel Blob), return it
+    if (url.startsWith('http')) return url
+    
+    // 4. Otherwise, attach the Vercel Blob domain
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
-    
-    if (img.url.startsWith('http')) return img.url
-    
-    // Ensure there isn't a double slash if img.url starts with /
-    const path = img.url.startsWith('/') ? img.url : `/${img.url}`
+    const path = url.startsWith('/') ? url : `/${url}`
     
     return `${blobDomain}${path}`
   }
@@ -46,11 +65,13 @@ export default async function HomePage() {
                 href={`/products/${product.id}`}
                 className="relative flex-1 group overflow-hidden border-r border-white/10"
               >
+                {/* Use helper for the first image in the array */}
                 {product.productImages?.[0] && (
                   <img
                     src={getFullImageUrl(product.productImages[0])}
                     alt={product.name}
                     className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
+                    onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -80,6 +101,7 @@ export default async function HomePage() {
                     src={getFullImageUrl(product.productImages[0])}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300">No Image</div>

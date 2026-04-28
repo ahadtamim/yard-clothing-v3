@@ -18,7 +18,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { isEnabled } = await draftMode()
 
   return (
-    /* FIXED: Moved font variables to <html> and added data-theme initialization */
     <html 
       className={cn(GeistSans.variable, GeistMono.variable)} 
       lang="en" 
@@ -29,14 +28,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
-      {/* FIXED: Explicitly set text-black and min-h-screen on body. 
-        Sometimes InitTheme can clear styles if not explicitly stated here.
+      {/* FIXED: Ensuring the body has a solid white background and black text 
+          to prevent the "white-out" effect on product images.
       */}
       <body className="bg-white text-black antialiased min-h-screen flex flex-col">
         <Providers>
           <Nav />
 
-          {/* FIXED: Ensure main grows to fill space to prevent footer jump */}
+          {/* Main content area */}
           <main className="flex-grow">
             {children}
           </main>
@@ -46,7 +45,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <div>
                 <h4 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-6 font-bold">Support</h4>
                 <p className="text-sm opacity-80">WhatsApp / Call:</p>
-                {/* FIXED: Added real placeholder until you update your Payload config */}
                 <p className="text-xl font-bold tracking-tighter mt-1">+880 1XXX-XXXXXX</p>
                 <Link href="#" className="text-white/40 text-[10px] uppercase tracking-widest mt-6 inline-block hover:text-white transition-colors">
                   Follow us on Facebook
