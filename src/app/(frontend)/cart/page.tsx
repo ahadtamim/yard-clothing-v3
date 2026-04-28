@@ -5,10 +5,6 @@ import Link from 'next/link'
 import { Trash2 } from 'lucide-react'
 
 export default function CartPage() {
-  /**
-   * FIXED: Removed 'updateQuantity' from destructuring.
-   * Your current store definition only includes items and removeItem.
-   */
   const { items, removeItem } = useCart()
   const [isMounted, setIsMounted] = useState(false)
 
@@ -16,12 +12,8 @@ export default function CartPage() {
     setIsMounted(true)
   }, [])
 
-  // Calculate subtotal based on items in the bag
   const subtotal = items.reduce((acc: number, item: any) => acc + item.price * (item.quantity || 1), 0)
 
-  /** * IMAGE PATHING HELPER
-   * Connects relative database paths to your Vercel Blob domain.
-   */
   const getFullImageUrl = (url: string) => {
     if (!url) return '/placeholder.jpg'
     if (url.startsWith('http')) return url
@@ -30,12 +22,10 @@ export default function CartPage() {
     return `${blobDomain}${path}`
   }
 
-  // Prevent hydration mismatch during initial render
   if (!isMounted) return null
 
   return (
     <div className="container mx-auto py-24 px-6 min-h-screen bg-white">
-      {/* TEXT CONTRAST: High-visibility black headers */}
       <h1 className="text-4xl font-black uppercase tracking-tighter mb-12 text-black">
         Your Bag ({items.length})
       </h1>
@@ -49,7 +39,6 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          {/* ITEMS LIST */}
           <div className="lg:col-span-2 space-y-8">
             {items.map((item: any) => (
               <div key={`${item.id}-${item.size}`} className="flex gap-6 border-b border-gray-100 pb-8">
@@ -63,7 +52,6 @@ export default function CartPage() {
                 
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    {/* High-contrast item details */}
                     <h3 className="font-bold text-[11px] uppercase tracking-wider text-black mb-1">
                       {item.name}
                     </h3>
@@ -85,7 +73,6 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* SUMMARY SECTION */}
           <div className="bg-zinc-50 p-8 h-fit sticky top-24 border border-gray-100">
             <h2 className="text-[10px] uppercase font-black tracking-[0.4em] mb-8 text-gray-400">
               Summary
@@ -106,9 +93,12 @@ export default function CartPage() {
               </div>
             </div>
 
-            <button className="w-full bg-black text-white py-5 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-zinc-800 transition-all shadow-xl active:scale-[0.98]">
-              Checkout →
-            </button>
+            {/* FIX: Wrapped button in Link to navigate to checkout */}
+            <Link href="/checkout">
+              <button className="w-full bg-black text-white py-5 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-zinc-800 transition-all shadow-xl active:scale-[0.98]">
+                Checkout →
+              </button>
+            </Link>
             
             <p className="mt-4 text-[8px] text-center text-gray-400 uppercase tracking-widest leading-loose">
               Secure checkout powered by Yard Clothing
