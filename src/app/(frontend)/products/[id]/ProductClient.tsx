@@ -1,16 +1,14 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
+import { getFullImageUrl } from '@/utilities/getURL' // IMPORT THE UTILITY
 
 export default function ProductClient({ product }: { product: any }) {
-  // Initialize main image and wait for hydration
-  const [mainImage, setMainImage] = useState(product.productImages?.[0]?.url || '')
+  // Use the helper for the initial image state
+  const [mainImage, setMainImage] = useState(
+    product.productImages?.[0] ? getFullImageUrl(product.productImages[0]) : ''
+  )
   
-  /**
-   * FIX 1: AUTO-SELECT 'UNSTITCHED'
-   * If the product has 'UNSTITCHED' in the sizes, or only one size, 
-   * we select it by default so the button is active immediately.
-   */
   const [selectedSize, setSelectedSize] = useState<string | null>(
     product.sizes?.includes('UNSTITCHED') ? 'UNSTITCHED' : (product.sizes?.[0] || null)
   )
@@ -20,21 +18,21 @@ export default function ProductClient({ product }: { product: any }) {
 
   useEffect(() => {
     setIsMounted(true)
-    // Sync main image if product changes
-    if (product.productImages?.[0]?.url) {
-      setMainImage(product.productImages[0].url)
+    // Sync main image with the helper if product changes
+    if (product.productImages?.[0]) {
+      setMainImage(getFullImageUrl(product.productImages[0]))
     }
   }, [product])
 
   const handleAddToBag = () => {
-    // If somehow still no size, prevent action
     if (!selectedSize) return
 
     const itemToAdd = {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.productImages?.[0]?.url,
+      // Ensure the image in the cart also uses the full URL
+      image: getFullImageUrl(product.productImages?.[0]),
       size: selectedSize,
     }
 
@@ -64,30 +62,34 @@ export default function ProductClient({ product }: { product: any }) {
             )}
           </div>
 
-          {/* THUMBNAILS */}
+          {/* THUMBNAILS - FIXED: Now uses getFullImageUrl for every view */}
           {product.productImages?.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {product.productImages.map((img: any, idx: number) => (
-                <button 
-                  key={idx}
-                  type="button"
-                  onClick={() => setMainImage(img.url)}
-                  className={`w-20 h-20 flex-shrink-0 border transition-all ${
-                    mainImage === img.url ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  <img src={img.url} className="w-full h-full object-cover" alt={`view ${idx + 1}`} />
-                </button>
-              ))}
+              {product.productImages.map((img: any, idx: number) => {
+                const imageUrl = getFullImageUrl(img); // FIX: Format the URL
+                return (
+                  <button 
+                    key={idx}
+                    type="button"
+                    onClick={() => setMainImage(imageUrl)}
+                    className={`w-20 h-20 flex-shrink-0 border transition-all ${
+                      mainImage === imageUrl ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img 
+                      src={imageUrl} 
+                      className="w-full h-full object-cover" 
+                      alt={`view ${idx + 1}`} 
+                    />
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
 
         {/* CONTENT SECTION */}
         <div className="flex flex-col justify-center">
-          {/** * FIX 2: TEXT VISIBILITY
-           * Forced text-black and text-gray-900 to ensure visibility on white background.
-           */}
           <h1 className="text-4xl font-black uppercase tracking-tighter mb-2 text-black leading-none">
             {product.name}
           </h1>
@@ -118,9 +120,6 @@ export default function ProductClient({ product }: { product: any }) {
             {product.description}
           </p>
           
-          {/** * FIX 3: BUTTON AVAILABILITY
-           * Removed 'Select a Size' block by ensuring selectedSize defaults to 'UNSTITCHED'.
-           */}
           <button 
             type="button"
             onClick={handleAddToBag}
