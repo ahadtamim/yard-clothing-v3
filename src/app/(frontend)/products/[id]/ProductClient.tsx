@@ -1,12 +1,22 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
-import { getFullImageUrl } from '@/utilities/getURL' // IMPORT THE UTILITY
+import { getFullImageUrl } from '@/utilities/getURL'
 
 export default function ProductClient({ product }: { product: any }) {
-  // Use the helper for the initial image state
+  /**
+   * ROBUST IMAGE EXTRACTION:
+   * Payload CMS data can be tricky. This checks for img.url (object) 
+   * or just img (string/ID).
+   */
+  const getSafeUrl = (img: any) => {
+    const rawUrl = typeof img === 'string' ? img : (img?.url || img?.image?.url);
+    return getFullImageUrl(rawUrl);
+  };
+
+  // Initialize main image
   const [mainImage, setMainImage] = useState(
-    product.productImages?.[0] ? getFullImageUrl(product.productImages[0]) : ''
+    product.productImages?.[0] ? getSafeUrl(product.productImages[0]) : ''
   )
   
   const [selectedSize, setSelectedSize] = useState<string | null>(
@@ -18,9 +28,8 @@ export default function ProductClient({ product }: { product: any }) {
 
   useEffect(() => {
     setIsMounted(true)
-    // Sync main image with the helper if product changes
     if (product.productImages?.[0]) {
-      setMainImage(getFullImageUrl(product.productImages[0]))
+      setMainImage(getSafeUrl(product.productImages[0]))
     }
   }, [product])
 
@@ -31,8 +40,8 @@ export default function ProductClient({ product }: { product: any }) {
       id: product.id,
       name: product.name,
       price: product.price,
-      // Ensure the image in the cart also uses the full URL
-      image: getFullImageUrl(product.productImages?.[0]),
+      // Ensure the bag preview also uses the full URL
+      image: product.productImages?.[0] ? getSafeUrl(product.productImages[0]) : '',
       size: selectedSize,
     }
 
@@ -62,11 +71,11 @@ export default function ProductClient({ product }: { product: any }) {
             )}
           </div>
 
-          {/* THUMBNAILS - FIXED: Now uses getFullImageUrl for every view */}
+          {/* THUMBNAILS - ROBUST FIX */}
           {product.productImages?.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {product.productImages.map((img: any, idx: number) => {
-                const imageUrl = getFullImageUrl(img); // FIX: Format the URL
+                const imageUrl = getSafeUrl(img); // Format using robust helper
                 return (
                   <button 
                     key={idx}
@@ -80,6 +89,9 @@ export default function ProductClient({ product }: { product: any }) {
                       src={imageUrl} 
                       className="w-full h-full object-cover" 
                       alt={`view ${idx + 1}`} 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder.jpg'
+                      }}
                     />
                   </button>
                 )
