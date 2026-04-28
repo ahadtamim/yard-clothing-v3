@@ -5,17 +5,22 @@ import Link from 'next/link'
 import { Trash2 } from 'lucide-react'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity } = useCart()
+  /**
+   * FIXED: Removed 'updateQuantity' from destructuring.
+   * Your current store definition only includes items and removeItem.
+   */
+  const { items, removeItem } = useCart()
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
+  // Calculate subtotal based on items in the bag
   const subtotal = items.reduce((acc: number, item: any) => acc + item.price * (item.quantity || 1), 0)
 
-  /** * FIX 1: IMAGE PATHING
-   * Ensures cart thumbnails point to your Vercel Blob storage.
+  /** * IMAGE PATHING HELPER
+   * Connects relative database paths to your Vercel Blob domain.
    */
   const getFullImageUrl = (url: string) => {
     if (!url) return '/placeholder.jpg'
@@ -25,11 +30,12 @@ export default function CartPage() {
     return `${blobDomain}${path}`
   }
 
+  // Prevent hydration mismatch during initial render
   if (!isMounted) return null
 
   return (
     <div className="container mx-auto py-24 px-6 min-h-screen bg-white">
-      {/** FIX 2: TEXT CONTRAST (Changed to text-black) */}
+      {/* TEXT CONTRAST: High-visibility black headers */}
       <h1 className="text-4xl font-black uppercase tracking-tighter mb-12 text-black">
         Your Bag ({items.length})
       </h1>
@@ -37,7 +43,7 @@ export default function CartPage() {
       {items.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-gray-400 uppercase tracking-widest text-xs mb-8">Your bag is empty</p>
-          <Link href="/" className="bg-black text-white px-8 py-4 text-[10px] uppercase font-bold tracking-widest hover:bg-zinc-800">
+          <Link href="/" className="bg-black text-white px-8 py-4 text-[10px] uppercase font-bold tracking-widest hover:bg-zinc-800 transition-all">
             Continue Shopping
           </Link>
         </div>
@@ -47,7 +53,7 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-8">
             {items.map((item: any) => (
               <div key={`${item.id}-${item.size}`} className="flex gap-6 border-b border-gray-100 pb-8">
-                <div className="w-24 h-32 bg-gray-100 overflow-hidden flex-shrink-0">
+                <div className="w-24 h-32 bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-50">
                   <img 
                     src={getFullImageUrl(item.image)} 
                     alt={item.name} 
@@ -57,7 +63,7 @@ export default function CartPage() {
                 
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    {/** FIX 3: ITEM TEXT COLORS */}
+                    {/* High-contrast item details */}
                     <h3 className="font-bold text-[11px] uppercase tracking-wider text-black mb-1">
                       {item.name}
                     </h3>
@@ -69,7 +75,7 @@ export default function CartPage() {
 
                   <button 
                     onClick={() => removeItem(item.id)}
-                    className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors uppercase text-[9px] font-bold tracking-widest"
+                    className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors uppercase text-[9px] font-black tracking-widest"
                   >
                     <Trash2 size={12} />
                     Remove
@@ -80,7 +86,7 @@ export default function CartPage() {
           </div>
 
           {/* SUMMARY SECTION */}
-          <div className="bg-zinc-50 p-8 h-fit sticky top-24">
+          <div className="bg-zinc-50 p-8 h-fit sticky top-24 border border-gray-100">
             <h2 className="text-[10px] uppercase font-black tracking-[0.4em] mb-8 text-gray-400">
               Summary
             </h2>
@@ -100,9 +106,13 @@ export default function CartPage() {
               </div>
             </div>
 
-            <button className="w-full bg-black text-white py-5 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-zinc-800 transition-all shadow-xl">
+            <button className="w-full bg-black text-white py-5 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-zinc-800 transition-all shadow-xl active:scale-[0.98]">
               Checkout →
             </button>
+            
+            <p className="mt-4 text-[8px] text-center text-gray-400 uppercase tracking-widest leading-loose">
+              Secure checkout powered by Yard Clothing
+            </p>
           </div>
         </div>
       )}
