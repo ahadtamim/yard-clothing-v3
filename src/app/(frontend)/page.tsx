@@ -27,34 +27,27 @@ export default async function HomePage() {
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
     
-    let path = "";
-    if (typeof img === 'string') {
-      path = img;
-    } else {
-      path = img?.url || img?.image?.url || img?.filename || img?.image?.filename || "";
-    }
-
+    // 1. Get raw path string
+    let path = typeof img === 'string' ? img : (img?.url || img?.image?.url || img?.filename || "");
     if (!path) return null;
 
-    // Fix 1: Force HTTPS. Mobile Safari blocks HTTP images on HTTPS sites.
-    if (path.startsWith('http')) {
-      return path.replace('http://', 'https://');
-    }
-    
-    // Fix 2: Extract Filename and attach Blob Domain
+    // 2. If it's already a full HTTPS link, use it
+    if (path.startsWith('https://')) return path;
+
+    // 3. EXTRA CLEAN: Remove any leading /api/media/ or /media/ 
+    // Mobile browsers often fail if they see these prefixes.
     const fileName = path.split('/').pop(); 
     if (!fileName) return null;
 
+    // 4. Force the Blob Domain
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
-    
-    // Fix 3: Add a cache-buster query. Sometimes mobile browsers cache broken requests.
-    return `${blobDomain}/${fileName}?v=${new Date().getTime()}`;
+    return `${blobDomain}/${fileName}`;
   }
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Hero Section - Optimized for Mobile Viewport */}
-      <section className="relative h-[60vh] md:h-[80vh] bg-black overflow-hidden flex items-center justify-center">
+      {/* Hero Section */}
+      <section className="relative h-[65vh] md:h-[85vh] bg-black overflow-hidden flex items-center justify-center">
         {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
             {banner.bestProducts.map((product: any) => {
@@ -64,47 +57,46 @@ export default async function HomePage() {
                   {imgUrl && (
                     <img
                       src={imgUrl}
-                      alt={product?.name || ''}
-                      // Fix 4: Explicit 'block' and 'inset-0' for Mobile Safari rendering
-                      className="block absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-1000"
-                      loading="eager" 
-                      decoding="async"
+                      alt=""
+                      // Fix: Added crossOrigin for mobile CDN stability
+                      crossOrigin="anonymous"
+                      className="block absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000"
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white">
-                    <h2 className="text-lg md:text-2xl font-black uppercase tracking-tighter">{product?.name}</h2>
+                  <div className="absolute bottom-8 left-8 text-white">
+                    <h2 className="text-xl font-black uppercase tracking-tighter leading-none">{product?.name}</h2>
                   </div>
                 </Link>
               )
             })}
           </div>
         ) : (
-          <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing • Syncing</div>
+          <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing</div>
         )}
       </section>
 
-      {/* New Arrivals Grid */}
-      <section className="container py-12 md:py-24 mx-auto px-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-8 gap-y-10">
+      {/* Products Grid */}
+      <section className="container py-16 mx-auto px-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-8 gap-y-12">
           {products.docs.map((product: any) => {
             const imgUrl = getFullImageUrl(product?.productImages?.[0]);
             return (
               <Link key={product.id} href={`/products/${product.id}`} className="group">
-                <div className="aspect-[3/4] bg-gray-50 mb-4 overflow-hidden relative">
+                <div className="aspect-[3/4] bg-gray-50 mb-6 overflow-hidden relative">
                   {imgUrl ? (
                     <img 
                       src={imgUrl} 
                       alt={product.name}
-                      className="block w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      loading="lazy"
+                      crossOrigin="anonymous"
+                      className="block w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 uppercase tracking-widest">No Image</div>
+                    <div className="w-full h-full flex items-center justify-center text-[7px] text-gray-300 uppercase tracking-widest">No Image</div>
                   )}
                 </div>
-                <h4 className="font-bold uppercase text-[10px] tracking-widest text-black leading-tight">{product.name}</h4>
-                <p className="text-gray-400 text-[10px] md:text-[11px] mt-1 italic">৳ {product.price}</p>
+                <h4 className="font-bold uppercase text-[10px] tracking-widest text-black mb-1">{product.name}</h4>
+                <p className="text-gray-400 text-[11px]">৳ {product.price}</p>
               </Link>
             )
           })}
