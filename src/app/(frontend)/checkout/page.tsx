@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
 import { useRouter } from 'next/navigation'
-// Import your Payload or Auth provider hook here
 // import { useAuth } from '@/providers/Auth' 
 
 const BANGLADESH_DISTRICTS = [
@@ -13,9 +12,7 @@ export default function Checkout() {
   const router = useRouter()
   const { items, clearCart } = useCart()
   
-  // --- AUTH LOGIC ---
-  // If you have a real auth hook, use it here. 
-  // For now, I'll use a placeholder state.
+  // placeholder for auth logic
   const [user, setUser] = useState<any>(null) 
   
   const [mounted, setMounted] = useState(false)
@@ -52,12 +49,16 @@ export default function Checkout() {
 
     const formData = new FormData(e.currentTarget)
     const fullAddress = `${formData.get('street')}, ${formData.get('area')}, ${formData.get('district')} - ${formData.get('zip')}`
+    const phone = formData.get('phone')
+
+    // LOGIC: If guest (no user), we use a placeholder email based on phone 
+    // to satisfy Payload's "Required" field without asking the user.
+    const finalEmail = user ? user.email : `guest_${phone}@yardclothing.com`
 
     const orderData = {
       customerName: formData.get('name'),
-      // LOGIC: Use user email if logged in, otherwise take from input
-      email: user ? user.email : formData.get('email'),
-      phone: formData.get('phone'),
+      email: finalEmail,
+      phone: phone,
       address: fullAddress,
       items: items.map((item: any) => ({
         product: item.id,
@@ -113,11 +114,16 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* DYNAMIC FEATURE: Hide email field if user is signed in */}
-              {!user && (
+              {/* UPDATED LOGIC: Only show email field IF user is signed in */}
+              {user && (
                 <div className="group animate-in fade-in duration-500">
-                  <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Email Address</label>
-                  <input name="email" required type="email" placeholder="EMAIL@EXAMPLE.COM" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                  <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Account Email</label>
+                  <input 
+                    name="email" 
+                    readOnly 
+                    value={user.email} 
+                    className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest bg-zinc-50 text-gray-500 cursor-not-allowed" 
+                  />
                 </div>
               )}
 
