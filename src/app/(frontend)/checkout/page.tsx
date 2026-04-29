@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
 import { useRouter } from 'next/navigation'
+// Import your Payload or Auth provider hook here
+// import { useAuth } from '@/providers/Auth' 
 
 const BANGLADESH_DISTRICTS = [
   "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogra", "Brahmanbaria", "Chandpur", "Chattogram", "Chuadanga", "Cumilla", "Cox's Bazar", "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachari", "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
@@ -10,9 +12,15 @@ const BANGLADESH_DISTRICTS = [
 export default function Checkout() {
   const router = useRouter()
   const { items, clearCart } = useCart()
+  
+  // --- AUTH LOGIC ---
+  // If you have a real auth hook, use it here. 
+  // For now, I'll use a placeholder state.
+  const [user, setUser] = useState<any>(null) 
+  
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [deliveryCharge, setDeliveryCharge] = useState(60) // Default to Dhaka
+  const [deliveryCharge, setDeliveryCharge] = useState(0) 
   const [selectedDistrict, setSelectedDistrict] = useState('')
 
   const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.price) * (item.quantity || 1)), 0)
@@ -28,10 +36,10 @@ export default function Checkout() {
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const district = e.target.value
     setSelectedDistrict(district)
-    // Dynamic Delivery Charge logic
-    if (district === "Dhaka") {
-      setDeliveryCharge(60)
-    } else if (district === "") {
+    
+    if (district === "") {
+      setDeliveryCharge(0)
+    } else if (district === "Dhaka") {
       setDeliveryCharge(60)
     } else {
       setDeliveryCharge(120)
@@ -43,12 +51,12 @@ export default function Checkout() {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    
     const fullAddress = `${formData.get('street')}, ${formData.get('area')}, ${formData.get('district')} - ${formData.get('zip')}`
 
     const orderData = {
       customerName: formData.get('name'),
-      email: formData.get('email'),
+      // LOGIC: Use user email if logged in, otherwise take from input
+      email: user ? user.email : formData.get('email'),
       phone: formData.get('phone'),
       address: fullAddress,
       items: items.map((item: any) => ({
@@ -73,7 +81,7 @@ export default function Checkout() {
         router.push('/order-success')
       } else {
         const errorData = await res.json()
-        alert(`Error: ${errorData.error || 'Check Admin Panel configuration.'}`)
+        alert(`Error: ${errorData.error || 'Failed to sync to Admin Panel.'}`)
       }
     } catch (err) {
       alert('Network error. Please try again.')
@@ -105,10 +113,13 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <div className="group">
-                <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Email Address</label>
-                <input name="email" required type="email" placeholder="EMAIL@EXAMPLE.COM" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
-              </div>
+              {/* DYNAMIC FEATURE: Hide email field if user is signed in */}
+              {!user && (
+                <div className="group animate-in fade-in duration-500">
+                  <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Email Address</label>
+                  <input name="email" required type="email" placeholder="EMAIL@EXAMPLE.COM" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
@@ -173,24 +184,13 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="mb-10">
-              <h3 className="text-[9px] uppercase tracking-widest font-black mb-4 text-gray-400">Payment Method</h3>
-              <div className="p-4 border-2 border-black bg-white flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-black rounded-full" />
-                  <span className="text-[10px] uppercase font-black tracking-widest text-black">Cash on Delivery</span>
-                </div>
-                <span className="text-[8px] text-gray-400 font-bold uppercase italic">BD ONLY</span>
-              </div>
-            </div>
-
             <button 
               type="submit" 
               form="checkout-form" 
-              disabled={loading}
+              disabled={loading || deliveryCharge === 0}
               className="w-full bg-black text-white py-5 text-[10px] uppercase tracking-[0.3em] font-black hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:bg-gray-400"
             >
-              {loading ? 'Processing...' : 'Confirm Order'}
+              {loading ? 'Processing...' : deliveryCharge === 0 ? 'Select District' : 'Confirm Order'}
             </button>
           </div>
         </div>
