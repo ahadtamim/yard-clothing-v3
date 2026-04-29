@@ -27,19 +27,19 @@ export default async function HomePage() {
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
     
-    // 1. Find the raw string
+    // 1. Extract the raw string path or filename from Payload
     let path = typeof img === 'string' ? img : (img?.url || img?.image?.url || img?.filename || "");
     if (!path) return null;
 
-    // 2. If it's already a full HTTPS link to the blob, use it
+    // 2. If it's already a full HTTPS link to your blob storage, use it directly
     if (path.includes('public.blob.vercel-storage.com')) return path;
 
     // 3. THE CLEANER: Extract just the filename (e.g. "shirt.png")
-    // This stops the browser from trying to use /api/media/ which requires a login.
+    // This removes "/api/media/file/" which causes 403 errors for public users
     const fileName = path.split('/').pop(); 
     if (!fileName) return null;
 
-    // 4. Use your Verified Public Base URL
+    // 4. Force the Verified Public Base URL
     const blobBase = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
     return `${blobBase}/${fileName}`;
   }
@@ -58,7 +58,7 @@ export default async function HomePage() {
                     <img
                       src={imgUrl}
                       alt=""
-                      // Tells the browser: "Don't send my login cookies/session"
+                      // Tells the browser to fetch this as a public asset without admin cookies
                       crossOrigin="anonymous" 
                       className="block absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000"
                     />

@@ -20,36 +20,45 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   /**
    * FIXED HELPER:
-   * Uses an exhaustive check to find the URL string.
-   * Checks img, img.url, img.image.url, and img.image.
+   * Strips restricted API paths to prevent 403 Forbidden errors on public/mobile browsers.
    */
   const getFullImageUrl = (img: any) => {
     if (!img) return '/placeholder.jpg'
     
-    // Check all possible locations Payload stores the URL string
     let url = ''
     if (typeof img === 'string') {
       url = img
-    } else if (img?.url && typeof img.url === 'string') {
-      url = img.url
-    } else if (img?.image?.url && typeof img.image.url === 'string') {
-      url = img.image.url
-    } else if (img?.image && typeof img.image === 'string') {
-      url = img.image
+    } else {
+      // Check every nesting pattern Payload might use
+      url = img?.url || img?.image?.url || img?.filename || img?.image?.filename || ''
     }
 
     if (!url) return '/placeholder.jpg'
-    if (url.startsWith('http')) return url
+
+    // 1. If it's already a full Blob URL, return it
+    if (url.includes('public.blob.vercel-storage.com')) return url
     
+    // 2. If it's another external URL (like Cloudinary/S3), return as HTTPS
+    if (url.startsWith('http')) return url.replace('http://', 'https://')
+    
+    /**
+     * 3. THE CRITICAL FIX: 
+     * Extract JUST the filename (e.g., "shirt.png") 
+     * This throws away "/api/media/file/" which is what causes the 403 error 
+     * when you aren't logged in as an Admin.
+     */
+    const fileName = url.split('/').pop()
+    if (!fileName) return '/placeholder.jpg'
+
     const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
-    const path = url.startsWith('/') ? url : `/${url}`
-    return `${blobDomain}${path}`
+    
+    // Return the direct, public link
+    return `${blobDomain}/${fileName}`
   }
 
   // Format the product to send CLEAN strings to the Client Component
   const formattedProduct = {
     ...product,
-    // Flattening the array here ensures ProductClient only deals with strings
     productImages: (product.productImages || []).map((img: any) => getFullImageUrl(img))
   }
 
