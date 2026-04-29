@@ -5,7 +5,7 @@ interface CartItem {
   id: string
   name: string
   price: number
-  productImages: { url: string }[]
+  productImages: string[] // Changed to match the flattened array from your ProductPage
   selectedSize: string
   [key: string]: any 
 }
@@ -13,7 +13,7 @@ interface CartItem {
 interface CartState {
   items: CartItem[]
   addItem: (product: any, size: string) => void
-  removeItem: (index: number) => void
+  removeItem: (id: string, size: string) => void // Updated to use ID + Size
   clearCart: () => void
 }
 
@@ -28,17 +28,18 @@ export const useCart = create<CartState>()(
           items: [...state.items, { ...product, selectedSize: size }]
         })),
 
-      // Removes a specific item by its position in the list
-      removeItem: (index) =>
+      // Removes a specific item by its ID and Size
+      // This is better than index because it prevents removing the wrong item if the list shifts
+      removeItem: (id, size) =>
         set((state) => ({
-          items: state.items.filter((_, i) => i !== index)
+          items: state.items.filter((item) => !(item.id === id && item.selectedSize === size))
         })),
 
       // Empties the whole bag (useful after successful checkout)
       clearCart: () => set({ items: [] }),
     }),
     { 
-      name: 'yard-cart-storage' // This name is the key in the browser's LocalStorage
+      name: 'yard-cart-storage' 
     }
   )
 )

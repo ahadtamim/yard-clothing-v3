@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Trash2 } from 'lucide-react'
 
 export default function CartPage() {
+  // 1. Destructure clearCart if you want to use it here later
   const { items, removeItem } = useCart()
   const [isMounted, setIsMounted] = useState(false)
 
@@ -61,8 +62,9 @@ export default function CartPage() {
                     <p className="text-sm font-bold text-gray-900">৳ {item.price}</p>
                   </div>
 
+                  {/* FIX: Ensure your useCart.ts handles (id, size) in removeItem */}
                   <button 
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.id, item.size)}
                     className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors uppercase text-[9px] font-black tracking-widest"
                   >
                     <Trash2 size={12} />
@@ -93,7 +95,6 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* FIX: Wrapped button in Link to navigate to checkout */}
             <Link href="/checkout">
               <button className="w-full bg-black text-white py-5 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-zinc-800 transition-all shadow-xl active:scale-[0.98]">
                 Checkout →
