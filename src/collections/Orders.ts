@@ -3,18 +3,15 @@ import type { CollectionConfig } from 'payload'
 export const Orders: CollectionConfig = {
   slug: 'orders',
   admin: {
-    // This tells Payload to show the ID as the main link in the list
     useAsTitle: 'orderID',
     description: 'Manage customer orders and download monthly sales reports.',
     defaultColumns: ['orderID', 'customerName', 'totalAmount', 'status', 'createdAt'],
   },
-  // HOOK: Automatically generates the Order ID before the document is created
   hooks: {
     beforeChange: [
       ({ data, operation }) => {
         if (operation === 'create') {
           const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-          // Ensures orderID is generated correctly
           return {
             ...data,
             orderID: `YRD-${Date.now().toString().slice(-4)}-${randomSuffix}`,
@@ -52,9 +49,8 @@ export const Orders: CollectionConfig = {
     {
       name: 'email',
       type: 'email',
-      // CHANGED: Required is now false to allow Guest Checkout (Name/Phone only)
+      // Set to false to allow guest checkout without an email input
       required: false,
-      // Ensures that multiple guest orders don't conflict if they have no email
       unique: false,
     },
     {

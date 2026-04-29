@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
 import { useRouter } from 'next/navigation'
-// import { useAuth } from '@/providers/Auth' 
 
 const BANGLADESH_DISTRICTS = [
   "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogra", "Brahmanbaria", "Chandpur", "Chattogram", "Chuadanga", "Cumilla", "Cox's Bazar", "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachari", "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
@@ -12,9 +11,7 @@ export default function Checkout() {
   const router = useRouter()
   const { items, clearCart } = useCart()
   
-  // placeholder for auth logic
   const [user, setUser] = useState<any>(null) 
-  
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deliveryCharge, setDeliveryCharge] = useState(0) 
@@ -51,9 +48,9 @@ export default function Checkout() {
     const fullAddress = `${formData.get('street')}, ${formData.get('area')}, ${formData.get('district')} - ${formData.get('zip')}`
     const phone = formData.get('phone')
 
-    // LOGIC: If guest (no user), we use a placeholder email based on phone 
-    // to satisfy Payload's "Required" field without asking the user.
-    const finalEmail = user ? user.email : `guest_${phone}@yardclothing.com`
+    // If guest, we send an empty string or null since Payload field is no longer required.
+    // This removes the need for "fake" guest emails.
+    const finalEmail = user ? user.email : ""
 
     const orderData = {
       customerName: formData.get('name'),
@@ -114,7 +111,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* UPDATED LOGIC: Only show email field IF user is signed in */}
+              {/* Only show email if user is logged in. No 'required' attribute for guests. */}
               {user && (
                 <div className="group animate-in fade-in duration-500">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Account Email</label>
