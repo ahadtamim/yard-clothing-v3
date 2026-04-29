@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react'
 import { useCart } from '@/store/useCart'
 import { useRouter } from 'next/navigation'
 
-// List of all 64 districts in Bangladesh
 const BANGLADESH_DISTRICTS = [
   "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogra", "Brahmanbaria", "Chandpur", "Chattogram", "Chuadanga", "Cumilla", "Cox's Bazar", "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachari", "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
 ].sort();
@@ -12,6 +11,7 @@ export default function Checkout() {
   const router = useRouter()
   const { items, clearCart } = useCart()
   const [mounted, setMounted] = useState(false)
+  const [loading, setLoading] = useState(false)
   
   const total = items.reduce((acc: number, item: any) => acc + (Number(item.price) * (item.quantity || 1)), 0)
 
@@ -22,11 +22,47 @@ export default function Checkout() {
     }
   }, [items, mounted, router])
 
-  const handleConfirmOrder = (e: React.FormEvent) => {
+  const handleConfirmOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    alert('Order Placed Successfully! We will contact you shortly to confirm.')
-    clearCart() 
-    router.push('/') 
+    setLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    
+    // Construct full address from components
+    const fullAddress = `${formData.get('street')}, ${formData.get('area')}, ${formData.get('district')} - ${formData.get('zip')}`
+
+    const orderData = {
+      customerName: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      address: fullAddress,
+      items: items.map((item: any) => ({
+        product: item.id,
+        quantity: item.quantity || 1,
+        size: item.size,
+      })),
+      totalAmount: total,
+      status: 'pending',
+    }
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      })
+
+      if (res.ok) {
+        clearCart()
+        router.push('/order-success')
+      } else {
+        alert('Failed to sync order to Admin Panel. Please check your network.')
+      }
+    } catch (err) {
+      alert('Error connecting to server.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (!mounted || items.length === 0) return null
@@ -44,24 +80,23 @@ export default function Checkout() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Full Name</label>
-                  <input required type="text" placeholder="YOUR NAME" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                  <input name="name" required type="text" placeholder="YOUR NAME" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
                 </div>
                 <div className="group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Phone Number</label>
-                  <input required type="tel" placeholder="01XXXXXXXXX" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                  <input name="phone" required type="tel" placeholder="01XXXXXXXXX" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
                 </div>
               </div>
 
               <div className="group">
                 <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Email Address</label>
-                <input required type="email" placeholder="EMAIL@EXAMPLE.COM" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                <input name="email" required type="email" placeholder="EMAIL@EXAMPLE.COM" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
               </div>
 
-              {/* NEW FIELDS: DISTRICT & AREA */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">District</label>
-                  <select required className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black appearance-none cursor-pointer">
+                  <select name="district" required className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black appearance-none cursor-pointer">
                     <option value="">SELECT DISTRICT</option>
                     {BANGLADESH_DISTRICTS.map(dist => (
                       <option key={dist} value={dist}>{dist.toUpperCase()}</option>
@@ -70,19 +105,18 @@ export default function Checkout() {
                 </div>
                 <div className="group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Area / Thana</label>
-                  <input required type="text" placeholder="E.G. BANANI / MIRPUR" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                  <input name="area" required type="text" placeholder="E.G. BANANI / MIRPUR" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
                 </div>
               </div>
 
-              {/* NEW FIELD: ZIP CODE & ADDRESS */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-1 group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Zip Code</label>
-                  <input required type="text" placeholder="12XX" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                  <input name="zip" required type="text" placeholder="12XX" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
                 </div>
                 <div className="md:col-span-2 group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Street Address</label>
-                  <input required type="text" placeholder="HOUSE, ROAD, FLAT NO." className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
+                  <input name="street" required type="text" placeholder="HOUSE, ROAD, FLAT NO." className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
                 </div>
               </div>
             </form>
@@ -117,8 +151,13 @@ export default function Checkout() {
               </div>
             </div>
 
-            <button type="submit" form="checkout-form" className="w-full bg-black text-white py-5 text-[10px] uppercase tracking-[0.3em] font-black hover:bg-zinc-800 transition-all active:scale-[0.98]">
-              Confirm Order
+            <button 
+              type="submit" 
+              form="checkout-form" 
+              disabled={loading}
+              className="w-full bg-black text-white py-5 text-[10px] uppercase tracking-[0.3em] font-black hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:bg-gray-400"
+            >
+              {loading ? 'Processing...' : 'Confirm Order'}
             </button>
           </div>
         </div>
