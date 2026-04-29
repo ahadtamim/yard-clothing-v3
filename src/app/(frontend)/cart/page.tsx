@@ -2,10 +2,9 @@
 import React, { useEffect, useState } from 'react'
 import { useCart } from '@/store/useCart'
 import Link from 'next/link'
-import { Trash2 } from 'lucide-react'
+import { Trash2, ShoppingBag } from 'lucide-react'
 
 export default function CartPage() {
-  // 1. Destructure clearCart if you want to use it here later
   const { items, removeItem } = useCart()
   const [isMounted, setIsMounted] = useState(false)
 
@@ -27,19 +26,23 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto py-24 px-6 min-h-screen bg-white">
-      <h1 className="text-4xl font-black uppercase tracking-tighter mb-12 text-black">
-        Your Bag ({items.length})
-      </h1>
+      <div className="flex items-center gap-4 mb-12">
+        <ShoppingBag size={32} className="text-black" />
+        <h1 className="text-4xl font-black uppercase tracking-tighter text-black">
+          Your Bag ({items.length})
+        </h1>
+      </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-20">
+        <div className="text-center py-24 border border-dashed border-gray-200">
           <p className="text-gray-400 uppercase tracking-widest text-xs mb-8">Your bag is empty</p>
-          <Link href="/" className="bg-black text-white px-8 py-4 text-[10px] uppercase font-bold tracking-widest hover:bg-zinc-800 transition-all">
-            Continue Shopping
+          <Link href="/" className="bg-black text-white px-12 py-4 text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-zinc-800 transition-all">
+            Explore Shop
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+          {/* LEFT: ITEM LIST */}
           <div className="lg:col-span-2 space-y-8">
             {items.map((item: any) => (
               <div key={`${item.id}-${item.size}`} className="flex gap-6 border-b border-gray-100 pb-8">
@@ -53,31 +56,33 @@ export default function CartPage() {
                 
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-[11px] uppercase tracking-wider text-black mb-1">
-                      {item.name}
-                    </h3>
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-bold text-[11px] uppercase tracking-wider text-black mb-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm font-bold text-gray-900">৳ {item.price}</p>
+                    </div>
                     <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-4">
                       Size: <span className="text-black font-bold">{item.size}</span>
                     </p>
-                    <p className="text-sm font-bold text-gray-900">৳ {item.price}</p>
                   </div>
 
-                  {/* FIX: Ensure your useCart.ts handles (id, size) in removeItem */}
                   <button 
                     onClick={() => removeItem(item.id, item.size)}
-                    className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors uppercase text-[9px] font-black tracking-widest"
+                    className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors uppercase text-[9px] font-black tracking-widest w-fit"
                   >
                     <Trash2 size={12} />
-                    Remove
+                    Remove Item
                   </button>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* RIGHT: SUMMARY */}
           <div className="bg-zinc-50 p-8 h-fit sticky top-24 border border-gray-100">
             <h2 className="text-[10px] uppercase font-black tracking-[0.4em] mb-8 text-gray-400">
-              Summary
+              Order Summary
             </h2>
             
             <div className="space-y-4 mb-8">
@@ -87,23 +92,27 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-[11px] uppercase tracking-widest">
                 <span className="text-gray-500">Delivery</span>
-                <span className="text-green-600 font-bold uppercase">Free</span>
+                <span className="text-zinc-400 italic text-[9px]">Calculated at Checkout</span>
               </div>
               <div className="border-t border-gray-200 pt-4 flex justify-between">
-                <span className="text-xs font-black uppercase tracking-tighter text-black">Total</span>
+                <span className="text-xs font-black uppercase tracking-tighter text-black">Estimated Total</span>
                 <span className="text-lg font-black text-black">৳ {subtotal}</span>
               </div>
             </div>
 
             <Link href="/checkout">
               <button className="w-full bg-black text-white py-5 text-[10px] uppercase font-black tracking-[0.3em] hover:bg-zinc-800 transition-all shadow-xl active:scale-[0.98]">
-                Checkout →
+                Proceed to Checkout →
               </button>
             </Link>
             
-            <p className="mt-4 text-[8px] text-center text-gray-400 uppercase tracking-widest leading-loose">
-              Secure checkout powered by Yard Clothing
-            </p>
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-black mb-2">Help & Support</p>
+              <p className="text-[8px] text-gray-500 uppercase tracking-widest leading-loose">
+                Call: +880 1632-235335<br />
+                Delivery: 60৳ Dhaka / 120৳ Outside
+              </p>
+            </div>
           </div>
         </div>
       )}

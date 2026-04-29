@@ -12,8 +12,11 @@ export default function Checkout() {
   const { items, clearCart } = useCart()
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
-  
-  const total = items.reduce((acc: number, item: any) => acc + (Number(item.price) * (item.quantity || 1)), 0)
+  const [deliveryCharge, setDeliveryCharge] = useState(60) // Default to Dhaka
+  const [selectedDistrict, setSelectedDistrict] = useState('')
+
+  const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.price) * (item.quantity || 1)), 0)
+  const total = subtotal + deliveryCharge
 
   useEffect(() => {
     setMounted(true)
@@ -22,13 +25,25 @@ export default function Checkout() {
     }
   }, [items, mounted, router])
 
+  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const district = e.target.value
+    setSelectedDistrict(district)
+    // Dynamic Delivery Charge logic
+    if (district === "Dhaka") {
+      setDeliveryCharge(60)
+    } else if (district === "") {
+      setDeliveryCharge(60)
+    } else {
+      setDeliveryCharge(120)
+    }
+  }
+
   const handleConfirmOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
     
-    // Construct full address from components
     const fullAddress = `${formData.get('street')}, ${formData.get('area')}, ${formData.get('district')} - ${formData.get('zip')}`
 
     const orderData = {
@@ -42,6 +57,7 @@ export default function Checkout() {
         size: item.size,
       })),
       totalAmount: total,
+      deliveryCharge: deliveryCharge,
       status: 'pending',
     }
 
@@ -56,10 +72,11 @@ export default function Checkout() {
         clearCart()
         router.push('/order-success')
       } else {
-        alert('Failed to sync order to Admin Panel. Please check your network.')
+        const errorData = await res.json()
+        alert(`Error: ${errorData.error || 'Check Admin Panel configuration.'}`)
       }
     } catch (err) {
-      alert('Error connecting to server.')
+      alert('Network error. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -96,7 +113,13 @@ export default function Checkout() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">District</label>
-                  <select name="district" required className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black appearance-none cursor-pointer">
+                  <select 
+                    name="district" 
+                    required 
+                    value={selectedDistrict}
+                    onChange={handleDistrictChange}
+                    className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black appearance-none cursor-pointer"
+                  >
                     <option value="">SELECT DISTRICT</option>
                     {BANGLADESH_DISTRICTS.map(dist => (
                       <option key={dist} value={dist}>{dist.toUpperCase()}</option>
@@ -134,7 +157,17 @@ export default function Checkout() {
                 </div>
               ))}
               
-              <div className="border-t border-gray-200 pt-4 flex justify-between text-sm font-black uppercase tracking-tight text-black">
+              <div className="border-t border-gray-100 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                <span>Subtotal</span>
+                <span>৳ {subtotal}</span>
+              </div>
+
+              <div className="flex justify-between text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                <span>Delivery Charge</span>
+                <span>৳ {deliveryCharge}</span>
+              </div>
+
+              <div className="border-t border-black pt-4 flex justify-between text-sm font-black uppercase tracking-tight text-black">
                 <span>Total Amount</span>
                 <span>৳ {total}</span>
               </div>
