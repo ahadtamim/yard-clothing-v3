@@ -18,52 +18,40 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   if (!product) return notFound()
 
-  /**
-   * THE ULTIMATE BYPASS HELPER:
-   * This helper is designed to fix the 403 Forbidden errors seen in the logs.
-   * It forces the browser to fetch from the Public Vercel Blob instead of the 
-   * Admin-only Payload API.
-   */
   const getFullImageUrl = (img: any) => {
-    if (!img) return '/placeholder.jpg'
+    if (!img) return null
     
     let url = ''
     if (typeof img === 'string') {
       url = img
     } else {
-      // Check every common Payload nesting pattern
       url = img?.url || img?.image?.url || img?.filename || img?.image?.filename || ''
     }
 
-    if (!url) return '/placeholder.jpg'
+    if (!url) return null
 
-    // 1. Return immediately if it's already a full public blob link
+    // If it's already a public blob link, we use it directly
     if (url.includes('public.blob.vercel-storage.com')) return url
     
-    // 2. Ensure standard external links use HTTPS
-    if (url.startsWith('http')) return url.replace('http://', 'https://')
-    
-    /**
-     * 3. THE PATH CLEANER:
-     * This takes "/api/media/file/image.png" and extracts ONLY "image.png".
-     * By throwing away the folders, we bypass the authentication check that 
-     * results in the 403 error.
-     */
+    // Extract filename to bypass the restricted /api/media folder
     const fileName = url.split('/').pop()
-    if (!fileName) return '/placeholder.jpg'
+    if (!fileName) return null
 
-    // Your verified public base URL
-    const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com'
-    
-    return `${blobDomain}/${fileName}`
+    return `https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com/${fileName}`
   }
 
-  // Flatten the images into simple, working URL strings
+  const productImages = (product.productImages || [])
+    .map((img: any) => getFullImageUrl(img))
+    .filter(Boolean)
+
+  // LOGS: This will show up in your Vercel Dashboard -> Logs
+  console.log('--- PRODUCT DEBUG ---')
+  console.log('Product Name:', product.name)
+  console.log('Generated Image URLs:', productImages)
+
   const formattedProduct = {
     ...product,
-    productImages: (product.productImages || [])
-      .map((img: any) => getFullImageUrl(img))
-      .filter((url: string) => url !== '/placeholder.jpg') // Only send real links
+    productImages: productImages.length > 0 ? productImages : ['/placeholder.jpg']
   }
 
   return <ProductClient product={formattedProduct} />
