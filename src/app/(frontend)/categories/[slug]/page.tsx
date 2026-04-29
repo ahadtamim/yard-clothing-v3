@@ -11,7 +11,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params 
   const cleanSlug = slug.toLowerCase()
 
-  // 1. Find the target category (e.g., "men")
+  // 1. Find the target category
   const categoryData = await payload.find({
     collection: 'categories',
     where: { slug: { equals: cleanSlug } },
@@ -20,20 +20,19 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const currentCategory = categoryData.docs[0]
   if (!currentCategory) return notFound()
 
-  // 2. Find ALL sub-categories that belong to this category
+  // 2. Find ALL sub-categories
   const subCategoryData = await payload.find({
     collection: 'categories',
     where: { parent: { equals: currentCategory.id } },
     limit: 100,
   })
 
-  // 3. Combine the IDs: [Men_ID, T-shirt_ID, Panjabi_ID, etc.]
   const allRelatedCategoryIds = [
     currentCategory.id, 
     ...subCategoryData.docs.map((sub) => sub.id)
   ]
 
-  // 4. Fetch products matching ANY of those IDs
+  // 3. Fetch products
   const products = await payload.find({
     collection: 'products',
     where: {
@@ -44,6 +43,24 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     limit: 100,
     depth: 2, 
   })
+
+  /**
+   * FIXED HELPER:
+   * Strips the restricted /api/media prefix to allow public/mobile access.
+   */
+  const getFullImageUrl = (img: any) => {
+    if (!img) return null;
+    
+    // Extract the raw path string
+    let path = typeof img === 'string' ? img : (img?.url || img?.filename || "");
+    if (!path) return null;
+
+    // Use direct public blob link to bypass auth issues
+    const fileName = path.split('/').pop(); 
+    const blobBase = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
+    
+    return `${blobBase}/${fileName}`;
+  }
 
   return (
     <main className="min-h-screen bg-white px-8 py-20">
@@ -59,16 +76,18 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         {products.docs.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {products.docs.map((product: any) => {
-              // Get the first image from the relationship array
-              const mainImage = product.productImages?.[0]
+              // Apply the fix to the first product image
+              const imgUrl = getFullImageUrl(product.productImages?.[0]);
               
               return (
                 <Link key={product.id} href={`/products/${product.id}`} className="group">
                   <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                    {mainImage?.url ? (
+                    {imgUrl ? (
                       <img
-                        src={mainImage.url}
+                        src={imgUrl}
                         alt={product.name}
+                        // Important: ignore admin session cookies for these assets
+                        crossOrigin="anonymous"
                         className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
                       />
                     ) : (
@@ -86,7 +105,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         ) : (
           <div className="py-20 text-center border border-dashed border-gray-100">
             <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold">
-              No products found in "{currentCategory.title}" or its sub-collections.
+              No products found in "{currentCategory.title}".
             </p>
           </div>
         )}
