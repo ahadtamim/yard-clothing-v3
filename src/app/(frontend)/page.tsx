@@ -21,32 +21,32 @@ export default async function HomePage() {
     if (productsRes.status === 'fulfilled') products = productsRes.value;
 
   } catch (error) {
-    console.error("Critical Connection Error:", error);
+    console.error("Payload Sync Error:", error);
   }
 
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
     
-    // 1. Get raw path string
+    // 1. Find the raw string
     let path = typeof img === 'string' ? img : (img?.url || img?.image?.url || img?.filename || "");
     if (!path) return null;
 
-    // 2. If it's already a full HTTPS link, use it
-    if (path.startsWith('https://')) return path;
+    // 2. If it's already a full HTTPS link to the blob, use it
+    if (path.includes('public.blob.vercel-storage.com')) return path;
 
-    // 3. EXTRA CLEAN: Remove any leading /api/media/ or /media/ 
-    // Mobile browsers often fail if they see these prefixes.
+    // 3. THE CLEANER: Extract just the filename (e.g. "shirt.png")
+    // This stops the browser from trying to use /api/media/ which requires a login.
     const fileName = path.split('/').pop(); 
     if (!fileName) return null;
 
-    // 4. Force the Blob Domain
-    const blobDomain = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
-    return `${blobDomain}/${fileName}`;
+    // 4. Use your Verified Public Base URL
+    const blobBase = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
+    return `${blobBase}/${fileName}`;
   }
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Hero Section */}
+      {/* Banner Section */}
       <section className="relative h-[65vh] md:h-[85vh] bg-black overflow-hidden flex items-center justify-center">
         {banner?.bestProducts?.length > 0 ? (
           <div className="flex w-full h-full">
@@ -58,8 +58,8 @@ export default async function HomePage() {
                     <img
                       src={imgUrl}
                       alt=""
-                      // Fix: Added crossOrigin for mobile CDN stability
-                      crossOrigin="anonymous"
+                      // Tells the browser: "Don't send my login cookies/session"
+                      crossOrigin="anonymous" 
                       className="block absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000"
                     />
                   )}
@@ -76,7 +76,7 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Products Grid */}
+      {/* Product Grid */}
       <section className="container py-16 mx-auto px-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-8 gap-y-12">
           {products.docs.map((product: any) => {
