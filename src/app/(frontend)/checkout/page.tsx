@@ -49,18 +49,21 @@ export default function Checkout() {
     const phone = formData.get('phone')
     const finalEmail = user ? user.email : ""
 
-    // FIX: Ensure 'product' is ONLY an ID string. 
-    // If your cart 'item.id' is an object, this will extract the string ID.
+    // IMPROVED FIX: Ensure 'product' is strictly a string ID
     const orderData = {
       customerName: formData.get('name'),
       email: finalEmail,
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        // Defensive check: if item.id is an object, try to get item.id.id
-        const productId = typeof item.id === 'object' ? item.id.id : item.id;
+        // Extraction logic to handle items that were saved as objects
+        let productId = item.id;
+        if (typeof item.id === 'object') {
+          productId = item.id.id || item.id._id || item.id;
+        }
+        
         return {
-          product: productId,
+          product: String(productId), // Cast to string for the database
           quantity: Number(item.quantity) || 1,
           size: item.size,
         };
@@ -82,7 +85,6 @@ export default function Checkout() {
         router.push('/order-success')
       } else {
         const errorData = await res.json()
-        // This will now show the specific Payload validation error if it fails
         alert(`Error: ${JSON.stringify(errorData.error) || 'Failed to sync to Admin Panel.'}`)
       }
     } catch (err) {
