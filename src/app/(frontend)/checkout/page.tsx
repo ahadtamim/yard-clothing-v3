@@ -49,21 +49,20 @@ export default function Checkout() {
     const phone = formData.get('phone')
     const finalEmail = user ? user.email : ""
 
-    // IMPROVED FIX: Ensure 'product' is strictly a string ID
     const orderData = {
       customerName: formData.get('name'),
       email: finalEmail,
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        // Extraction logic to handle items that were saved as objects
+        // Defensive extraction for the database
         let productId = item.id;
         if (typeof item.id === 'object') {
           productId = item.id.id || item.id._id || item.id;
         }
         
         return {
-          product: String(productId), // Cast to string for the database
+          product: String(productId), 
           quantity: Number(item.quantity) || 1,
           size: item.size,
         };
@@ -100,8 +99,6 @@ export default function Checkout() {
     <div className="bg-white min-h-screen">
       <div className="max-w-5xl mx-auto pt-32 pb-20 px-6 text-black">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          
-          {/* LEFT: SHIPPING DETAILS */}
           <div>
             <h1 className="text-3xl font-black uppercase tracking-tighter mb-8 text-black">Shipping Details</h1>
             <form onSubmit={handleConfirmOrder} id="checkout-form" className="space-y-6">
@@ -115,18 +112,6 @@ export default function Checkout() {
                   <input name="phone" required type="tel" placeholder="01XXXXXXXXX" className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest focus:border-black transition-colors bg-white text-black" />
                 </div>
               </div>
-
-              {user && (
-                <div className="group animate-in fade-in duration-500">
-                  <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Account Email</label>
-                  <input 
-                    name="email" 
-                    readOnly 
-                    value={user.email} 
-                    className="w-full border-b border-gray-200 py-3 outline-none text-xs tracking-widest bg-zinc-50 text-gray-500 cursor-not-allowed" 
-                  />
-                </div>
-              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
@@ -163,10 +148,8 @@ export default function Checkout() {
             </form>
           </div>
 
-          {/* RIGHT: ORDER SUMMARY */}
           <div className="bg-zinc-50 p-8 rounded-sm h-fit border border-gray-100 shadow-sm">
             <h2 className="text-[10px] uppercase tracking-[0.4em] font-bold mb-8 text-gray-400">Your Order</h2>
-            
             <div className="space-y-4 mb-8">
               {items.map((item: any, i: number) => (
                 <div key={i} className="flex justify-between text-[10px] uppercase tracking-widest text-gray-600 font-medium">
@@ -174,23 +157,19 @@ export default function Checkout() {
                   <span className="text-black">৳ {item.price}</span>
                 </div>
               ))}
-              
               <div className="border-t border-gray-100 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-500 font-bold">
                 <span>Subtotal</span>
                 <span>৳ {subtotal}</span>
               </div>
-
               <div className="flex justify-between text-[10px] uppercase tracking-widest text-gray-500 font-bold">
                 <span>Delivery Charge</span>
                 <span>৳ {deliveryCharge}</span>
               </div>
-
               <div className="border-t border-black pt-4 flex justify-between text-sm font-black uppercase tracking-tight text-black">
                 <span>Total Amount</span>
                 <span>৳ {total}</span>
               </div>
             </div>
-
             <button 
               type="submit" 
               form="checkout-form" 

@@ -22,7 +22,6 @@ export default function CartPage() {
     return `${blobDomain}${path}`
   }
 
-  // FIX: Helper to extract the ID string safely
   const getSafeId = (item: any) => {
     if (typeof item.id === 'object') {
       return item.id.id || item.id._id || item.id;
@@ -54,19 +53,13 @@ export default function CartPage() {
             {items.map((item: any) => (
               <div key={`${getSafeId(item)}-${item.size}`} className="flex gap-6 border-b border-gray-100 pb-8">
                 <div className="w-24 h-32 bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-50">
-                  <img 
-                    src={getFullImageUrl(item.image)} 
-                    alt={item.name} 
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={getFullImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start">
-                      <h3 className="font-bold text-[11px] uppercase tracking-wider text-black mb-1">
-                        {item.name}
-                      </h3>
+                      <h3 className="font-bold text-[11px] uppercase tracking-wider text-black mb-1">{item.name}</h3>
                       <p className="text-sm font-bold text-gray-900">৳ {item.price}</p>
                     </div>
                     <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-4">
@@ -76,7 +69,6 @@ export default function CartPage() {
 
                   <button 
                     onClick={() => {
-                      // FIX: Pass the extracted string ID to the store
                       const idToRemove = getSafeId(item);
                       removeItem(idToRemove, item.size);
                     }}
@@ -91,18 +83,11 @@ export default function CartPage() {
           </div>
 
           <div className="bg-zinc-50 p-8 h-fit sticky top-24 border border-gray-100">
-            <h2 className="text-[10px] uppercase font-black tracking-[0.4em] mb-8 text-gray-400">
-              Order Summary
-            </h2>
-            
+            <h2 className="text-[10px] uppercase font-black tracking-[0.4em] mb-8 text-gray-400">Order Summary</h2>
             <div className="space-y-4 mb-8">
               <div className="flex justify-between text-[11px] uppercase tracking-widest">
                 <span className="text-gray-500">Subtotal</span>
                 <span className="text-black font-bold">৳ {subtotal}</span>
-              </div>
-              <div className="flex justify-between text-[11px] uppercase tracking-widest">
-                <span className="text-gray-500">Delivery</span>
-                <span className="text-zinc-400 italic text-[9px]">Calculated at Checkout</span>
               </div>
               <div className="border-t border-gray-200 pt-4 flex justify-between">
                 <span className="text-xs font-black uppercase tracking-tighter text-black">Estimated Total</span>
@@ -115,14 +100,6 @@ export default function CartPage() {
                 Proceed to Checkout →
               </button>
             </Link>
-            
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-black mb-2">Help & Support</p>
-              <p className="text-[8px] text-gray-500 uppercase tracking-widest leading-loose">
-                Call: +880 1632-235335<br />
-                Delivery: 60৳ Dhaka / 120৳ Outside
-              </p>
-            </div>
           </div>
         </div>
       )}
