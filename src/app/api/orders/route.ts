@@ -12,15 +12,20 @@ export async function POST(req: Request) {
 
     // 1. Defensively map and clean the items array
     const sanitizedItems = data.items.map((item: any) => {
-      let productId = item.product || item.id;
+      let productId = item.product || item.id || item;
       
-      // If it's a nested object, extract the ID
+      // If it's a nested object (e.g. { id: '...', name: '...' }), extract the ID string
       if (typeof productId === 'object' && productId !== null) {
-        productId = productId.id || productId._id || productId;
+        productId = productId.id || productId._id || productId._value || Object.values(productId)[0];
+      }
+
+      // If the resulting value is still an object or invalid, fallback to an empty string
+      if (typeof productId === 'object') {
+        productId = '';
       }
 
       return {
-        product: String(productId).trim(), // 2. Convert to string
+        product: String(productId).trim(), // 2. Force conversion to string
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       };
