@@ -22,6 +22,14 @@ export default function CartPage() {
     return `${blobDomain}${path}`
   }
 
+  // FIX: Helper to extract the ID string safely
+  const getSafeId = (item: any) => {
+    if (typeof item.id === 'object') {
+      return item.id.id || item.id._id || item.id;
+    }
+    return item.id;
+  }
+
   if (!isMounted) return null
 
   return (
@@ -42,10 +50,9 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          {/* LEFT: ITEM LIST */}
           <div className="lg:col-span-2 space-y-8">
             {items.map((item: any) => (
-              <div key={`${item.id}-${item.size}`} className="flex gap-6 border-b border-gray-100 pb-8">
+              <div key={`${getSafeId(item)}-${item.size}`} className="flex gap-6 border-b border-gray-100 pb-8">
                 <div className="w-24 h-32 bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-50">
                   <img 
                     src={getFullImageUrl(item.image)} 
@@ -68,7 +75,11 @@ export default function CartPage() {
                   </div>
 
                   <button 
-                    onClick={() => removeItem(item.id, item.size)}
+                    onClick={() => {
+                      // FIX: Pass the extracted string ID to the store
+                      const idToRemove = getSafeId(item);
+                      removeItem(idToRemove, item.size);
+                    }}
                     className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors uppercase text-[9px] font-black tracking-widest w-fit"
                   >
                     <Trash2 size={12} />
@@ -79,7 +90,6 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* RIGHT: SUMMARY */}
           <div className="bg-zinc-50 p-8 h-fit sticky top-24 border border-gray-100">
             <h2 className="text-[10px] uppercase font-black tracking-[0.4em] mb-8 text-gray-400">
               Order Summary
