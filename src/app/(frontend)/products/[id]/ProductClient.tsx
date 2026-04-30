@@ -4,9 +4,16 @@ import { useCart } from '@/store/useCart'
 
 export default function ProductClient({ product }: { product: any }) {
   const [mainImage, setMainImage] = useState(product.productImages?.[0] || '')
-  const [selectedSize, setSelectedSize] = useState<string | null>(
-    product.sizes?.includes('UNSTITCHED') ? 'UNSTITCHED' : (product.sizes?.[0] || null)
-  )
+  
+  // FIXED: Look for size inside the new 'inventory' array instead of 'sizes'
+  const [selectedSize, setSelectedSize] = useState<string | null>(() => {
+    const inventory = product.inventory || [];
+    const unstitched = inventory.find((i: any) => i.size.toLowerCase() === 'unstitched');
+    // Default to Unstitched if it's in stock, otherwise the first available size
+    if (unstitched && unstitched.stock > 0) return unstitched.size;
+    return inventory.find((i: any) => i.stock > 0)?.size || null;
+  })
+
   const [isMounted, setIsMounted] = useState(false)
   const addItem = useCart((state: any) => state.addItem)
 
@@ -19,6 +26,10 @@ export default function ProductClient({ product }: { product: any }) {
 
   if (!isMounted) return null
 
+  // Helper to find stock for current selection
+  const selectedInventory = product.inventory?.find((i: any) => i.size === selectedSize);
+  const isOutOfStock = !selectedInventory || selectedInventory.stock <= 0;
+
   return (
     <div className="container mx-auto py-20 px-4 min-h-screen bg-white text-black">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -30,7 +41,6 @@ export default function ProductClient({ product }: { product: any }) {
               <img 
                 src={mainImage} 
                 alt={product.name} 
-                // CRITICAL: Bypasses the 403 Forbidden error for public users
                 crossOrigin="anonymous"
                 className="w-full h-full object-cover"
                 onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
@@ -54,7 +64,6 @@ export default function ProductClient({ product }: { product: any }) {
                 >
                   <img 
                     src={url} 
-                    // CRITICAL: Also needed for thumbnails
                     crossOrigin="anonymous"
                     className="w-full h-full object-cover" 
                     alt={`view ${idx + 1}`} 
@@ -66,7 +75,7 @@ export default function ProductClient({ product }: { product: any }) {
           )}
         </div>
 
-        {/* CONTENT SECTION stays the same */}
+        {/* CONTENT SECTION */}
         <div className="flex flex-col justify-center">
           <h1 className="text-4xl font-black uppercase tracking-tighter mb-2 leading-none">
             {product.name}
@@ -78,25 +87,34 @@ export default function ProductClient({ product }: { product: any }) {
               Select Size
             </h3>
             <div className="flex flex-wrap gap-2">
-              {product.sizes?.map((size: string) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setSelectedSize(size)}
-                  className={`border px-8 py-3 text-[10px] font-bold uppercase transition-all 
-                    ${selectedSize === size ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-200 hover:border-black'}`}
-                >
-                  {size}
-                </button>
-              ))}
+              {/* FIXED: Mapping through 'inventory' array instead of 'sizes' */}
+              {product.inventory?.map((item: any) => {
+                const outOfStock = item.stock <= 0;
+                return (
+                  <button
+                    key={item.size}
+                    type="button"
+                    disabled={outOfStock}
+                    onClick={() => setSelectedSize(item.size)}
+                    className={`border px-8 py-3 text-[10px] font-bold uppercase transition-all 
+                      ${selectedSize === item.size 
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-white text-black border-gray-200 hover:border-black'
+                      } ${outOfStock ? 'opacity-30 cursor-not-allowed line-through border-dashed' : ''}`}
+                  >
+                    {item.size} {outOfStock && "(Sold Out)"}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
           <button 
             type="button"
-            disabled={!selectedSize}
+            // Button is disabled if no size is picked OR if the pick is out of stock
+            disabled={!selectedSize || isOutOfStock}
             onClick={() => {
-              if (!selectedSize) return;
+              if (!selectedSize || isOutOfStock) return;
               addItem({ 
                 id: product.id, 
                 name: product.name, 
@@ -108,7 +126,7 @@ export default function ProductClient({ product }: { product: any }) {
             }}
             className="w-full md:w-64 py-5 bg-black text-white text-[10px] uppercase tracking-[0.3em] font-black disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            {selectedSize ? 'Add to Bag' : 'Select a Size'}
+            {isOutOfStock ? 'Out of Stock' : (selectedSize ? 'Add to Bag' : 'Select a Size')}
           </button>
         </div>
       </div>
