@@ -47,23 +47,26 @@ export default function Checkout() {
     const formData = new FormData(e.currentTarget)
     const fullAddress = `${formData.get('street')}, ${formData.get('area')}, ${formData.get('district')} - ${formData.get('zip')}`
     const phone = formData.get('phone')
-
-    // If guest, we send an empty string or null since Payload field is no longer required.
-    // This removes the need for "fake" guest emails.
     const finalEmail = user ? user.email : ""
 
+    // FIX: Ensure 'product' is ONLY an ID string. 
+    // If your cart 'item.id' is an object, this will extract the string ID.
     const orderData = {
       customerName: formData.get('name'),
       email: finalEmail,
       phone: phone,
       address: fullAddress,
-      items: items.map((item: any) => ({
-        product: item.id,
-        quantity: item.quantity || 1,
-        size: item.size,
-      })),
-      totalAmount: total,
-      deliveryCharge: deliveryCharge,
+      items: items.map((item: any) => {
+        // Defensive check: if item.id is an object, try to get item.id.id
+        const productId = typeof item.id === 'object' ? item.id.id : item.id;
+        return {
+          product: productId,
+          quantity: Number(item.quantity) || 1,
+          size: item.size,
+        };
+      }),
+      totalAmount: Number(total),
+      deliveryCharge: Number(deliveryCharge),
       status: 'pending',
     }
 
@@ -79,7 +82,8 @@ export default function Checkout() {
         router.push('/order-success')
       } else {
         const errorData = await res.json()
-        alert(`Error: ${errorData.error || 'Failed to sync to Admin Panel.'}`)
+        // This will now show the specific Payload validation error if it fails
+        alert(`Error: ${JSON.stringify(errorData.error) || 'Failed to sync to Admin Panel.'}`)
       }
     } catch (err) {
       alert('Network error. Please try again.')
@@ -99,7 +103,6 @@ export default function Checkout() {
           <div>
             <h1 className="text-3xl font-black uppercase tracking-tighter mb-8 text-black">Shipping Details</h1>
             <form onSubmit={handleConfirmOrder} id="checkout-form" className="space-y-6">
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Full Name</label>
@@ -111,7 +114,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Only show email if user is logged in. No 'required' attribute for guests. */}
               {user && (
                 <div className="group animate-in fade-in duration-500">
                   <label className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1 block">Account Email</label>
