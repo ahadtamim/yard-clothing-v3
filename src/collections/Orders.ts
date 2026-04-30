@@ -12,6 +12,23 @@ export const Orders: CollectionConfig = {
       ({ data, operation }) => {
         if (operation === 'create') {
           const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+          
+          // 1. Sanitize the items array to prevent relationship validation errors
+          if (Array.isArray(data?.items)) {
+            data.items = data.items.map((item: any) => {
+              let productId = item.product || item.id;
+
+              if (typeof productId === 'object' && productId !== null) {
+                productId = productId.id || productId._id || productId;
+              }
+
+              return {
+                ...item,
+                product: String(productId).trim(), // Ensure relationship uses a clean string
+              };
+            });
+          }
+
           return {
             ...data,
             orderID: `YRD-${Date.now().toString().slice(-4)}-${randomSuffix}`,
@@ -20,7 +37,7 @@ export const Orders: CollectionConfig = {
         return data
       },
     ],
-    // NEW: Automatically reduce stock after an order is placed
+    // Automatically reduce stock after an order is placed
     afterChange: [
       async ({ doc, operation, req }) => {
         if (operation === 'create') {
@@ -31,7 +48,6 @@ export const Orders: CollectionConfig = {
               id: item.product,
             });
 
-            // FIX 1: Cast product to 'any' to read the new inventory field
             const productData = product as any;
 
             if (productData && productData.inventory) {
@@ -43,7 +59,7 @@ export const Orders: CollectionConfig = {
                 return inv;
               });
 
-              // FIX 2: Cast the update call to 'any' to stop the Vercel build from crashing
+              // Cast the update call to 'any' to stop the Vercel build from crashing
               await (req.payload.update as any)({
                 collection: 'products',
                 id: item.product,
@@ -80,7 +96,12 @@ export const Orders: CollectionConfig = {
       name: 'items',
       type: 'array',
       fields: [
-        { name: 'product', type: 'relationship', relationTo: 'products', required: true },
+        { 
+          name: 'product', 
+          type: 'relationship', 
+          relationTo: 'products', 
+          required: true 
+        },
         { name: 'quantity', type: 'number', defaultValue: 1 },
         { name: 'size', type: 'text' },
       ],
