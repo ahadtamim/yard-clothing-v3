@@ -31,30 +31,43 @@ export const Products: CollectionConfig = {
       label: 'Product Description',
     },
     {
-      type: 'row',
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'categories',
+      required: true,
+    },
+    // CHANGED: Sizes is now an array to track inventory per size
+    {
+      name: 'inventory',
+      label: 'Sizes & Stock Levels',
+      type: 'array',
+      required: true,
       fields: [
         {
-          name: 'category',
-          type: 'relationship',
-          relationTo: 'categories',
-          required: true,
-          admin: { width: '50%' },
-        },
-        {
-          name: 'sizes',
-          type: 'select',
-          hasMany: true,
-          required: true,
-          label: 'Available Sizes',
-          options: [
-            { label: 'S', value: 's' },
-            { label: 'M', value: 'm' },
-            { label: 'L', value: 'l' },
-            { label: 'XL', value: 'xl' },
-            { label: 'XXL', value: 'xxl' },
-            { label: 'Unstitched', value: 'unstitched' }, // Added this option
+          type: 'row',
+          fields: [
+            {
+              name: 'size',
+              type: 'select',
+              options: [
+                { label: 'S', value: 's' },
+                { label: 'M', value: 'm' },
+                { label: 'L', value: 'l' },
+                { label: 'XL', value: 'xl' },
+                { label: 'XXL', value: 'xxl' },
+                { label: 'Unstitched', value: 'unstitched' },
+              ],
+              admin: { width: '50%' },
+            },
+            {
+              name: 'stock',
+              type: 'number',
+              label: 'Stock Quantity',
+              required: true,
+              defaultValue: 0,
+              admin: { width: '50%' },
+            },
           ],
-          admin: { width: '50%' },
         },
       ],
     },

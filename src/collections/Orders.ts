@@ -4,7 +4,7 @@ export const Orders: CollectionConfig = {
   slug: 'orders',
   admin: {
     useAsTitle: 'orderID',
-    description: 'Manage customer orders and download monthly sales reports.',
+    description: 'Manage customer orders and inventory auto-reduction.',
     defaultColumns: ['orderID', 'customerName', 'totalAmount', 'status', 'createdAt'],
   },
   hooks: {
@@ -20,49 +20,53 @@ export const Orders: CollectionConfig = {
         return data
       },
     ],
+    // NEW: Automatically reduce stock after an order is placed
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        if (operation === 'create') {
+          for (const item of doc.items) {
+            const product = await req.payload.findByID({
+              collection: 'products',
+              id: item.product,
+            });
+
+            // Update the inventory array by subtracting the bought quantity
+            const updatedInventory = product.inventory.map((inv: any) => {
+              if (inv.size === item.size) {
+                return { ...inv, stock: Math.max(0, inv.stock - item.quantity) };
+              }
+              return inv;
+            });
+
+            await req.payload.update({
+              collection: 'products',
+              id: item.product,
+              data: { inventory: updatedInventory },
+            });
+          }
+        }
+      },
+    ],
   },
   fields: [
     {
       name: 'orderID',
       type: 'text',
       label: 'Order ID',
-      admin: {
-        readOnly: true,
-        position: 'sidebar',
-      },
+      admin: { readOnly: true, position: 'sidebar' },
     },
     {
       name: 'exportOrders',
       type: 'ui',
       admin: {
-        components: {
-          Field: '/components/ExportButton#ExportButton', 
-        },
+        components: { Field: '/components/ExportButton#ExportButton' },
         position: 'sidebar',
       },
     },
-    {
-      name: 'customerName',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'email',
-      type: 'email',
-      // Set to false to allow guest checkout without an email input
-      required: false,
-      unique: false,
-    },
-    {
-      name: 'phone',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'address',
-      type: 'textarea',
-      required: true,
-    },
+    { name: 'customerName', type: 'text', required: true },
+    { name: 'email', type: 'email', required: false },
+    { name: 'phone', type: 'text', required: true },
+    { name: 'address', type: 'textarea', required: true },
     {
       name: 'items',
       type: 'array',
@@ -72,19 +76,8 @@ export const Orders: CollectionConfig = {
         { name: 'size', type: 'text' },
       ],
     },
-    {
-      name: 'deliveryCharge',
-      type: 'number',
-      required: true,
-      admin: {
-        description: '60 for Inside Dhaka, 120 for Outside Dhaka'
-      }
-    },
-    {
-      name: 'totalAmount',
-      type: 'number',
-      required: true,
-    },
+    { name: 'deliveryCharge', type: 'number', required: true },
+    { name: 'totalAmount', type: 'number', required: true },
     {
       name: 'status',
       type: 'select',
