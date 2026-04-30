@@ -102,11 +102,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 // Safety: Check if URL exists before creating Metadata object
 const serverUrl = getServerSideURL()
 
+// --- METADATA FIXES START HERE ---
 export const metadata: Metadata = {
   metadataBase: serverUrl ? new URL(serverUrl) : new URL('https://yard-clothing-v3.vercel.app'),
-  openGraph: mergeOpenGraph(),
+  title: {
+    template: '%s | Yard Clothing',
+    default: 'Yard Clothing | Premium Street Aesthetics',
+  },
+  description: 'Premium streetwear and aesthetics designed and built in Dhaka.',
+  openGraph: mergeOpenGraph({
+    title: 'Yard Clothing',
+    description: 'Premium streetwear and aesthetics designed and built in Dhaka.',
+    url: '/',
+    siteName: 'Yard Clothing',
+  }),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
+    creator: '@yardclothing', // Update this to your handle or remove it
   },
 }
