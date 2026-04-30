@@ -55,14 +55,14 @@ export default function Checkout() {
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        // Defensive extraction for the database
+        // Defensive extraction to ensure only a 24-char ID string is passed
         let productId = item.id;
         if (typeof item.id === 'object') {
           productId = item.id.id || item.id._id || item.id;
         }
         
         return {
-          product: String(productId), 
+          product: String(productId), // Forces string casting and prevents object structures
           quantity: Number(item.quantity) || 1,
           size: item.size,
         };
