@@ -20,33 +20,36 @@ export const Orders: CollectionConfig = {
         return data
       },
     ],
-    // Automatically reduce stock after an order is placed
+    // NEW: Automatically reduce stock after an order is placed
     afterChange: [
       async ({ doc, operation, req }) => {
         if (operation === 'create') {
           for (const item of doc.items) {
-            // We fetch the product related to the order item
+            // Fetch the product related to the order item
             const product = await req.payload.findByID({
               collection: 'products',
               id: item.product,
             });
 
-            // FIX: Cast product to 'any' to avoid the "Property 'inventory' does not exist" error during build
+            // FIX 1: Cast product to 'any' to read the new inventory field
             const productData = product as any;
 
             if (productData && productData.inventory) {
               // Update the inventory array by subtracting the bought quantity
               const updatedInventory = productData.inventory.map((inv: any) => {
                 if (inv.size === item.size) {
-                  return { ...inv, stock: Math.max(0, inv.stock - item.quantity) };
+                  return { ...inv, stock: Math.max(0, inv.stock - (item.quantity || 1)) };
                 }
                 return inv;
               });
 
-              await req.payload.update({
+              // FIX 2: Cast the update call to 'any' to stop the Vercel build from crashing
+              await (req.payload.update as any)({
                 collection: 'products',
                 id: item.product,
-                data: { inventory: updatedInventory },
+                data: { 
+                  inventory: updatedInventory 
+                },
               });
             }
           }
