@@ -22,6 +22,9 @@ export default function Checkout() {
 
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
     if (mounted && items.length === 0) {
       router.push('/')
     }
@@ -55,7 +58,6 @@ export default function Checkout() {
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        // Extract ID safely and prevent sending whole object reference
         let productId = item.id || item.product || item._id;
         if (typeof productId === 'object') {
           productId = productId.id || productId._id || '';
@@ -85,10 +87,10 @@ export default function Checkout() {
       } else {
         const errorData = await res.json()
         alert(`Error: ${errorData.error || 'Failed to submit order.'}`)
+        setLoading(false)
       }
     } catch (err) {
       alert('Network error. Please try again.')
-    } finally {
       setLoading(false)
     }
   }

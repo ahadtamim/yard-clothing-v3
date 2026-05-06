@@ -31,11 +31,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </main>
           
+          {/* Persistent Footer: Ensure no other component includes a footer */}
           <footer className="bg-black text-white pt-20 pb-10 px-6 sm:px-12 border-t border-white/5">
             <div className="max-w-7xl mx-auto w-full">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
-                
-                {/* 1. LOCATION / ADDRESS - Corrected Spelling */}
+                {/* 1. LOCATION / ADDRESS */}
                 <div className="space-y-6">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Location</h3>
                   <p className="text-[11px] leading-loose text-gray-400 uppercase tracking-widest max-w-[250px]">
@@ -59,10 +59,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         rel="noopener noreferrer"
                         className="text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-colors"
                       >
-                        Facebook —&gt;
+                        Facebook &rarr;
                       </a>
                       <a href="#" className="text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-colors">
-                        Instagram —&gt;
+                        Instagram &rarr;
                       </a>
                       <a 
                         href="https://wa.me/8801632235335" 
@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         rel="noopener noreferrer"
                         className="text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-colors"
                       >
-                        WhatsApp —&gt;
+                        WhatsApp &rarr;
                       </a>
                     </div>
                   </div>
@@ -88,7 +88,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
               <div className="border-t border-white/10 pt-8 text-center">
                 <p className="text-[9px] uppercase tracking-[0.5em] text-gray-600">
-                  © 2026 Yard Clothing. All Rights Reserved.
+                  &copy; 2026 Yard Clothing. All Rights Reserved.
                 </p>
               </div>
             </div>
@@ -99,7 +99,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   )
 }
 
-// Safety: Check if URL exists before creating Metadata object
 const serverUrl = getServerSideURL()
 
 export const metadata: Metadata = {
