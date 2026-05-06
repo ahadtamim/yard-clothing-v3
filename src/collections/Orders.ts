@@ -13,7 +13,6 @@ export const Orders: CollectionConfig = {
         if (operation === 'create') {
           const randomSuffix = Math.floor(1000 + Math.random() * 9000);
           
-          // 1. Sanitize the items array to prevent relationship validation errors
           if (Array.isArray(data?.items)) {
             data.items = data.items.map((item: any) => {
               let productId = item.product || item.id;
@@ -24,23 +23,21 @@ export const Orders: CollectionConfig = {
 
               return {
                 ...item,
-                product: String(productId).trim(), // Ensure relationship uses a clean string ID
+                product: String(productId).trim(),
               };
             });
           }
 
-          // 2. Assign orderID directly to data object
           data.orderID = `YRD-${Date.now().toString().slice(-4)}-${randomSuffix}`;
         }
         return data;
       },
     ],
-    // Automatically reduce stock after an order is placed
     afterChange: [
       async ({ doc, operation, req }) => {
         if (operation === 'create') {
           for (const item of doc.items) {
-            // Fetch the product related to the order item
+            // Find product by string ID
             const product = await req.payload.findByID({
               collection: 'products',
               id: item.product,
@@ -49,7 +46,6 @@ export const Orders: CollectionConfig = {
             const productData = product as any;
 
             if (productData && productData.inventory) {
-              // Update the inventory array by subtracting the bought quantity
               const updatedInventory = productData.inventory.map((inv: any) => {
                 if (inv.size === item.size) {
                   return { ...inv, stock: Math.max(0, inv.stock - (item.quantity || 1)) };
@@ -57,7 +53,6 @@ export const Orders: CollectionConfig = {
                 return inv;
               });
 
-              // Cast the update call to 'any' to stop the Vercel build from crashing
               await (req.payload.update as any)({
                 collection: 'products',
                 id: item.product,
@@ -96,8 +91,7 @@ export const Orders: CollectionConfig = {
       fields: [
         { 
           name: 'product', 
-          type: 'relationship', 
-          relationTo: 'products', 
+          type: 'text', // Text string for product ID
           required: true 
         },
         { name: 'quantity', type: 'number', defaultValue: 1 },
