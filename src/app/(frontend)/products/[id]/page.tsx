@@ -3,12 +3,18 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config'
 import { notFound } from 'next/navigation'
 import ProductClient from './ProductClient'
+import { Types } from 'mongoose'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const payload = await getPayloadHMR({ config: configPromise })
   const { id } = await params
+
+  // Validate if the ID is a valid MongoDB ObjectId before querying the database
+  if (!Types.ObjectId.isValid(id)) {
+    return notFound()
+  }
 
   const product = (await payload.findByID({
     collection: 'products',
