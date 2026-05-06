@@ -36,31 +36,35 @@ export const Orders: CollectionConfig = {
     afterChange: [
       async ({ doc, operation, req }) => {
         if (operation === 'create') {
-          for (const item of doc.items) {
-            // Find product by string ID
-            const product = await req.payload.findByID({
-              collection: 'products',
-              id: item.product,
-            });
-
-            const productData = product as any;
-
-            if (productData && productData.inventory) {
-              const updatedInventory = productData.inventory.map((inv: any) => {
-                if (inv.size === item.size) {
-                  return { ...inv, stock: Math.max(0, inv.stock - (item.quantity || 1)) };
-                }
-                return inv;
-              });
-
-              await (req.payload.update as any)({
+          try {
+            // Process the inventory asynchronously without blocking the response
+            for (const item of doc.items) {
+              const product = await req.payload.findByID({
                 collection: 'products',
                 id: item.product,
-                data: { 
-                  inventory: updatedInventory 
-                },
               });
+
+              const productData = product as any;
+
+              if (productData && productData.inventory) {
+                const updatedInventory = productData.inventory.map((inv: any) => {
+                  if (inv.size === item.size) {
+                    return { ...inv, stock: Math.max(0, inv.stock - (item.quantity || 1)) };
+                  }
+                  return inv;
+                });
+
+                await req.payload.update({
+                  collection: 'products',
+                  id: item.product,
+                  data: { 
+                    inventory: updatedInventory 
+                  },
+                });
+              }
             }
+          } catch (err) {
+            console.error('Error updating inventory in hook:', err);
           }
         }
       },
@@ -91,7 +95,7 @@ export const Orders: CollectionConfig = {
       fields: [
         { 
           name: 'product', 
-          type: 'text', // Text string for product ID
+          type: 'text',
           required: true 
         },
         { name: 'quantity', type: 'number', defaultValue: 1 },
