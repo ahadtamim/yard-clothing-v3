@@ -8,30 +8,26 @@ export async function POST(req: Request) {
     const payload = await getPayload({ config: configPromise })
     const data = await req.json()
 
-    // DEBUG: See exactly what is arriving at the server
     console.log('Order Data Received:', JSON.stringify(data, null, 2))
 
-    // 1. Defensively map and clean the items array
+    // Sanitize the items array
     const sanitizedItems = (data.items || []).map((item: any) => {
       let productId = item.product || item.id || item
 
-      // If it's a nested object, extract its ID
       if (typeof productId === 'object' && productId !== null) {
-        productId = productId.id || productId._id || productId._value || ''
+        // Extract ID if it's the full nested object
+        productId = productId.id || productId._id || ''
       }
 
       const finalProductId = String(productId).trim()
 
-      // Validate ObjectId
       if (!Types.ObjectId.isValid(finalProductId)) {
-        throw new Error(
-          `Invalid Product ID found in cart items: "${finalProductId}". Must be a valid ObjectId.`
-        )
+        throw new Error(`Invalid Product ID format: ${finalProductId}`)
       }
 
       return {
-        // Pass the string directly or instantiate a new Types.ObjectId
-        product: finalProductId,
+        // Explicitly format as a reference object if required by Payload/Mongoose, or a string
+        product: finalProductId, 
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       }
@@ -39,14 +35,16 @@ export async function POST(req: Request) {
 
     const payloadData = {
       ...data,
+      items: sanitizedItems,
+      // Ensure relations are saved as strings or proper ObjectIds in Payload
       district: data.district || 'N/A',
       area: data.area || 'N/A',
-      items: sanitizedItems,
     }
 
     const order = await payload.create({
       collection: 'orders',
       data: payloadData,
+      overrideAccess: true, // Prevents access control rejection
     })
 
     return NextResponse.json(order)
