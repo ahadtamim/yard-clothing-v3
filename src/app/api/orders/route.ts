@@ -1,6 +1,7 @@
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config'
 import { NextResponse } from 'next/server'
+import { Types } from 'mongoose'
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     console.log("Order Data Received:", JSON.stringify(data, null, 2))
 
     // 1. Defensively map and clean the items array
-    const sanitizedItems = data.items.map((item: any) => {
+    const sanitizedItems = (data.items || []).map((item: any) => {
       let productId = item.product || item.id || item;
       
       // If it's a nested object (e.g. { id: '...', name: '...' }), extract the ID string
@@ -24,8 +25,15 @@ export async function POST(req: Request) {
         productId = '';
       }
 
+      const finalProductId = String(productId).trim();
+
+      // Ensure the string is a valid MongoDB ObjectId
+      if (!Types.ObjectId.isValid(finalProductId)) {
+        throw new Error(`Invalid Product ID found in cart items: "${finalProductId}" is not a valid ObjectId`);
+      }
+
       return {
-        product: String(productId).trim(), // 2. Force conversion to string
+        product: finalProductId, // 2. Force conversion to string
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       };
