@@ -10,24 +10,19 @@ export async function POST(req: Request) {
 
     console.log('Order Data Received:', JSON.stringify(data, null, 2))
 
-    // Sanitize incoming item references
+    // 1. Sanitize incoming item references
     const sanitizedItems = (data.items || []).map((item: any) => {
       let productId = item.product || item.id || item
 
-      // If the product is being passed as an object, extract its ID
+      // If the product is an object, extract the ID and discard everything else
       if (typeof productId === 'object' && productId !== null) {
-        productId = productId.id || productId._id || productId._val || ''
+        productId = productId.id || productId._id || ''
       }
 
       const finalProductId = String(productId).trim()
 
-      // Ensure that ID is exactly 24 characters and is valid in MongoDB
-      if (!/^[0-9a-fA-F]{24}$/.test(finalProductId)) {
-        throw new Error(`Invalid Product ID format: ${finalProductId}`)
-      }
-
       return {
-        product: new Types.ObjectId(finalProductId),
+        product: constProductId, // Pass as a string for relationship validation
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       }
@@ -40,12 +35,9 @@ export async function POST(req: Request) {
       area: data.area || 'N/A',
     }
 
-    // Strip internal nested objects that trigger depth expansion failures
-    const cleanData = JSON.parse(JSON.stringify(payloadData))
-
     const order = await payload.create({
       collection: 'orders',
-      data: cleanData,
+      data: payloadData,
     })
 
     return NextResponse.json(order)
