@@ -27,13 +27,14 @@ export function AutoSlider({ slides }: { slides: any[] }) {
         <Link 
           key={slide.id} 
           href={slide.href} 
-          className="relative min-w-full h-full flex-shrink-0 group overflow-hidden"
+          className="relative min-w-full h-full flex-shrink-0 group overflow-hidden bg-neutral-900"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={slide.imgUrl}
             alt=""
             crossOrigin="anonymous" 
-            className="block absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000"
+            className="block absolute inset-0 w-full h-full object-contain md:object-cover md:object-center object-left opacity-80 group-hover:opacity-100 transition-all duration-1000"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
           <div className="absolute bottom-12 left-8 md:left-16 text-white">
