@@ -1,33 +1,28 @@
 import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import { NextResponse } from 'next/server'
-import { Types } from 'mongoose'
 
 export async function POST(req: Request) {
   try {
     const payload = await getPayload({ config: configPromise })
     const data = await req.json()
 
-    console.log('Order Data Received:', JSON.stringify(data, null, 2))
-
-    // 1. Sanitize incoming item references
+    // 1. Map items but ensure the product field is treated as a plain string ID
     const sanitizedItems = (data.items || []).map((item: any) => {
       let productId = item.product || item.id || item
 
-      // If the product is an object, extract the ID and discard everything else
       if (typeof productId === 'object' && productId !== null) {
         productId = productId.id || productId._id || ''
       }
 
-      const finalProductId = String(productId).trim()
-
       return {
-        product: finalProductId, // Pass as a string/object ID for relationship validation
+        product: String(productId).trim(), // Convert to primitive string
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       }
     })
 
+    // 2. Prepare order data
     const payloadData = {
       ...data,
       items: sanitizedItems,
@@ -35,9 +30,13 @@ export async function POST(req: Request) {
       area: data.area || 'N/A',
     }
 
+    // 3. Completely strip out any complex objects
+    const cleanData = JSON.parse(JSON.stringify(payloadData))
+
+    // 4. Create the order
     const order = await payload.create({
       collection: 'orders',
-      data: payloadData,
+      data: cleanData,
     })
 
     return NextResponse.json(order)
