@@ -2,6 +2,7 @@ import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config' 
 import Link from 'next/link'
+import { AutoSlider } from '@/components/AutoSlider' // We will create this next
 
 export const dynamic = 'force-dynamic'
 
@@ -39,39 +40,20 @@ export default async function HomePage() {
     return `${blobBase}/${fileName}`;
   }
 
+  // Map the banner data into clean, structured items for our interactive slideshow
+  const slides = (banner?.bestProducts || []).map((product: any) => ({
+    id: product?.id,
+    name: product?.name,
+    imgUrl: getFullImageUrl(product?.productImages?.[0]),
+    href: `/products/${product?.id}`
+  })).filter((slide: any) => slide.imgUrl !== null);
+
   return (
     <main className="min-h-screen bg-white">
-      {/* Banner Section - FIXED SLIDESHOW */}
+      {/* Banner Section - Safe & Clean Auto-Slider */}
       <section className="relative h-[65vh] md:h-[85vh] bg-black overflow-hidden">
-        {banner?.bestProducts?.length > 0 ? (
-          <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-            {banner.bestProducts.map((product: any) => {
-              const imgUrl = getFullImageUrl(product?.productImages?.[0]);
-              return (
-                <Link 
-                  key={product?.id} 
-                  href={`/products/${product?.id}`} 
-                  className="relative min-w-full h-full flex-shrink-0 snap-center group overflow-hidden border-r border-white/5"
-                >
-                  {imgUrl && (
-                    <img
-                      src={imgUrl}
-                      alt=""
-                      crossOrigin="anonymous" 
-                      className="block absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                  <div className="absolute bottom-12 left-8 md:left-16 text-white">
-                    <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">
-                      {product?.name}
-                    </h2>
-                    <p className="text-xs uppercase tracking-[0.3em] opacity-60">Featured Collection</p>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+        {slides.length > 0 ? (
+          <AutoSlider slides={slides} />
         ) : (
           <div className="flex items-center justify-center h-full w-full">
             <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing</div>
