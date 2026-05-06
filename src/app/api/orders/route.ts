@@ -33,7 +33,8 @@ export async function POST(req: Request) {
       }
 
       return {
-        product: finalProductId, // 2. Force conversion to string
+        // Mongoose/Payload expects the ID to be an ObjectId or properly formatted string reference
+        product: new Types.ObjectId(finalProductId), 
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       };
