@@ -24,17 +24,15 @@ export const Orders: CollectionConfig = {
 
               return {
                 ...item,
-                product: String(productId).trim(), // Ensure relationship uses a clean string
+                product: String(productId).trim(), // Ensure relationship uses a clean string ID
               };
             });
           }
 
-          return {
-            ...data,
-            orderID: `YRD-${Date.now().toString().slice(-4)}-${randomSuffix}`,
-          }
+          // 2. Assign orderID directly to data object
+          data.orderID = `YRD-${Date.now().toString().slice(-4)}-${randomSuffix}`;
         }
-        return data
+        return data;
       },
     ],
     // Automatically reduce stock after an order is placed
