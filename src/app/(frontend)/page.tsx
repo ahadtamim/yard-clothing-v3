@@ -86,36 +86,6 @@ export default async function HomePage() {
           })}
         </div>
       </section>
-
-      {/* Footer / Address Section - Fixed Single Location Rendered Only Once */}
-      <footer className="bg-black text-white py-12 px-6 border-t border-white/10">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase mb-4 text-gray-200">Location</h3>
-            <p className="text-xs text-gray-400 uppercase tracking-wider leading-relaxed">
-              House No-64, Dokhingaon, <br />
-              Nondipara Main Road <br />
-              (Beside Masjid-A-Nur)
-            </p>
-          </div>
-          <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase mb-4 text-gray-200">Contact</h3>
-            <p className="text-xs text-gray-400 tracking-wider mb-2">+880 1632-235335</p>
-            <div className="flex flex-col gap-1 mt-4">
-              <a href="#" className="text-[10px] uppercase text-gray-500 hover:text-white">Facebook →</a>
-              <a href="#" className="text-[10px] uppercase text-gray-500 hover:text-white">Instagram →</a>
-              <a href="#" className="text-[10px] uppercase text-gray-500 hover:text-white">WhatsApp →</a>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase mb-2 text-gray-200">Yard Clothing</h3>
-            <p className="text-[10px] text-gray-500 leading-relaxed">
-              Crafting premium streetwear. <br />
-              Designed and built in Bangladesh.
-            </p>
-          </div>
-        </div>
-      </footer>
     </main>
   )
 }
