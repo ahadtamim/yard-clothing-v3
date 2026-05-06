@@ -37,8 +37,8 @@ export const Orders: CollectionConfig = {
       async ({ doc, operation, req }) => {
         if (operation === 'create') {
           try {
-            // Process the inventory asynchronously without blocking the response
             for (const item of doc.items) {
+              // Find product by string ID
               const product = await req.payload.findByID({
                 collection: 'products',
                 id: item.product,
@@ -54,13 +54,14 @@ export const Orders: CollectionConfig = {
                   return inv;
                 });
 
+                // Force casting as any to bypass static type validation constraints
                 await req.payload.update({
                   collection: 'products',
                   id: item.product,
                   data: { 
                     inventory: updatedInventory 
                   },
-                });
+                } as any);
               }
             }
           } catch (err) {
@@ -95,7 +96,7 @@ export const Orders: CollectionConfig = {
       fields: [
         { 
           name: 'product', 
-          type: 'text',
+          type: 'text', // String representation to prevent deep Mongoose casting errors
           required: true 
         },
         { name: 'quantity', type: 'number', defaultValue: 1 },
