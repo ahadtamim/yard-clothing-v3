@@ -21,20 +21,19 @@ export async function POST(req: Request) {
       }
 
       // If the resulting value is still an object or invalid, fallback to an empty string
-      if (typeof productId === 'object') {
+      if (typeof productId === 'object' || productId === undefined) {
         productId = '';
       }
 
       const finalProductId = String(productId).trim();
 
-      // Ensure the string is a valid MongoDB ObjectId
-      if (!Types.ObjectId.isValid(finalProductId)) {
-        throw new Error(`Invalid Product ID found in cart items: "${finalProductId}" is not a valid ObjectId`);
+      // Ensure the string is a valid 24-character hex string before instantiating ObjectId
+      if (!Types.ObjectId.isValid(finalProductId) || finalProductId.length !== 24) {
+        throw new Error(`Invalid Product ID found in cart: "${finalProductId}" is not a valid 24-character hex string`);
       }
 
       return {
-        // Mongoose/Payload expects the ID to be an ObjectId or properly formatted string reference
-        product: new Types.ObjectId(finalProductId), 
+        product: new Types.ObjectId(finalProductId),
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       };
@@ -43,6 +42,8 @@ export async function POST(req: Request) {
     // 3. Create the payload data object with sanitized items
     const payloadData = {
       ...data,
+      district: data.district || 'N/A',
+      area: data.area || 'N/A',
       items: sanitizedItems,
     };
 
