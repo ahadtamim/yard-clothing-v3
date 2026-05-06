@@ -55,9 +55,10 @@ export default function Checkout() {
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        let productId = item.id || item.product;
+        // Extract ID safely and prevent sending whole object reference
+        let productId = item.id || item.product || item._id;
         if (typeof productId === 'object') {
-          productId = productId.id || productId._id || productId;
+          productId = productId.id || productId._id || '';
         }
         
         return {
@@ -72,7 +73,7 @@ export default function Checkout() {
     }
 
     try {
-      const res = await fetch('/api/orders', { // Updated from /checkout to /orders
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),

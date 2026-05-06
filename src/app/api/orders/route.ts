@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       let productId = item.product || item.id || item
 
       if (typeof productId === 'object' && productId !== null) {
-        productId = productId.id || productId._id || ''
+        productId = productId.id || productId._id || productId || ''
       }
 
       const finalProductId = String(productId).trim()
