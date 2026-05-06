@@ -14,8 +14,9 @@ export async function POST(req: Request) {
     const sanitizedItems = (data.items || []).map((item: any) => {
       let productId = item.product || item.id || item
 
+      // If the product is being passed as an object, extract its ID
       if (typeof productId === 'object' && productId !== null) {
-        productId = productId.id || productId._id || productId || ''
+        productId = productId.id || productId._id || productId._val || ''
       }
 
       const finalProductId = String(productId).trim()
