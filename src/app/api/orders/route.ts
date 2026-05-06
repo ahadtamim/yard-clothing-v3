@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       const finalProductId = String(productId).trim()
 
       return {
-        product: constProductId, // Pass as a string for relationship validation
+        product: finalProductId, // Pass as a string/object ID for relationship validation
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       }
