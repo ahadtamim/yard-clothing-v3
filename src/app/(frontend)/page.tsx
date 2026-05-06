@@ -27,52 +27,55 @@ export default async function HomePage() {
   const getFullImageUrl = (img: any) => {
     if (!img) return null;
     
-    // 1. Extract the raw string path or filename from Payload
     let path = typeof img === 'string' ? img : (img?.url || img?.image?.url || img?.filename || "");
     if (!path) return null;
 
-    // 2. If it's already a full HTTPS link to your blob storage, use it directly
     if (path.includes('public.blob.vercel-storage.com')) return path;
 
-    // 3. THE CLEANER: Extract just the filename (e.g. "shirt.png")
-    // This removes "/api/media/file/" which causes 403 errors for public users
     const fileName = path.split('/').pop(); 
     if (!fileName) return null;
 
-    // 4. Force the Verified Public Base URL
     const blobBase = 'https://zjxiyg6t5n64z1cj.public.blob.vercel-storage.com';
     return `${blobBase}/${fileName}`;
   }
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Banner Section */}
-      <section className="relative h-[65vh] md:h-[85vh] bg-black overflow-hidden flex items-center justify-center">
+      {/* Banner Section - FIXED SLIDESHOW */}
+      <section className="relative h-[65vh] md:h-[85vh] bg-black overflow-hidden">
         {banner?.bestProducts?.length > 0 ? (
-          <div className="flex w-full h-full">
+          <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide">
             {banner.bestProducts.map((product: any) => {
               const imgUrl = getFullImageUrl(product?.productImages?.[0]);
               return (
-                <Link key={product?.id} href={`/products/${product?.id}`} className="relative flex-1 group overflow-hidden border-r border-white/5">
+                <Link 
+                  key={product?.id} 
+                  href={`/products/${product?.id}`} 
+                  className="relative min-w-full h-full flex-shrink-0 snap-center group overflow-hidden border-r border-white/5"
+                >
                   {imgUrl && (
                     <img
                       src={imgUrl}
                       alt=""
-                      // Tells the browser to fetch this as a public asset without admin cookies
                       crossOrigin="anonymous" 
                       className="block absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-1000"
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                  <div className="absolute bottom-8 left-8 text-white">
-                    <h2 className="text-xl font-black uppercase tracking-tighter leading-none">{product?.name}</h2>
+                  <div className="absolute bottom-12 left-8 md:left-16 text-white">
+                    <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">
+                      {product?.name}
+                    </h2>
+                    <p className="text-xs uppercase tracking-[0.3em] opacity-60">Featured Collection</p>
                   </div>
                 </Link>
               )
             })}
           </div>
         ) : (
-          <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing</div>
+          <div className="flex items-center justify-center h-full w-full">
+            <div className="text-white/20 uppercase tracking-[1em] text-[10px]">Yard Clothing</div>
+          </div>
         )}
       </section>
 
