@@ -55,14 +55,13 @@ export default function Checkout() {
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        // Defensive extraction to ensure only a 24-char ID string is passed
         let productId = item.id;
         if (typeof item.id === 'object') {
           productId = item.id.id || item.id._id || item.id;
         }
         
         return {
-          product: String(productId), // Forces string casting and prevents object structures
+          product: String(productId), 
           quantity: Number(item.quantity) || 1,
           size: item.size,
         };
@@ -73,7 +72,7 @@ export default function Checkout() {
     }
 
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch('/api/checkout', { // Ensure your endpoint path matches your route
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
@@ -84,7 +83,7 @@ export default function Checkout() {
         router.push('/order-success')
       } else {
         const errorData = await res.json()
-        alert(`Error: ${JSON.stringify(errorData.error) || 'Failed to sync to Admin Panel.'}`)
+        alert(`Error: ${errorData.error || 'Failed to submit order.'}`)
       }
     } catch (err) {
       alert('Network error. Please try again.')
