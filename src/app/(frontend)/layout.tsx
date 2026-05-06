@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Location</h3>
                   <p className="text-[11px] leading-loose text-gray-400 uppercase tracking-widest max-w-[250px]">
                     House no-64, Dokhingaon,<br />
-                    Nodipara Main Road<br />
+                    Nondipara Main Road<br />
                     (Beside Masjid-a-Nur)
                   </p>
                 </div>
