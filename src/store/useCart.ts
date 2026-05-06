@@ -5,8 +5,8 @@ interface CartItem {
   id: string
   name: string
   price: number
-  image: string // Consistent with your CartPage.tsx usage
-  size: string  // Using 'size' to match your removeItem calls
+  image: string
+  size: string
   quantity: number
 }
 
@@ -25,10 +25,14 @@ export const useCart = create<CartState>()(
       // Adds a product to the bag with defensive ID cleaning
       addItem: (product, size) => 
         set((state) => {
-          // 1. EXTRACT THE ID: Ensure we get the string, not the full object
-          const cleanId = typeof product.id === 'object' 
-            ? (product.id.id || product.id._id || product.id) 
-            : (product.id || product._id);
+          // 1. EXTRACT THE ID: Ensure we get a proper 24-character string, not a nested object
+          let cleanId = typeof product.id === 'object' 
+            ? (product.id?.id || product.id?._id || product.id) 
+            : (product.id || product._id || '');
+          
+          if (cleanId && typeof cleanId === 'object') {
+            cleanId = Object.values(cleanId)[0] || '';
+          }
 
           // 2. EXTRACT THE IMAGE: Handle single string or array
           const cleanImage = Array.isArray(product.productImages) 
@@ -36,10 +40,10 @@ export const useCart = create<CartState>()(
             : (product.image || product.productImages || '/placeholder.jpg');
 
           const newItem: CartItem = {
-            id: String(cleanId), // Force to string
+            id: String(cleanId).trim(), // Force to string
             name: product.name,
             price: Number(product.price),
-            image: cleanImage,
+            image: String(cleanImage),
             size: size,
             quantity: 1
           };
