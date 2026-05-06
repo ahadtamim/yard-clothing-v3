@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
     console.log('Order Data Received:', JSON.stringify(data, null, 2))
 
-    // 1. Sanitize incoming item references
+    // Sanitize incoming item references
     const sanitizedItems = (data.items || []).map((item: any) => {
       let productId = item.product || item.id || item
 
@@ -39,9 +39,12 @@ export async function POST(req: Request) {
       area: data.area || 'N/A',
     }
 
+    // Strip internal nested objects that trigger depth expansion failures
+    const cleanData = JSON.parse(JSON.stringify(payloadData))
+
     const order = await payload.create({
       collection: 'orders',
-      data: payloadData,
+      data: cleanData,
     })
 
     return NextResponse.json(order)
