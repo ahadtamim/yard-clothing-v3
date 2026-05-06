@@ -13,7 +13,7 @@ export function AutoSlider({ slides }: { slides: any[] }) {
       setCurrentIndex((prevIndex) => 
         prevIndex === slides.length - 1 ? 0 : prevIndex + 1
       )
-    }, 3000) // Explicitly slides every 3 seconds
+    }, 3000) // Slide interval: 3 seconds
 
     return () => clearInterval(interval)
   }, [slides.length])

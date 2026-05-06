@@ -2,7 +2,7 @@ import React from 'react'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@/payload.config' 
 import Link from 'next/link'
-import { AutoSlider } from '@/components/AutoSlider' // We will create this next
+import { AutoSlider } from '@/components/AutoSlider'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +40,6 @@ export default async function HomePage() {
     return `${blobBase}/${fileName}`;
   }
 
-  // Map the banner data into clean, structured items for our interactive slideshow
   const slides = (banner?.bestProducts || []).map((product: any) => ({
     id: product?.id,
     name: product?.name,
@@ -50,7 +49,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Banner Section - Safe & Clean Auto-Slider */}
+      {/* Banner Section - Auto Slider Component */}
       <section className="relative h-[65vh] md:h-[85vh] bg-black overflow-hidden">
         {slides.length > 0 ? (
           <AutoSlider slides={slides} />
@@ -87,6 +86,18 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+
+      {/* Footer / Address Section with corrected "Nondipara" spelling */}
+      <footer className="bg-black text-white py-12 px-6">
+        <div className="container mx-auto">
+          <h3 className="text-sm font-bold tracking-widest uppercase mb-4">Location</h3>
+          <p className="text-xs text-gray-400 uppercase tracking-wider">
+            House No-64, Dokhingaon, <br />
+            Nondipara Main Road <br />
+            (Beside Masjid-A-Nur)
+          </p>
+        </div>
+      </footer>
     </main>
   )
 }
