@@ -35,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="max-w-7xl mx-auto w-full">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
                 
-                {/* 1. LOCATION / ADDRESS */}
+                {/* 1. LOCATION / ADDRESS - Corrected Spelling */}
                 <div className="space-y-6">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Location</h3>
                   <p className="text-[11px] leading-loose text-gray-400 uppercase tracking-widest max-w-[250px]">
@@ -102,7 +102,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 // Safety: Check if URL exists before creating Metadata object
 const serverUrl = getServerSideURL()
 
-// --- METADATA FIXES START HERE ---
 export const metadata: Metadata = {
   metadataBase: serverUrl ? new URL(serverUrl) : new URL('https://yard-clothing-v3.vercel.app'),
   title: {
@@ -118,6 +117,6 @@ export const metadata: Metadata = {
   }),
   twitter: {
     card: 'summary_large_image',
-    creator: '@yardclothing', // Update this to your handle or remove it
+    creator: '@yardclothing',
   },
 }
