@@ -22,10 +22,8 @@ export const useCart = create<CartState>()(
     (set) => ({
       items: [],
 
-      // Adds a product to the bag with defensive ID cleaning
       addItem: (product, size) => 
         set((state) => {
-          // 1. EXTRACT THE ID: Ensure we get a proper 24-character string, not a nested object
           let cleanId = typeof product.id === 'object' 
             ? (product.id?.id || product.id?._id || product.id) 
             : (product.id || product._id || '');
@@ -34,13 +32,12 @@ export const useCart = create<CartState>()(
             cleanId = Object.values(cleanId)[0] || '';
           }
 
-          // 2. EXTRACT THE IMAGE: Handle single string or array
           const cleanImage = Array.isArray(product.productImages) 
             ? product.productImages[0] 
             : (product.image || product.productImages || '/placeholder.jpg');
 
           const newItem: CartItem = {
-            id: String(cleanId).trim(), // Force to string
+            id: String(cleanId).trim(),
             name: product.name,
             price: Number(product.price),
             image: String(cleanImage),
@@ -48,7 +45,6 @@ export const useCart = create<CartState>()(
             quantity: 1
           };
 
-          // 3. CHECK FOR DUPLICATES: Update quantity if same ID and Size
           const existingItemIndex = state.items.findIndex(
             (item) => item.id === newItem.id && item.size === size
           );
@@ -62,13 +58,11 @@ export const useCart = create<CartState>()(
           return { items: [...state.items, newItem] };
         }),
 
-      // Removes a specific item by its string ID and Size
       removeItem: (id, size) =>
         set((state) => ({
           items: state.items.filter((item) => !(item.id === id && item.size === size))
         })),
 
-      // Empties the whole bag after successful checkout
       clearCart: () => set({ items: [] }),
     }),
     { 
