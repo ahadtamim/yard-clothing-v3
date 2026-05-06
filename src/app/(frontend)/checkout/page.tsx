@@ -55,9 +55,9 @@ export default function Checkout() {
       phone: phone,
       address: fullAddress,
       items: items.map((item: any) => {
-        let productId = item.id;
-        if (typeof item.id === 'object') {
-          productId = item.id.id || item.id._id || item.id;
+        let productId = item.id || item.product;
+        if (typeof productId === 'object') {
+          productId = productId.id || productId._id || productId;
         }
         
         return {
@@ -72,7 +72,7 @@ export default function Checkout() {
     }
 
     try {
-      const res = await fetch('/api/checkout', { // Ensure your endpoint path matches your route
+      const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),

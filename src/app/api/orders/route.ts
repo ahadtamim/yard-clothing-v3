@@ -20,13 +20,17 @@ export async function POST(req: Request) {
 
       const finalProductId = String(productId).trim()
 
-      if (!Types.ObjectId.isValid(finalProductId)) {
-        throw new Error(`Invalid Product ID format: ${finalProductId}`)
+      // Ensure that ID is exactly 24 characters and matches the hex format
+      // If it doesn't match, we won't instantiate a new Types.ObjectId manually.
+      let productReference: any = finalProductId
+      if (/^[0-9a-fA-F]{24}$/.test(finalProductId)) {
+        productReference = new Types.ObjectId(finalProductId)
+      } else {
+        throw new Error(`Invalid Product ID format: "${finalProductId}". Must be a 24 character hex string.`)
       }
 
       return {
-        // Enforce the field to be a valid Mongoose ObjectId wrapper object
-        product: new Types.ObjectId(finalProductId),
+        product: productReference,
         quantity: Number(item.quantity) || 1,
         size: item.size || item.selectedSize || 'N/A',
       }
